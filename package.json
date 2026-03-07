@@ -1,0 +1,49 @@
+{
+	"name": "bun-react-template",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"generate-routes": "tsr generate",
+		"watch-routes": "tsr watch",
+		"dev": "bun run generate-routes && bun --hot src/backend/index.ts",
+		"build": "bun run generate-routes && bun build --compile --target bun --outfile server src/backend/index.ts",
+		"start": "NODE_ENV=production bun dist/index.ts",
+		"test": "bun test",
+		"lint": "bunx --bun @biomejs/biome check --write"
+	},
+	"dependencies": {
+		"@elysiajs/eden": "^1.4.8",
+		"@elysiajs/static": "^1.4.7",
+		"@mantine/carousel": "^8.3.16",
+		"@mantine/charts": "^8.3.16",
+		"@mantine/core": "^8.3.16",
+		"@mantine/dates": "^8.3.16",
+		"@mantine/dropzone": "^8.3.16",
+		"@mantine/form": "^8.3.16",
+		"@mantine/hooks": "^8.3.16",
+		"@mantine/modals": "^8.3.16",
+		"@mantine/notifications": "^8.3.16",
+		"@mantine/spotlight": "^8.3.16",
+		"@tanstack/react-router": "^1.166.2",
+		"@tanstack/react-router-devtools": "^1.166.2",
+		"dayjs": "^1.11.19",
+		"elysia": "^1.4.27",
+		"embla-carousel": "^8.6.0",
+		"embla-carousel-react": "^8.6.0",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4",
+		"recharts": "^3.8.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.6",
+		"@tanstack/router-cli": "^1.166.2",
+		"@tanstack/router-plugin": "^1.166.2",
+		"@types/bun": "latest",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"postcss": "^8.5.8",
+		"postcss-preset-mantine": "^1.18.0",
+		"postcss-simple-vars": "^7.0.1"
+	}
+}
