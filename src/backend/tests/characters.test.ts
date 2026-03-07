@@ -1,60 +1,76 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test"
 import { Elysia } from "elysia"
+import { clearAll, createTestDb } from "./testDb"
 
-const mockDb = mock()
-mock.module("@/backend/db", () => ({ db: mockDb }))
+const { sqlite, db } = createTestDb()
+mock.module("@/backend/db", () => ({ db }))
 
 const { charactersController } = await import("../characters")
 const app = new Elysia().use(charactersController)
 
-const mockCharacter = { id: 1, name: "Gojo Satoru", series_id: 1 }
-
 describe("Characters Controller", () => {
-	beforeEach(() => mockDb.mockReset())
+	beforeEach(() => clearAll(sqlite))
 
 	test("GET /characters returns all characters", async () => {
-		mockDb.mockResolvedValue([mockCharacter])
-		const res = await app.handle(new Request("http://localhost/characters"))
+		const { lastInsertRowid: seriesId } = sqlite.run(
+			"INSERT INTO series (name) VALUES (?)",
+			["Jujutsu Kaisen"],
+		)
+		sqlite.run("INSERT INTO characters (name, series_id) VALUES (?, ?)", [
+			"Gojo Satoru",
+			seriesId,
+		])
+		sqlite.run("INSERT INTO characters (name, series_id) VALUES (?, ?)", [
+			"Yuji Itadori",
+			seriesId,
+		])
+		const res = await app.handle(
+			new Request("http://localhost/characters"),
+		)
 		expect(res.status).toBe(200)
-		expect(await res.json()).toEqual([mockCharacter])
+		const data = await res.json()
+		expect(data).toHaveLength(2)
 	})
 
 	test("GET /characters/:id returns one character", async () => {
-		mockDb.mockResolvedValue([mockCharacter])
+		const { lastInsertRowid: id } = sqlite.run(
+			"INSERT INTO characters (name, series_id) VALUES (?, ?)",
+			["Gojo Satoru", null],
+		)
 		const res = await app.handle(
-			new Request("http://localhost/characters/1"),
+			new Request(`http://localhost/characters/${id}`),
 		)
 		expect(res.status).toBe(200)
-		expect(await res.json()).toEqual(mockCharacter)
+		expect((await res.json()).name).toBe("Gojo Satoru")
 	})
 
 	test("GET /characters/:id returns 404 when not found", async () => {
-		mockDb.mockResolvedValue([])
 		const res = await app.handle(
 			new Request("http://localhost/characters/999"),
 		)
 		expect(res.status).toBe(404)
+		expect(await res.json()).toEqual({ error: "Not found" })
 	})
 
-	test("POST /characters creates a character", async () => {
-		mockDb
-			.mockResolvedValueOnce({ lastInsertRowid: 1 })
-			.mockResolvedValueOnce([mockCharacter])
+	test("POST /characters creates with series", async () => {
+		const { lastInsertRowid: seriesId } = sqlite.run(
+			"INSERT INTO series (name) VALUES (?)",
+			["Jujutsu Kaisen"],
+		)
 		const res = await app.handle(
 			new Request("http://localhost/characters", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: "Gojo Satoru", series_id: 1 }),
+				body: JSON.stringify({ name: "Gojo Satoru", series_id: seriesId }),
 			}),
 		)
 		expect(res.status).toBe(201)
-		expect(await res.json()).toEqual(mockCharacter)
+		const data = await res.json()
+		expect(data.name).toBe("Gojo Satoru")
+		expect(data.series_id).toBe(seriesId)
 	})
 
 	test("POST /characters allows null series_id", async () => {
-		mockDb
-			.mockResolvedValueOnce({ lastInsertRowid: 2 })
-			.mockResolvedValueOnce([{ id: 2, name: "Unknown", series_id: null }])
 		const res = await app.handle(
 			new Request("http://localhost/characters", {
 				method: "POST",
@@ -66,22 +82,29 @@ describe("Characters Controller", () => {
 		expect((await res.json()).series_id).toBeNull()
 	})
 
-	test("PUT /characters/:id updates a character", async () => {
-		mockDb
-			.mockResolvedValueOnce({ affectedRows: 1 })
-			.mockResolvedValueOnce([{ id: 1, name: "Updated", series_id: null }])
+	test("PUT /characters/:id updates name and series", async () => {
+		const { lastInsertRowid: seriesId } = sqlite.run(
+			"INSERT INTO series (name) VALUES (?)",
+			["Jujutsu Kaisen"],
+		)
+		const { lastInsertRowid: id } = sqlite.run(
+			"INSERT INTO characters (name, series_id) VALUES (?, ?)",
+			["Gojo", null],
+		)
 		const res = await app.handle(
-			new Request("http://localhost/characters/1", {
+			new Request(`http://localhost/characters/${id}`, {
 				method: "PUT",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: "Updated", series_id: null }),
+				body: JSON.stringify({ name: "Gojo Satoru", series_id: seriesId }),
 			}),
 		)
 		expect(res.status).toBe(200)
+		const data = await res.json()
+		expect(data.name).toBe("Gojo Satoru")
+		expect(data.series_id).toBe(seriesId)
 	})
 
 	test("PUT /characters/:id returns 404 when not found", async () => {
-		mockDb.mockResolvedValue({ affectedRows: 0 })
 		const res = await app.handle(
 			new Request("http://localhost/characters/999", {
 				method: "PUT",
@@ -93,16 +116,18 @@ describe("Characters Controller", () => {
 	})
 
 	test("DELETE /characters/:id deletes a character", async () => {
-		mockDb.mockResolvedValue({ affectedRows: 1 })
+		const { lastInsertRowid: id } = sqlite.run(
+			"INSERT INTO characters (name, series_id) VALUES (?, ?)",
+			["Gojo Satoru", null],
+		)
 		const res = await app.handle(
-			new Request("http://localhost/characters/1", { method: "DELETE" }),
+			new Request(`http://localhost/characters/${id}`, { method: "DELETE" }),
 		)
 		expect(res.status).toBe(200)
 		expect(await res.json()).toEqual({ success: true })
 	})
 
 	test("DELETE /characters/:id returns 404 when not found", async () => {
-		mockDb.mockResolvedValue({ affectedRows: 0 })
 		const res = await app.handle(
 			new Request("http://localhost/characters/999", { method: "DELETE" }),
 		)
