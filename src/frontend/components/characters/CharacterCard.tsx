@@ -4,15 +4,17 @@ import {
   Button,
   Card,
   Group,
+  Image,
   Modal,
   Stack,
   Text,
   Title,
 } from "@mantine/core"
-import { IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { IconCamera, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { ImageCropper } from "../ImageCropper"
 import { EditCharacterForm } from "./EditCharacterForm"
 
 export function CharacterCard({
@@ -24,6 +26,7 @@ export function CharacterCard({
 }) {
   const queryClient = useQueryClient()
   const [editOpened, setEditOpened] = useState(false)
+  const [uploadOpened, setUploadOpened] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleDelete() {
@@ -39,17 +42,58 @@ export function CharacterCard({
         padding="lg"
         radius="md"
         withBorder
-        style={{
-          cursor: onClick ? "pointer" : undefined,
-        }}
+        style={{ cursor: onClick ? "pointer" : undefined }}
         onClick={onClick}
       >
-        <Badge color="indigo" size="lg" radius="sm" variant="outline">
+        {character.image_path && (
+          <Card.Section style={{ position: "relative" }}>
+            <Image src={character.image_path} height={500} fit="cover" />
+            <ActionIcon
+              style={{ position: "absolute", top: 8, right: 8 }}
+              variant="filled"
+              color="dark"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                setUploadOpened(true)
+              }}
+              aria-label="Change image"
+            >
+              <IconCamera size={14} />
+            </ActionIcon>
+          </Card.Section>
+        )}
+
+        <Badge
+          color="indigo"
+          size="lg"
+          radius="sm"
+          variant="outline"
+          mt={character.image_path ? "md" : 0}
+        >
           {character.seriesName ?? "No Series"}
         </Badge>
-        <Group justify="space-between" wrap="nowrap" mb="xs">
-          <Title order={4}>{character.name}</Title>
-          <ActionIcon.Group orientation="vertical">
+        <Group justify="space-between" wrap="nowrap" my="xs">
+          {character.image_path ? (
+            <Text size="sm" c="dimmed" fw={500}>
+              {character.name}
+            </Text>
+          ) : (
+            <Title order={4}>{character.name}</Title>
+          )}
+          <ActionIcon.Group>
+            {!character.image_path && (
+              <ActionIcon
+                variant="light"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setUploadOpened(true)
+                }}
+                aria-label="Add image"
+              >
+                <IconCamera size={20} />
+              </ActionIcon>
+            )}
             <ActionIcon
               variant="light"
               color="green"
@@ -73,6 +117,20 @@ export function CharacterCard({
           </ActionIcon.Group>
         </Group>
       </Card>
+
+      <Modal
+        opened={uploadOpened}
+        onClose={() => setUploadOpened(false)}
+        title={`${character.image_path ? "Change" : "Add"} Image — ${character.name}`}
+        centered
+        size="lg"
+      >
+        <ImageCropper
+          uploadUrl={`/api/characters/${character.id}/image`}
+          queryKey="characters"
+          onSuccess={() => setUploadOpened(false)}
+        />
+      </Modal>
 
       <Modal
         opened={editOpened}

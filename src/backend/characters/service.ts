@@ -33,3 +33,14 @@ export async function deleteCharacter(id: number) {
   const result = await db`DELETE FROM characters WHERE id = ${id}`
   return result.affectedRows > 0
 }
+
+export async function updateCharacterImage(
+  id: number,
+  imagePath: string | null,
+) {
+  const result =
+    await db`UPDATE characters SET image_path = ${imagePath} WHERE id = ${id}`
+  if (result.affectedRows === 0) return null
+  const rows = await db`SELECT * FROM characters WHERE id = ${id}`
+  return rows[0]
+}

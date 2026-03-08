@@ -5,6 +5,7 @@ import {
   getAllCharacters,
   getCharacterById,
   updateCharacter,
+  updateCharacterImage,
 } from "./service"
 
 export const charactersController = new Elysia({ prefix: "/characters" })
@@ -67,4 +68,24 @@ export const charactersController = new Elysia({ prefix: "/characters" })
       return { success: true }
     },
     { params: t.Object({ id: t.Numeric() }) },
+  )
+  .post(
+    "/:id/image",
+    async ({ params, body, set }) => {
+      const uploadDir = "public/uploads/characters"
+      await Bun.$`mkdir -p ${uploadDir}`
+      const filename = `${params.id}.jpg`
+      await Bun.write(`${uploadDir}/${filename}`, body.image)
+      const imagePath = `/uploads/characters/${filename}`
+      const character = await updateCharacterImage(params.id, imagePath)
+      if (!character) {
+        set.status = 404
+        return { error: "Not found" }
+      }
+      return character
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      body: t.Object({ image: t.File() }),
+    },
   )

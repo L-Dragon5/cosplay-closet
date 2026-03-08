@@ -20,7 +20,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
-import { SeriesImageCropper } from "./SeriesImageCropper"
+import { ImageCropper } from "../ImageCropper"
 
 export function SeriesCard({
   series,
@@ -160,8 +160,9 @@ export function SeriesCard({
         centered
         size="lg"
       >
-        <SeriesImageCropper
-          seriesId={series.id}
+        <ImageCropper
+          uploadUrl={`/api/series/${series.id}/image`}
+          queryKey="series"
           onSuccess={() => setUploadOpened(false)}
         />
       </Modal>

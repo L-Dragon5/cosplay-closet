@@ -24,8 +24,15 @@ export async function initDb() {
 		id INT AUTO_INCREMENT PRIMARY KEY,
 		name VARCHAR(255) NOT NULL,
 		series_id INT NULL,
+		image_path VARCHAR(255) NULL,
 		CONSTRAINT fk_characters_series FOREIGN KEY (series_id) REFERENCES series(id) ON DELETE SET NULL
 	)`
+
+  try {
+    await db`ALTER TABLE characters ADD COLUMN image_path VARCHAR(255) NULL`
+  } catch {
+    // Column already exists
+  }
 
   await db`CREATE TABLE IF NOT EXISTS locations (
 		id INT AUTO_INCREMENT PRIMARY KEY,
