@@ -5,6 +5,7 @@ export const OutfitSchema = t.Object({
   id: t.Number(),
   name: t.String(),
   character_id: t.Nullable(t.Number()),
+  image_path: t.Nullable(t.String()),
   items: t.Array(ItemSchema),
 })
 

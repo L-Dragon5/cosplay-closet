@@ -28,15 +28,17 @@ import {
 } from "@/frontend/queries"
 import { CharacterCard } from "../characters/CharacterCard"
 import { OutfitCard } from "../outfits/OutfitCard"
+import { OutfitItemsDrawer } from "../outfits/OutfitItemsDrawer"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
 import { VirtualTable } from "../VirtualTable"
 import { SeriesCard } from "./SeriesCard"
 
 export function SeriesSection() {
-  const stack = useDrawersStack(["series", "character-outfits"])
+  const stack = useDrawersStack(["series", "character-outfits", "outfit-items"])
   const seriesReg = stack.register("series")
   const characterReg = stack.register("character-outfits")
+  const outfitItemsReg = stack.register("outfit-items")
   const { data, isLoading, error } = useSeriesQuery()
   const { data: characters } = useCharactersQuery()
   const { data: outfits } = useOutfitsQuery()
@@ -45,6 +47,7 @@ export function SeriesSection() {
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
     null,
   )
+  const [selectedOutfitId, setSelectedOutfitId] = useState<number | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingName, setEditingName] = useState("")
   const [confirmDeleteSeries, setConfirmDeleteSeries] = useState<Series | null>(
@@ -79,6 +82,8 @@ export function SeriesSection() {
   const characterOutfits = (outfits ?? [])
     .filter((o) => o.character_id === selectedCharacterId)
     .map((o) => ({ ...o, characterName: selectedCharacter?.name ?? null }))
+
+  const selectedOutfit = characterOutfits.find((o) => o.id === selectedOutfitId) ?? null
 
   function openSeries(id: number) {
     setSelectedSeriesId(id)
@@ -293,11 +298,26 @@ export function SeriesSection() {
           ) : (
             <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
               {characterOutfits.map((o) => (
-                <OutfitCard key={o.id} outfit={o} />
+                <OutfitCard
+                  key={o.id}
+                  outfit={o}
+                  onClick={() => {
+                    setSelectedOutfitId(o.id)
+                    stack.open("outfit-items")
+                  }}
+                />
               ))}
             </SimpleGrid>
           )}
         </Drawer>
+        <OutfitItemsDrawer
+          {...outfitItemsReg}
+          outfit={selectedOutfit}
+          onClose={() => {
+            stack.close("outfit-items")
+            setSelectedOutfitId(null)
+          }}
+        />
       </Drawer.Stack>
     </>
   )

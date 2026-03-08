@@ -5,6 +5,7 @@ import {
   getAllOutfits,
   getOutfitById,
   updateOutfit,
+  updateOutfitImage,
 } from "./service"
 
 export const outfitsController = new Elysia({ prefix: "/outfits" })
@@ -74,4 +75,24 @@ export const outfitsController = new Elysia({ prefix: "/outfits" })
       return { success: true }
     },
     { params: t.Object({ id: t.Numeric() }) },
+  )
+  .post(
+    "/:id/image",
+    async ({ params, body, set }) => {
+      const uploadDir = "public/uploads/outfits"
+      await Bun.$`mkdir -p ${uploadDir}`
+      const filename = `${params.id}.jpg`
+      await Bun.write(`${uploadDir}/${filename}`, body.image)
+      const imagePath = `/uploads/outfits/${filename}`
+      const outfit = await updateOutfitImage(params.id, imagePath)
+      if (!outfit) {
+        set.status = 404
+        return { error: "Not found" }
+      }
+      return outfit
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      body: t.Object({ image: t.File() }),
+    },
   )

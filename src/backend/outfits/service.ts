@@ -56,3 +56,10 @@ export async function deleteOutfit(id: number) {
   const result = await db`DELETE FROM outfits WHERE id = ${id}`
   return result.affectedRows > 0
 }
+
+export async function updateOutfitImage(id: number, imagePath: string | null) {
+  const result =
+    await db`UPDATE outfits SET image_path = ${imagePath} WHERE id = ${id}`
+  if (result.affectedRows === 0) return null
+  return getOutfitById(id)
+}

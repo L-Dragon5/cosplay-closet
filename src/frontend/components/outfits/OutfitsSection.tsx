@@ -1,10 +1,16 @@
-import { Text } from "@mantine/core"
-import { useMemo } from "react"
+import { ActionIcon, Button, Group, Modal, Stack, Text } from "@mantine/core"
+import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
+import type { Outfit } from "@/backend/outfits/model"
+import { api } from "@/frontend/api"
 import { useCharactersQuery, useOutfitsQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
 import { VirtualTable } from "../VirtualTable"
+import { EditOutfitForm } from "./EditOutfitForm"
 import { OutfitCard } from "./OutfitCard"
+import { OutfitItemsDrawer } from "./OutfitItemsDrawer"
 
 export function OutfitsSection() {
   const {
@@ -17,6 +23,11 @@ export function OutfitsSection() {
     isLoading: cLoading,
     error: cError,
   } = useCharactersQuery()
+  const queryClient = useQueryClient()
+
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [editingOutfit, setEditingOutfit] = useState<Outfit | null>(null)
+  const [confirmDeleteOutfit, setConfirmDeleteOutfit] = useState<Outfit | null>(null)
 
   const data = useMemo(
     () =>
@@ -28,43 +39,138 @@ export function OutfitsSection() {
     [outfits, characters],
   )
 
+  const selectedOutfit = data?.find((o) => o.id === selectedId) ?? null
+
+  async function handleTableDelete() {
+    if (!confirmDeleteOutfit) return
+    await api.outfits({ id: confirmDeleteOutfit.id }).delete()
+    await queryClient.invalidateQueries({ queryKey: ["outfits"] })
+    setConfirmDeleteOutfit(null)
+  }
+
   return (
-    <SectionShell
-      section="outfits"
-      title="Outfits"
-      isLoading={oLoading || cLoading}
-      error={oError ?? cError}
-    >
-      {(search, view) => {
-        const filtered = (data ?? []).filter((o) =>
-          o.name.toLowerCase().includes(search.toLowerCase()),
-        )
-        if (!filtered.length) {
-          return (
-            <Text c="dimmed">
-              {search ? "No matches found." : "No outfits added yet."}
-            </Text>
+    <>
+      <SectionShell
+        section="outfits"
+        title="Outfits"
+        isLoading={oLoading || cLoading}
+        error={oError ?? cError}
+      >
+        {(search, view) => {
+          const filtered = (data ?? []).filter((o) =>
+            o.name.toLowerCase().includes(search.toLowerCase()),
           )
-        }
-        if (view === "table") {
+          if (!filtered.length) {
+            return (
+              <Text c="dimmed">
+                {search ? "No matches found." : "No outfits added yet."}
+              </Text>
+            )
+          }
+          if (view === "table") {
+            return (
+              <VirtualTable
+                rows={filtered}
+                columns={[
+                  { header: "Name", render: (o) => o.name },
+                  { header: "Character", render: (o) => o.characterName ?? "—" },
+                  { header: "Items", render: (o) => o.items.length },
+                  {
+                    header: "Actions",
+                    render: (o) => (
+                      <ActionIcon.Group>
+                        <ActionIcon
+                          variant="light"
+                          onClick={(e) => { e.stopPropagation(); setSelectedId(o.id) }}
+                          aria-label="View outfit"
+                        >
+                          <IconEye size={20} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="light"
+                          color="green"
+                          onClick={(e) => { e.stopPropagation(); setEditingOutfit(o) }}
+                        >
+                          <IconPencil size={20} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteOutfit(o) }}
+                        >
+                          <IconTrash size={20} />
+                        </ActionIcon>
+                      </ActionIcon.Group>
+                    ),
+                  },
+                ]}
+              />
+            )
+          }
           return (
-            <VirtualTable
-              rows={filtered}
-              columns={[
-                { header: "Name", render: (o) => o.name },
-                { header: "Character", render: (o) => o.characterName ?? "—" },
-                { header: "Items", render: (o) => o.items.length },
-              ]}
+            <VirtualCardGrid
+              items={filtered}
+              renderItem={(o) => (
+                <OutfitCard
+                  key={o.id}
+                  outfit={o}
+                  onClick={() => setSelectedId(o.id)}
+                />
+              )}
             />
           )
-        }
-        return (
-          <VirtualCardGrid
-            items={filtered}
-            renderItem={(o) => <OutfitCard key={o.id} outfit={o} />}
+        }}
+      </SectionShell>
+
+      <OutfitItemsDrawer
+        outfit={selectedOutfit}
+        onClose={() => setSelectedId(null)}
+      />
+
+      <Modal
+        opened={editingOutfit !== null}
+        onClose={() => setEditingOutfit(null)}
+        title="Edit Outfit"
+        centered
+      >
+        {editingOutfit && (
+          <EditOutfitForm
+            outfit={editingOutfit}
+            onSuccess={() => setEditingOutfit(null)}
           />
-        )
-      }}
-    </SectionShell>
+        )}
+      </Modal>
+
+      <Modal
+        opened={confirmDeleteOutfit !== null}
+        onClose={() => setConfirmDeleteOutfit(null)}
+        title="Delete Outfit"
+        centered
+        size="sm"
+      >
+        <Stack>
+          <Text>
+            Are you sure you want to delete{" "}
+            <strong>{confirmDeleteOutfit?.name}</strong>?
+          </Text>
+          <Group justify="flex-end">
+            <Button
+              onClick={() => setConfirmDeleteOutfit(null)}
+              leftSection={<IconX size={20} />}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="filled"
+              color="red"
+              onClick={handleTableDelete}
+              leftSection={<IconTrash size={20} />}
+            >
+              Confirm
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+    </>
   )
 }

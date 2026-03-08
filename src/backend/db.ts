@@ -56,8 +56,15 @@ export async function initDb() {
 		id INT AUTO_INCREMENT PRIMARY KEY,
 		name VARCHAR(255) NOT NULL,
 		character_id INT NULL,
+		image_path VARCHAR(255) NULL,
 		CONSTRAINT fk_outfits_character FOREIGN KEY (character_id) REFERENCES characters(id) ON DELETE SET NULL
 	)`
+
+  try {
+    await db`ALTER TABLE outfits ADD COLUMN image_path VARCHAR(255) NULL`
+  } catch {
+    // Column already exists
+  }
 
   await db`CREATE TABLE IF NOT EXISTS outfit_items (
 		outfit_id INT NOT NULL,
