@@ -9,7 +9,8 @@ function NavButton({ section, label }: { section: Section; label: string }) {
   const [activeSection, setActiveSection] = useAtom(activeSectionAtom)
   return (
     <Button
-      variant={activeSection === section ? "light" : "subtle"}
+      variant={activeSection === section ? "filled" : "light"}
+      color="indigo"
       size="sm"
       onClick={() => setActiveSection(section)}
     >
