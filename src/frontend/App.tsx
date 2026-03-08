@@ -1,5 +1,6 @@
 import "@mantine/core/styles.css"
 import { createTheme, MantineProvider } from "@mantine/core"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 
@@ -10,6 +11,8 @@ import { routeTree } from "./routeTree.gen"
 const theme = createTheme({
 	/** Put your mantine theme override here */
 })
+
+const queryClient = new QueryClient()
 
 // Create a new router instance
 const router = createRouter({ routeTree })
@@ -24,9 +27,11 @@ declare module "@tanstack/react-router" {
 export function App() {
 	return (
 		<StrictMode>
-			<MantineProvider theme={theme}>
-				<RouterProvider router={router} />
-			</MantineProvider>
+			<QueryClientProvider client={queryClient}>
+				<MantineProvider theme={theme}>
+					<RouterProvider router={router} />
+				</MantineProvider>
+			</QueryClientProvider>
 		</StrictMode>
 	)
 }

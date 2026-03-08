@@ -1,13 +1,25 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router"
+import { useAtomValue } from "jotai"
+import { activeSectionAtom } from "@/frontend/atoms"
+import { CharactersSection } from "@/frontend/components/characters/CharactersSection"
+import { ItemsSection } from "@/frontend/components/items/ItemsSection"
+import { OutfitsSection } from "@/frontend/components/outfits/OutfitsSection"
+import { SeriesSection } from "@/frontend/components/series/SeriesSection"
 
-export const Route = createFileRoute('/')({
-  component: Index,
+export const Route = createFileRoute("/")({
+	component: IndexPage,
 })
 
-function Index() {
-  return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
-  )
+function IndexPage() {
+	const section = useAtomValue(activeSectionAtom)
+	switch (section) {
+		case "series":
+			return <SeriesSection />
+		case "characters":
+			return <CharactersSection />
+		case "items":
+			return <ItemsSection />
+		case "outfits":
+			return <OutfitsSection />
+	}
 }
