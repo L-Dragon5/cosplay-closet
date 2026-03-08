@@ -42,13 +42,14 @@ export async function updateItem(
   location_id: number | null,
   notes: string | null,
 ) {
-  const result = await db`UPDATE items
+  const rows = await db`SELECT id FROM items WHERE id = ${id}`
+  if (rows.length === 0) return null
+  await db`UPDATE items
 		SET name = ${name}, type = ${type}, series_id = ${series_id},
 		    character_id = ${character_id}, location_id = ${location_id}, notes = ${notes}
 		WHERE id = ${id}`
-  if (result.affectedRows === 0) return null
-  const rows = await db`SELECT * FROM items WHERE id = ${id}`
-  return rows[0]
+  const updated = await db`SELECT * FROM items WHERE id = ${id}`
+  return updated[0]
 }
 
 export async function deleteItem(id: number) {

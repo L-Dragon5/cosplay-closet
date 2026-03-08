@@ -22,11 +22,11 @@ export async function updateCharacter(
   name: string,
   series_id: number | null,
 ) {
-  const result =
-    await db`UPDATE characters SET name = ${name}, series_id = ${series_id} WHERE id = ${id}`
-  if (result.affectedRows === 0) return null
-  const rows = await db`SELECT * FROM characters WHERE id = ${id}`
-  return rows[0]
+  const rows = await db`SELECT id FROM characters WHERE id = ${id}`
+  if (rows.length === 0) return null
+  await db`UPDATE characters SET name = ${name}, series_id = ${series_id} WHERE id = ${id}`
+  const updated = await db`SELECT * FROM characters WHERE id = ${id}`
+  return updated[0]
 }
 
 export async function deleteCharacter(id: number) {

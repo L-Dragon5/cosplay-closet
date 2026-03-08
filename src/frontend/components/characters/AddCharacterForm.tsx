@@ -1,8 +1,9 @@
-import { Button, Select, Stack, TextInput } from "@mantine/core"
+import { Badge, Button, Group, Select, Stack, Text, TextInput } from "@mantine/core"
 import { useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
 import { useSeriesQuery } from "@/frontend/queries"
+import { useJikanCharacters } from "@/frontend/hooks/useJikanCharacters"
 
 export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient()
@@ -14,6 +15,19 @@ export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
     value: String(s.id),
     label: s.name,
   }))
+
+  const selectedSeriesName = useMemo(
+    () => (seriesId ? (series ?? []).find((s) => String(s.id) === seriesId)?.name ?? null : null),
+    [series, seriesId],
+  )
+  const { names: jikanNames, isLoading: jikanLoading } = useJikanCharacters(selectedSeriesName)
+  const suggestedNames = useMemo(() => {
+    if (!selectedSeriesName || jikanNames.length === 0) return []
+    const query = name.toLowerCase().trim()
+    return jikanNames
+      .filter((n) => query.length === 0 || n.toLowerCase().includes(query))
+      .slice(0, 10)
+  }, [jikanNames, selectedSeriesName, name])
 
   async function handleSubmit() {
     if (!name.trim()) return
@@ -35,6 +49,28 @@ export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
         autoFocus
         required
       />
+      {suggestedNames.length > 0 && (
+        <Stack gap={4}>
+          <Text size="xs" c="dimmed" fw={500}>
+            Characters from {selectedSeriesName} on MyAnimeList
+          </Text>
+          <Group gap="xs">
+            {suggestedNames.map((charName) => (
+              <Badge
+                key={charName}
+                variant="outline"
+                style={{ cursor: "pointer" }}
+                onClick={() => setName(charName)}
+              >
+                {charName}
+              </Badge>
+            ))}
+          </Group>
+        </Stack>
+      )}
+      {jikanLoading && suggestedNames.length === 0 && selectedSeriesName && (
+        <Text size="xs" c="dimmed">Loading suggestions…</Text>
+      )}
       <Select
         label="Series"
         placeholder="Select series"
