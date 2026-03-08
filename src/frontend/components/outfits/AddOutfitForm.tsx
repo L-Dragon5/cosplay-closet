@@ -1,6 +1,6 @@
-import { Button, MultiSelect, Select, Stack, TextInput } from "@mantine/core"
+import { Badge, Button, Group, MultiSelect, Select, Stack, Text, TextInput } from "@mantine/core"
 import { useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
 import { useCharactersQuery, useItemsQuery, useSeriesQuery } from "@/frontend/queries"
 
@@ -35,6 +35,19 @@ export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
     label: i.name,
   }))
 
+  const suggestedItems = useMemo(() => {
+    if (!characterId) return []
+    const query = name.toLowerCase().trim()
+    return (items ?? [])
+      .filter(
+        (i) =>
+          String(i.character_id) === characterId &&
+          !itemIds.includes(String(i.id)) &&
+          (query.length === 0 || i.name.toLowerCase().includes(query)),
+      )
+      .slice(0, 10)
+  }, [items, characterId, itemIds, name])
+
   async function handleSubmit() {
     if (!name.trim()) return
     await api.outfits.post({
@@ -65,6 +78,25 @@ export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
         clearable
         searchable
       />
+      {suggestedItems.length > 0 && (
+        <Stack gap={4}>
+          <Text size="xs" c="dimmed" fw={500}>
+            Suggested items for this character
+          </Text>
+          <Group gap="xs">
+            {suggestedItems.map((item) => (
+              <Badge
+                key={item.id}
+                variant="outline"
+                style={{ cursor: "pointer" }}
+                onClick={() => setItemIds((prev) => [...prev, String(item.id)])}
+              >
+                + {item.name}
+              </Badge>
+            ))}
+          </Group>
+        </Stack>
+      )}
       <MultiSelect
         label="Items"
         placeholder="Select items"
