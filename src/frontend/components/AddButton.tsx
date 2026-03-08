@@ -34,7 +34,13 @@ export function AddButton() {
       <Transition mounted={showScrollTop} transition="slide-up" duration={200}>
         {(styles) => (
           <ActionIcon
-            style={{ ...styles, position: "fixed", bottom: 80, right: 24, zIndex: 100 }}
+            style={{
+              ...styles,
+              position: "fixed",
+              bottom: 80,
+              right: 24,
+              zIndex: 100,
+            }}
             size="lg"
             variant="default"
             onClick={() => scrollTo({ y: 0 })}
@@ -46,7 +52,7 @@ export function AddButton() {
       </Transition>
 
       <Button
-        leftSection={<IconPlus size={16} />}
+        leftSection={<IconPlus size={20} />}
         onClick={() => setOpened(true)}
         style={{ position: "fixed", bottom: 24, right: 24, zIndex: 100 }}
         size="md"

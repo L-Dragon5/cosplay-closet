@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
-import { api } from "@/frontend/api"
-import type { Series } from "@/backend/series/model"
 import type { Character } from "@/backend/characters/model"
 import type { Item, ItemType } from "@/backend/items/model"
 import type { Location } from "@/backend/locations/model"
 import type { Outfit } from "@/backend/outfits/model"
+import type { Series } from "@/backend/series/model"
+import { api } from "@/frontend/api"
 
 export type { Series, Character, Item, ItemType, Location, Outfit }
 

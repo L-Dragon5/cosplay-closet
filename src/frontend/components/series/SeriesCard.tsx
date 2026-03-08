@@ -73,10 +73,10 @@ export function SeriesCard({
             />
             <ActionIcon.Group>
               <ActionIcon variant="light" color="green" onClick={handleSave}>
-                <IconCheck size={16} />
+                <IconCheck size={20} />
               </ActionIcon>
               <ActionIcon variant="light" color="gray" onClick={handleCancel}>
-                <IconX size={16} />
+                <IconX size={20} />
               </ActionIcon>
             </ActionIcon.Group>
           </Group>
@@ -92,7 +92,7 @@ export function SeriesCard({
                   setEditing(true)
                 }}
               >
-                <IconPencil size={16} />
+                <IconPencil size={20} />
               </ActionIcon>
               <ActionIcon
                 variant="light"
@@ -102,7 +102,7 @@ export function SeriesCard({
                   setConfirmDelete(true)
                 }}
               >
-                <IconTrash size={16} />
+                <IconTrash size={20} />
               </ActionIcon>
             </ActionIcon.Group>
           </Group>
@@ -123,7 +123,7 @@ export function SeriesCard({
           <Group justify="flex-end">
             <Button
               onClick={() => setConfirmDelete(false)}
-              leftSection={<IconX size={16} />}
+              leftSection={<IconX size={20} />}
             >
               Cancel
             </Button>
@@ -131,7 +131,7 @@ export function SeriesCard({
               variant="filled"
               color="red"
               onClick={handleDelete}
-              leftSection={<IconTrash size={16} />}
+              leftSection={<IconTrash size={20} />}
             >
               Confirm
             </Button>

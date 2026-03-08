@@ -1,5 +1,11 @@
 import "@mantine/core/styles.css"
-import { ActionIcon, createTheme, Drawer, MantineProvider, Modal } from "@mantine/core"
+import {
+  ActionIcon,
+  createTheme,
+  Drawer,
+  MantineProvider,
+  Modal,
+} from "@mantine/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
@@ -12,17 +18,17 @@ const theme = createTheme({
   components: {
     ActionIcon: ActionIcon.extend({
       defaultProps: {
-        size: 'lg',
+        size: "lg",
       },
     }),
     Drawer: Drawer.extend({
       styles: {
         title: { fontSize: "1.5rem", fontWeight: 700 },
-      }
+      },
     }),
     Modal: Modal.extend({
       styles: {
-        title: { fontSize: '1.5rem', fontWeight: 700 },
+        title: { fontSize: "1.5rem", fontWeight: 700 },
       },
     }),
   },

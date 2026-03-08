@@ -12,11 +12,16 @@ import {
   Tooltip,
 } from "@mantine/core"
 import { useDebouncedValue } from "@mantine/hooks"
-import { IconFilter, IconLayoutGrid, IconList, IconSearch } from "@tabler/icons-react"
+import {
+  IconFilter,
+  IconLayoutGrid,
+  IconList,
+  IconSearch,
+} from "@tabler/icons-react"
 import { useAtom } from "jotai"
 import { useState } from "react"
-import { sectionViewAtom } from "@/frontend/atoms"
 import type { Section } from "@/frontend/atoms"
+import { sectionViewAtom } from "@/frontend/atoms"
 
 export type ViewMode = "card" | "table"
 
@@ -71,7 +76,11 @@ export function SectionShell({
         }}
         py="md"
       >
-        <Group justify="space-between" align="center" mb={filtersOpen ? "sm" : 0}>
+        <Group
+          justify="space-between"
+          align="center"
+          mb={filtersOpen ? "sm" : 0}
+        >
           <Title>{title}</Title>
           <Group gap="xs">
             <Tooltip label="Card view">
@@ -94,7 +103,7 @@ export function SectionShell({
             </Tooltip>
             <Button
               variant={filtersOpen ? "light" : "subtle"}
-              leftSection={<IconFilter size={16} />}
+              leftSection={<IconFilter size={20} />}
               onClick={() => {
                 setFiltersOpen((o) => !o)
                 if (filtersOpen) setSearch("")
@@ -107,7 +116,7 @@ export function SectionShell({
         <Collapse in={filtersOpen}>
           <TextInput
             placeholder={`Search ${title.toLowerCase()}…`}
-            leftSection={<IconSearch size={16} />}
+            leftSection={<IconSearch size={20} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
             mb="xs"

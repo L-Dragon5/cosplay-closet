@@ -40,7 +40,11 @@ export function OutfitsSection() {
           o.name.toLowerCase().includes(search.toLowerCase()),
         )
         if (!filtered.length) {
-          return <Text c="dimmed">{search ? "No matches found." : "No outfits added yet."}</Text>
+          return (
+            <Text c="dimmed">
+              {search ? "No matches found." : "No outfits added yet."}
+            </Text>
+          )
         }
         if (view === "table") {
           return (

@@ -10,7 +10,7 @@ import {
   TextInput,
   useDrawersStack,
 } from "@mantine/core"
-import { IconCheck, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { IconCheck, IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import type { Series } from "@/backend/series/model"
@@ -81,7 +81,12 @@ export function SeriesSection() {
 
   return (
     <>
-      <SectionShell section="series" title="Series" isLoading={isLoading} error={error}>
+      <SectionShell
+        section="series"
+        title="Series"
+        isLoading={isLoading}
+        error={error}
+      >
         {(search, view) => {
           const filtered = (data ?? []).filter((s) =>
             s.name.toLowerCase().includes(search.toLowerCase()),
@@ -116,12 +121,7 @@ export function SeriesSection() {
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span
-                          style={{ cursor: "pointer" }}
-                          onClick={() => openSeries(s.id)}
-                        >
-                          {s.name}
-                        </span>
+                        s.name
                       ),
                   },
                   {
@@ -132,46 +132,40 @@ export function SeriesSection() {
                           <ActionIcon
                             variant="light"
                             color="green"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleTableSave(s)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); handleTableSave(s) }}
                           >
-                            <IconCheck size={14} />
+                            <IconCheck size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="gray"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setEditingId(null)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setEditingId(null) }}
                           >
-                            <IconX size={14} />
+                            <IconX size={20} />
                           </ActionIcon>
                         </ActionIcon.Group>
                       ) : (
                         <ActionIcon.Group>
                           <ActionIcon
                             variant="light"
-                            color="green"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setEditingId(s.id)
-                              setEditingName(s.name)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); openSeries(s.id) }}
+                            aria-label="View series"
                           >
-                            <IconPencil size={14} />
+                            <IconEye size={20} />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="light"
+                            color="green"
+                            onClick={(e) => { e.stopPropagation(); setEditingId(s.id); setEditingName(s.name) }}
+                          >
+                            <IconPencil size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="red"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setConfirmDeleteSeries(s)
-                            }}
+                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteSeries(s) }}
                           >
-                            <IconTrash size={14} />
+                            <IconTrash size={20} />
                           </ActionIcon>
                         </ActionIcon.Group>
                       ),
@@ -210,7 +204,7 @@ export function SeriesSection() {
           <Group justify="flex-end">
             <Button
               onClick={() => setConfirmDeleteSeries(null)}
-              leftSection={<IconX size={16} />}
+              leftSection={<IconX size={20} />}
             >
               Cancel
             </Button>
@@ -218,7 +212,7 @@ export function SeriesSection() {
               variant="filled"
               color="red"
               onClick={handleTableDelete}
-              leftSection={<IconTrash size={16} />}
+              leftSection={<IconTrash size={20} />}
             >
               Confirm
             </Button>

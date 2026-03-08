@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia"
+import { ItemTypeSchema as itemType } from "./model"
 import {
   createItem,
   deleteItem,
@@ -6,7 +7,6 @@ import {
   getItemById,
   updateItem,
 } from "./service"
-import { ItemTypeSchema as itemType } from "./model"
 
 export const itemsController = new Elysia({ prefix: "/items" })
   .get("/", () => getAllItems())

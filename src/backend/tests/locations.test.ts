@@ -24,7 +24,10 @@ describe("Locations Controller", () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(2)
-    expect(data.map((l: { name: string }) => l.name)).toEqual(["Box A", "Shelf B"])
+    expect(data.map((l: { name: string }) => l.name)).toEqual([
+      "Box A",
+      "Shelf B",
+    ])
   })
 
   test("GET /locations/:id returns one location", async () => {
@@ -32,7 +35,9 @@ describe("Locations Controller", () => {
       "INSERT INTO locations (name) VALUES (?)",
       ["Box A"],
     )
-    const res = await app.handle(new Request(`http://localhost/locations/${id}`))
+    const res = await app.handle(
+      new Request(`http://localhost/locations/${id}`),
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.name).toBe("Box A")
@@ -117,9 +122,13 @@ describe("Locations Controller", () => {
       ["Blindfold", "Accessories", locationId],
     )
     await app.handle(
-      new Request(`http://localhost/locations/${locationId}`, { method: "DELETE" }),
+      new Request(`http://localhost/locations/${locationId}`, {
+        method: "DELETE",
+      }),
     )
-    const item = sqlite.query("SELECT * FROM items WHERE id = ?").get(itemId) as {
+    const item = sqlite
+      .query("SELECT * FROM items WHERE id = ?")
+      .get(itemId) as {
       location_id: number | null
     }
     expect(item.location_id).toBeNull()
