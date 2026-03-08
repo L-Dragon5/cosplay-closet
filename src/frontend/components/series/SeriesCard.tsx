@@ -164,6 +164,7 @@ export function SeriesCard({
           uploadUrl={`/api/series/${series.id}/image`}
           queryKey="series"
           onSuccess={() => setUploadOpened(false)}
+          jikanSearchName={series.name}
         />
       </Modal>
 

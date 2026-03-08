@@ -129,6 +129,7 @@ export function CharacterCard({
           uploadUrl={`/api/characters/${character.id}/image`}
           queryKey="characters"
           onSuccess={() => setUploadOpened(false)}
+          jikanCharacterName={character.name}
         />
       </Modal>
 

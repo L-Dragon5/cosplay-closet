@@ -1,5 +1,5 @@
 import { openapi } from "@elysiajs/openapi"
-import { Elysia } from "elysia"
+import { Elysia, t } from "elysia"
 import { charactersController } from "@/backend/characters"
 import { initDb } from "@/backend/db"
 import { itemsController } from "@/backend/items"
@@ -14,6 +14,18 @@ const api = new Elysia({ prefix: "/api" })
   .use(openapi({
     path: '/docs',
   }))
+  .get("/proxy-image", async ({ query }) => {
+    const res = await fetch(query.url)
+    if (!res.ok) return new Response("Failed to fetch image", { status: 502 })
+    return new Response(res.body, {
+      headers: {
+        "Content-Type": res.headers.get("Content-Type") ?? "image/jpeg",
+        "Cache-Control": "public, max-age=3600",
+      },
+    })
+  }, {
+    query: t.Object({ url: t.String() }),
+  })
   .use(seriesController)
   .use(charactersController)
   .use(itemsController)
