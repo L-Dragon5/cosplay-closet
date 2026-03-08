@@ -48,30 +48,37 @@ Built with **ElysiaJS** (v1.4.27). Each resource has its own folder with two fil
 
 **Resources and API prefix `/api`:**
 
-| Resource   | Controller                        | Prefix        |
-|------------|-----------------------------------|---------------|
-| series     | `src/backend/series/index.ts`     | `/series`     |
-| characters | `src/backend/characters/index.ts` | `/characters` |
-| items      | `src/backend/items/index.ts`      | `/items`      |
-| locations  | `src/backend/locations/index.ts`  | `/locations`  |
-| outfits    | `src/backend/outfits/index.ts`    | `/outfits`    |
+| Resource   | Controller                        | Prefix        | Notable extra routes        |
+|------------|-----------------------------------|---------------|-----------------------------|
+| series     | `src/backend/series/index.ts`     | `/series`     | `POST /:id/image` (upload)  |
+| characters | `src/backend/characters/index.ts` | `/characters` |                             |
+| items      | `src/backend/items/index.ts`      | `/items`      |                             |
+| locations  | `src/backend/locations/index.ts`  | `/locations`  |                             |
+| outfits    | `src/backend/outfits/index.ts`    | `/outfits`    |                             |
 
-All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference.
+All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference. OpenAPI docs available at `/api/docs`.
+
+Each resource folder also has a `model.ts` exporting a TypeBox schema and TypeScript type (e.g. `SeriesSchema`, `Series`). These are imported by `src/frontend/queries.ts` for type-safe cast of API responses.
 
 **Database** (`src/backend/db.ts`):
 
 - Connection via `Bun.sql` with `mysql://` URL built from env vars: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_DATABASE`
-- `initDb()` creates all tables on startup with `CREATE TABLE IF NOT EXISTS`
+- `initDb()` creates all tables on startup with `CREATE TABLE IF NOT EXISTS`, then runs `ALTER TABLE` migrations (wrapped in try/catch) for columns added after initial deploy
 - Schema (FK order matters for truncation):
   ```
-  series
-  characters  (series_id → series)
+  series       (image_path VARCHAR(255) NULL)
+  characters   (series_id → series)
   locations
-  items       (series_id → series, character_id → characters, location_id → locations)
-  outfits     (character_id → characters)
+  items        (series_id → series, character_id → characters, location_id → locations)
+  outfits      (character_id → characters)
   outfit_items (outfit_id → outfits, item_id → items)
   ```
 - Item type enum: `Clothes | Wig | Shoes | Accessories | Prop | Materials`
+
+**Static file serving** (`src/backend/index.ts`):
+
+- `/uploads/*` requests are served from `public/uploads/` via `Bun.file()` in the `fetch` handler before passing to Elysia
+- Uploaded series images are stored at `public/uploads/series/{id}.jpg`
 
 ### Frontend — `src/frontend/`
 
@@ -88,10 +95,19 @@ Built with **React 19**, **Mantine v8**, **TanStack Router**, **TanStack Query v
 **Section components** (`src/frontend/components/<resource>/`):
 
 Each section has:
-- `<Resource>Section.tsx` — calls the relevant query hook(s), joins related data in `useMemo`, renders `<Resource>Card>` in a `SimpleGrid`
-- `<Resource>Card.tsx` — pure display card using Mantine `Card`, `Badge`, `Title`, etc.
+- `<Resource>Section.tsx` — calls the relevant query hook(s), joins related data in `useMemo`, renders cards via `VirtualCardGrid` or rows via `VirtualTable`
+- `<Resource>Card.tsx` — display card using Mantine `Card`, `Badge`, `Title`, etc. with inline edit/delete actions
+- `Edit<Resource>Form.tsx` — pre-populated edit modal form (Characters and Items only); opened from card and table pencil actions
 
-`SectionShell` (`src/frontend/components/SectionShell.tsx`) is a shared wrapper that handles loading, error, and Container/Title layout — all section components use it.
+`SectionShell` (`src/frontend/components/SectionShell.tsx`) is a shared wrapper handling loading, error, sticky header with search + view toggle + Filters panel. Accepts an optional `filterSlot?: React.ReactNode` rendered inside the Filters collapse (used by ItemsSection for its MultiSelect filters).
+
+`VirtualCardGrid` (`src/frontend/components/VirtualCardGrid.tsx`) — `useWindowVirtualizer` with ResizeObserver for responsive column count (1/2/3/4 at 576/768/1200px). ResizeObserver callback is wrapped in `requestAnimationFrame` to prevent loop errors.
+
+`VirtualTable` (`src/frontend/components/VirtualTable.tsx`) — virtualized `<Table>` with sticky header, paddingTop/Bottom spacer rows.
+
+**Per-section view preference** is persisted via `sectionViewAtom` (Jotai `atomWithStorage`, key `"sectionView"`) in `src/frontend/atoms.ts` — stores `"card" | "table"` per section.
+
+**Items section filters** — MultiSelect filters for Series, Characters, Type, and Location. Uses inclusive (OR) logic across categories: an item matches if it satisfies any active filter. Search applies independently on top.
 
 **Nav sections (in order):** Series → Characters → Items → Locations → Outfits
 
