@@ -44,6 +44,9 @@ export function CharacterCard({
         }}
         onClick={onClick}
       >
+        <Badge color="indigo" size="lg" radius="sm" variant="outline">
+          {character.seriesName ?? "No Series"}
+        </Badge>
         <Group justify="space-between" wrap="nowrap" mb="xs">
           <Title order={4}>{character.name}</Title>
           <ActionIcon.Group orientation="vertical">
@@ -68,17 +71,6 @@ export function CharacterCard({
               <IconTrash size={20} />
             </ActionIcon>
           </ActionIcon.Group>
-        </Group>
-        <Group gap="xs">
-          {character.seriesName ? (
-            <Badge color="blue" variant="light">
-              {character.seriesName}
-            </Badge>
-          ) : (
-            <Badge color="gray" variant="light">
-              No Series
-            </Badge>
-          )}
         </Group>
       </Card>
 

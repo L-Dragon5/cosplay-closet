@@ -30,12 +30,14 @@ export function SectionShell({
   title,
   isLoading,
   error,
+  filterSlot,
   children,
 }: {
   section: Section
   title: string
   isLoading: boolean
   error: Error | null
+  filterSlot?: React.ReactNode
   children: (search: string, view: ViewMode) => React.ReactNode
 }) {
   const [search, setSearch] = useState("")
@@ -119,8 +121,9 @@ export function SectionShell({
             leftSection={<IconSearch size={20} />}
             value={search}
             onChange={(e) => setSearch(e.currentTarget.value)}
-            mb="xs"
+            mb={filterSlot ? "sm" : "xs"}
           />
+          {filterSlot}
         </Collapse>
       </Container>
 

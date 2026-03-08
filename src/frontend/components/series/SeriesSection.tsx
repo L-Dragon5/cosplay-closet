@@ -10,7 +10,13 @@ import {
   TextInput,
   useDrawersStack,
 } from "@mantine/core"
-import { IconCheck, IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import {
+  IconCheck,
+  IconEye,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import type { Series } from "@/backend/series/model"
@@ -132,14 +138,20 @@ export function SeriesSection() {
                           <ActionIcon
                             variant="light"
                             color="green"
-                            onClick={(e) => { e.stopPropagation(); handleTableSave(s) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleTableSave(s)
+                            }}
                           >
                             <IconCheck size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="gray"
-                            onClick={(e) => { e.stopPropagation(); setEditingId(null) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingId(null)
+                            }}
                           >
                             <IconX size={20} />
                           </ActionIcon>
@@ -148,7 +160,10 @@ export function SeriesSection() {
                         <ActionIcon.Group>
                           <ActionIcon
                             variant="light"
-                            onClick={(e) => { e.stopPropagation(); openSeries(s.id) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              openSeries(s.id)
+                            }}
                             aria-label="View series"
                           >
                             <IconEye size={20} />
@@ -156,14 +171,21 @@ export function SeriesSection() {
                           <ActionIcon
                             variant="light"
                             color="green"
-                            onClick={(e) => { e.stopPropagation(); setEditingId(s.id); setEditingName(s.name) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingId(s.id)
+                              setEditingName(s.name)
+                            }}
                           >
                             <IconPencil size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="red"
-                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteSeries(s) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setConfirmDeleteSeries(s)
+                            }}
                           >
                             <IconTrash size={20} />
                           </ActionIcon>

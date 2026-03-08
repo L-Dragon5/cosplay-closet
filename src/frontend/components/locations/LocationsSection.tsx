@@ -8,7 +8,13 @@ import {
   Text,
   TextInput,
 } from "@mantine/core"
-import { IconCheck, IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import {
+  IconCheck,
+  IconEye,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Location } from "@/backend/locations/model"
@@ -121,14 +127,20 @@ export function LocationsSection() {
                           <ActionIcon
                             variant="light"
                             color="green"
-                            onClick={(e) => { e.stopPropagation(); handleTableSave(l) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleTableSave(l)
+                            }}
                           >
                             <IconCheck size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="gray"
-                            onClick={(e) => { e.stopPropagation(); setEditingId(null) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingId(null)
+                            }}
                           >
                             <IconX size={20} />
                           </ActionIcon>
@@ -137,7 +149,10 @@ export function LocationsSection() {
                         <ActionIcon.Group>
                           <ActionIcon
                             variant="light"
-                            onClick={(e) => { e.stopPropagation(); setSelectedId(l.id) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setSelectedId(l.id)
+                            }}
                             aria-label="View location"
                           >
                             <IconEye size={20} />
@@ -145,14 +160,21 @@ export function LocationsSection() {
                           <ActionIcon
                             variant="light"
                             color="green"
-                            onClick={(e) => { e.stopPropagation(); setEditingId(l.id); setEditingName(l.name) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setEditingId(l.id)
+                              setEditingName(l.name)
+                            }}
                           >
                             <IconPencil size={20} />
                           </ActionIcon>
                           <ActionIcon
                             variant="light"
                             color="red"
-                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteLocation(l) }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setConfirmDeleteLocation(l)
+                            }}
                           >
                             <IconTrash size={20} />
                           </ActionIcon>

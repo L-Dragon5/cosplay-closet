@@ -9,7 +9,7 @@ import {
   Text,
   Title,
 } from "@mantine/core"
-import { IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
@@ -27,6 +27,7 @@ const TYPE_COLORS: Record<string, string> = {
 export function ItemCard({ item }: { item: any }) {
   const queryClient = useQueryClient()
   const [editOpened, setEditOpened] = useState(false)
+  const [notesOpened, setNotesOpened] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleDelete() {
@@ -39,9 +40,47 @@ export function ItemCard({ item }: { item: any }) {
     <>
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="xs">
-          <Group justify="space-between" wrap="nowrap">
-            <Title order={4}>{item.name}</Title>
-            <ActionIcon.Group orientation="vertical">
+          <Stack gap=".25rem">
+            {item.seriesName && (
+              <Badge color="indigo" size="md" radius="sm" variant="outline">
+                {item.seriesName}
+              </Badge>
+            )}
+            {item.characterName && (
+              <Badge color="green" size="md" radius="sm" variant="filled">
+                {item.characterName}
+              </Badge>
+            )}
+          </Stack>
+
+          <Title order={4}>{item.name}</Title>
+          
+          <Group gap="xs">
+            <Badge color={TYPE_COLORS[item.type] ?? "gray"} variant="light">
+              {item.type}
+            </Badge>
+          </Group>
+          
+          <Group justify="space-between" align="flex-end" wrap="nowrap">
+            {item.locationName && (
+              <Text size="sm" c="dimmed">
+                {item.locationName}
+              </Text>
+            )}
+
+            <ActionIcon.Group>
+              {item.notes && (
+                <ActionIcon
+                  variant="light"
+                  color="gray"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setNotesOpened(true)
+                  }}
+                >
+                  <IconNotebook size={20} />
+                </ActionIcon>
+              )}
               <ActionIcon
                 variant="light"
                 color="green"
@@ -64,28 +103,18 @@ export function ItemCard({ item }: { item: any }) {
               </ActionIcon>
             </ActionIcon.Group>
           </Group>
-          <Group gap="xs">
-            <Badge color={TYPE_COLORS[item.type] ?? "gray"} variant="light">
-              {item.type}
-            </Badge>
-            {item.seriesName && (
-              <Badge color="indigo" variant="outline">
-                {item.seriesName}
-              </Badge>
-            )}
-          </Group>
-          {item.characterName && (
-            <Text size="sm" c="dimmed">
-              {item.characterName}
-            </Text>
-          )}
-          {item.locationName && (
-            <Text size="sm" c="dimmed">
-              {item.locationName}
-            </Text>
-          )}
         </Stack>
       </Card>
+
+      <Modal
+        opened={notesOpened}
+        onClose={() => setNotesOpened(false)}
+        title="Notes"
+        centered
+        size="sm"
+      >
+        <Text>{item.notes}</Text>
+      </Modal>
 
       <Modal
         opened={editOpened}

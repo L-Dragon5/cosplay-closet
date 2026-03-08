@@ -41,7 +41,9 @@ export function EditCharacterForm({
         placeholder="Character name"
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") handleSubmit() }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleSubmit()
+        }}
         autoFocus
         required
       />

@@ -26,7 +26,7 @@ export function VirtualCardGrid<T extends { id: number }>({
     if (!el) return
     setScrollMargin(el.offsetTop)
     const ro = new ResizeObserver(([entry]) => {
-      if (entry) setCols(getColumns(entry.contentRect.width))
+      if (entry) requestAnimationFrame(() => setCols(getColumns(entry.contentRect.width)))
     })
     ro.observe(el)
     return () => ro.disconnect()

@@ -3,10 +3,12 @@ import {
   Button,
   Group,
   Modal,
+  MultiSelect,
+  SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core"
-import { IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Item } from "@/backend/items/model"
@@ -37,7 +39,12 @@ export function ItemsSection() {
     error: lError,
   } = useLocationsQuery()
   const queryClient = useQueryClient()
+  const [filterSeries, setFilterSeries] = useState<string[]>([])
+  const [filterCharacters, setFilterCharacters] = useState<string[]>([])
+  const [filterTypes, setFilterTypes] = useState<string[]>([])
+  const [filterLocations, setFilterLocations] = useState<string[]>([])
   const [editingItem, setEditingItem] = useState<Item | null>(null)
+  const [notesItem, setNotesItem] = useState<Item | null>(null)
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<Item | null>(null)
 
   const data = useMemo(
@@ -51,6 +58,63 @@ export function ItemsSection() {
           locations?.find((l) => l.id === item.location_id)?.name ?? null,
       })),
     [items, characters, series, locations],
+  )
+
+  const seriesOptions = (series ?? []).map((s) => ({
+    value: String(s.id),
+    label: s.name,
+  }))
+  const characterOptions = (characters ?? []).map((c) => ({
+    value: String(c.id),
+    label: c.name,
+  }))
+  const typeOptions = [
+    "Clothes",
+    "Wig",
+    "Shoes",
+    "Accessories",
+    "Prop",
+    "Materials",
+  ]
+  const locationOptions = (locations ?? []).map((l) => ({
+    value: String(l.id),
+    label: l.name,
+  }))
+
+  const filterSlot = (
+    <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="sm" mb="xs">
+      <MultiSelect
+        placeholder="Series"
+        data={seriesOptions}
+        value={filterSeries}
+        onChange={setFilterSeries}
+        searchable
+        clearable
+      />
+      <MultiSelect
+        placeholder="Characters"
+        data={characterOptions}
+        value={filterCharacters}
+        onChange={setFilterCharacters}
+        searchable
+        clearable
+      />
+      <MultiSelect
+        placeholder="Type"
+        data={typeOptions}
+        value={filterTypes}
+        onChange={setFilterTypes}
+        clearable
+      />
+      <MultiSelect
+        placeholder="Location"
+        data={locationOptions}
+        value={filterLocations}
+        onChange={setFilterLocations}
+        searchable
+        clearable
+      />
+    </SimpleGrid>
   )
 
   async function handleTableDelete() {
@@ -67,15 +131,45 @@ export function ItemsSection() {
         title="Items"
         isLoading={iLoading || cLoading || sLoading || lLoading}
         error={iError ?? cError ?? sError ?? lError}
+        filterSlot={filterSlot}
       >
         {(search, view) => {
-          const filtered = (data ?? []).filter((item) =>
-            item.name.toLowerCase().includes(search.toLowerCase()),
-          )
+          const filtered = (data ?? [])
+            .filter((item) =>
+              item.name.toLowerCase().includes(search.toLowerCase()),
+            )
+            .filter(
+              (item) =>
+                !filterSeries.length ||
+                (item.series_id !== null &&
+                  filterSeries.includes(String(item.series_id))),
+            )
+            .filter(
+              (item) =>
+                !filterCharacters.length ||
+                (item.character_id !== null &&
+                  filterCharacters.includes(String(item.character_id))),
+            )
+            .filter(
+              (item) =>
+                !filterTypes.length || filterTypes.includes(item.type),
+            )
+            .filter(
+              (item) =>
+                !filterLocations.length ||
+                (item.location_id !== null &&
+                  filterLocations.includes(String(item.location_id))),
+            )
+          const hasActiveFilters =
+            !!search ||
+            filterSeries.length > 0 ||
+            filterCharacters.length > 0 ||
+            filterTypes.length > 0 ||
+            filterLocations.length > 0
           if (!filtered.length) {
             return (
               <Text c="dimmed">
-                {search ? "No matches found." : "No items added yet."}
+                {hasActiveFilters ? "No matches found." : "No items added yet."}
               </Text>
             )
           }
@@ -102,6 +196,18 @@ export function ItemsSection() {
                     header: "Actions",
                     render: (item) => (
                       <ActionIcon.Group>
+                        {item.notes && (
+                          <ActionIcon
+                            variant="light"
+                            color="gray"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setNotesItem(item)
+                            }}
+                          >
+                            <IconNotebook size={20} />
+                          </ActionIcon>
+                        )}
                         <ActionIcon
                           variant="light"
                           color="green"
@@ -139,13 +245,26 @@ export function ItemsSection() {
       </SectionShell>
 
       <Modal
+        opened={notesItem !== null}
+        onClose={() => setNotesItem(null)}
+        title="Notes"
+        centered
+        size="sm"
+      >
+        <Text>{notesItem?.notes}</Text>
+      </Modal>
+
+      <Modal
         opened={editingItem !== null}
         onClose={() => setEditingItem(null)}
         title="Edit Item"
         centered
       >
         {editingItem && (
-          <EditItemForm item={editingItem} onSuccess={() => setEditingItem(null)} />
+          <EditItemForm
+            item={editingItem}
+            onSuccess={() => setEditingItem(null)}
+          />
         )}
       </Modal>
 

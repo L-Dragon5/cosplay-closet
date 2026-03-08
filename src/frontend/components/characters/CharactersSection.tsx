@@ -1,11 +1,4 @@
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Modal,
-  Stack,
-  Text,
-} from "@mantine/core"
+import { ActionIcon, Button, Group, Modal, Stack, Text } from "@mantine/core"
 import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
@@ -28,7 +21,9 @@ export function CharactersSection() {
   const { data: series, isLoading: sLoading, error: sError } = useSeriesQuery()
   const queryClient = useQueryClient()
   const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null)
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(
+    null,
+  )
   const [confirmDeleteCharacter, setConfirmDeleteCharacter] =
     useState<Character | null>(null)
 
@@ -82,7 +77,10 @@ export function CharactersSection() {
                       <ActionIcon.Group>
                         <ActionIcon
                           variant="light"
-                          onClick={(e) => { e.stopPropagation(); setSelectedId(c.id) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedId(c.id)
+                          }}
                           aria-label="View character"
                         >
                           <IconEye size={20} />
@@ -90,14 +88,20 @@ export function CharactersSection() {
                         <ActionIcon
                           variant="light"
                           color="green"
-                          onClick={(e) => { e.stopPropagation(); setEditingCharacter(c) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingCharacter(c)
+                          }}
                         >
                           <IconPencil size={20} />
                         </ActionIcon>
                         <ActionIcon
                           variant="light"
                           color="red"
-                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteCharacter(c) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setConfirmDeleteCharacter(c)
+                          }}
                         >
                           <IconTrash size={20} />
                         </ActionIcon>
