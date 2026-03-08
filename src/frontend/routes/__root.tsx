@@ -3,6 +3,7 @@ import { createRootRoute, Outlet } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { useAtom } from "jotai"
 import { activeSectionAtom, type Section } from "@/frontend/atoms"
+import { AddButton } from "@/frontend/components/AddButton"
 
 function NavButton({ section, label }: { section: Section; label: string }) {
   const [activeSection, setActiveSection] = useAtom(activeSectionAtom)
@@ -35,6 +36,7 @@ const RootLayout = () => (
     </AppShell.Header>
     <AppShell.Main>
       <Outlet />
+      <AddButton />
       <TanStackRouterDevtools />
     </AppShell.Main>
   </AppShell>

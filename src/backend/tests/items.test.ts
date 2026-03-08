@@ -52,6 +52,10 @@ describe("Items Controller", () => {
       "INSERT INTO characters (name, series_id) VALUES (?, ?)",
       ["Gojo Satoru", seriesId],
     )
+    const { lastInsertRowid: locationId } = sqlite.run(
+      "INSERT INTO locations (name) VALUES (?)",
+      ["Box A"],
+    )
     const res = await app.handle(
       new Request("http://localhost/items", {
         method: "POST",
@@ -61,7 +65,7 @@ describe("Items Controller", () => {
           type: "Accessories",
           series_id: seriesId,
           character_id: charId,
-          location: "Box A",
+          location_id: locationId,
           notes: "Keep clean",
         }),
       }),
@@ -72,7 +76,7 @@ describe("Items Controller", () => {
     expect(data.type).toBe("Accessories")
     expect(data.series_id).toBe(seriesId)
     expect(data.character_id).toBe(charId)
-    expect(data.location).toBe("Box A")
+    expect(data.location_id).toBe(locationId)
     expect(data.notes).toBe("Keep clean")
   })
 
@@ -89,11 +93,15 @@ describe("Items Controller", () => {
     expect(data.name).toBe("Generic Wig")
     expect(data.series_id).toBeNull()
     expect(data.character_id).toBeNull()
-    expect(data.location).toBeNull()
+    expect(data.location_id).toBeNull()
     expect(data.notes).toBeNull()
   })
 
   test("PUT /items/:id updates item", async () => {
+    const { lastInsertRowid: locationId } = sqlite.run(
+      "INSERT INTO locations (name) VALUES (?)",
+      ["Shelf B"],
+    )
     const { lastInsertRowid: id } = sqlite.run(
       "INSERT INTO items (name, type) VALUES (?, ?)",
       ["Old Name", "Wig"],
@@ -107,7 +115,7 @@ describe("Items Controller", () => {
           type: "Prop",
           series_id: null,
           character_id: null,
-          location: "Shelf B",
+          location_id: locationId,
           notes: null,
         }),
       }),
@@ -116,7 +124,7 @@ describe("Items Controller", () => {
     const data = await res.json()
     expect(data.name).toBe("New Name")
     expect(data.type).toBe("Prop")
-    expect(data.location).toBe("Shelf B")
+    expect(data.location_id).toBe(locationId)
   })
 
   test("PUT /items/:id returns 404 when not found", async () => {
@@ -129,7 +137,7 @@ describe("Items Controller", () => {
           type: "Prop",
           series_id: null,
           character_id: null,
-          location: null,
+          location_id: null,
           notes: null,
         }),
       }),

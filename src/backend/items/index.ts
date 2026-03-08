@@ -6,15 +6,7 @@ import {
   getItemById,
   updateItem,
 } from "./service"
-
-const itemType = t.Union([
-  t.Literal("Clothes"),
-  t.Literal("Wig"),
-  t.Literal("Shoes"),
-  t.Literal("Accessories"),
-  t.Literal("Prop"),
-  t.Literal("Materials"),
-])
+import { ItemTypeSchema as itemType } from "./model"
 
 export const itemsController = new Elysia({ prefix: "/items" })
   .get("/", () => getAllItems())
@@ -63,7 +55,7 @@ export const itemsController = new Elysia({ prefix: "/items" })
         body.type,
         body.series_id,
         body.character_id,
-        body.location,
+        body.location_id,
         body.notes,
       )
       if (!item) {

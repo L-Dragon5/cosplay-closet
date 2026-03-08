@@ -1,4 +1,4 @@
-import { Drawer, SimpleGrid, Text, Title } from "@mantine/core"
+import { Drawer, SimpleGrid, Text } from "@mantine/core"
 import { useMemo } from "react"
 import { useOutfitsQuery } from "@/frontend/queries"
 import { OutfitCard } from "../outfits/OutfitCard"
@@ -28,11 +28,7 @@ export function CharacterOutfitsDrawer({
     <Drawer
       opened={characterId !== null}
       onClose={onClose}
-      title={
-        <Title order={3}>
-          {seriesName ? `${seriesName} - ${characterName}` : characterName}
-        </Title>
-      }
+      title={seriesName ? `${seriesName} - ${characterName}` : characterName}
       position="bottom"
       size="70%"
       closeOnClickOutside={false}

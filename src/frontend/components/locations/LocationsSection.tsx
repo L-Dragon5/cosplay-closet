@@ -1,7 +1,9 @@
-import { List, Modal, SimpleGrid, Text, Title } from "@mantine/core"
+import { List, Modal, Text } from "@mantine/core"
 import { useMemo, useState } from "react"
 import { useItemsQuery, useLocationsQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
+import { VirtualCardGrid } from "../VirtualCardGrid"
+import { VirtualTable } from "../VirtualTable"
 import { LocationCard } from "./LocationCard"
 
 export function LocationsSection() {
@@ -36,26 +38,45 @@ export function LocationsSection() {
         isLoading={lLoading || iLoading}
         error={lError ?? iError}
       >
-        {!data?.length ? (
-          <Text c="dimmed">No locations added yet.</Text>
-        ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
-            {data.map((location) => (
-              <LocationCard
-                key={location.id}
-                location={location}
-                itemCount={location.itemCount}
-                onClick={() => setSelectedId(location.id)}
+        {(search, view) => {
+          const filtered = (data ?? []).filter((l) =>
+            l.name.toLowerCase().includes(search.toLowerCase()),
+          )
+          if (!filtered.length) {
+            return <Text c="dimmed">{search ? "No matches found." : "No locations added yet."}</Text>
+          }
+          if (view === "table") {
+            return (
+              <VirtualTable
+                rows={filtered}
+                columns={[
+                  { header: "Name", render: (l) => l.name },
+                  { header: "Items", render: (l) => l.itemCount },
+                ]}
+                onRowClick={(l) => setSelectedId(l.id)}
               />
-            ))}
-          </SimpleGrid>
-        )}
+            )
+          }
+          return (
+            <VirtualCardGrid
+              items={filtered}
+              renderItem={(location) => (
+                <LocationCard
+                  key={location.id}
+                  location={location}
+                  itemCount={location.itemCount}
+                  onClick={() => setSelectedId(location.id)}
+                />
+              )}
+            />
+          )
+        }}
       </SectionShell>
 
       <Modal
         opened={selectedId !== null}
         onClose={() => setSelectedId(null)}
-        title={<Title order={3}>{selectedLocation?.name}</Title>}
+        title={selectedLocation?.name}
         centered
       >
         {locationItems.length === 0 ? (

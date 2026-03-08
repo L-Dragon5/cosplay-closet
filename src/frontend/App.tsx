@@ -1,5 +1,5 @@
 import "@mantine/core/styles.css"
-import { createTheme, MantineProvider } from "@mantine/core"
+import { ActionIcon, createTheme, Drawer, MantineProvider, Modal } from "@mantine/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
@@ -9,7 +9,23 @@ import { routeTree } from "./routeTree.gen"
 
 // Mantine theme override
 const theme = createTheme({
-  /** Put your mantine theme override here */
+  components: {
+    ActionIcon: ActionIcon.extend({
+      defaultProps: {
+        size: 'lg',
+      },
+    }),
+    Drawer: Drawer.extend({
+      styles: {
+        title: { fontSize: "1.5rem", fontWeight: 700 },
+      }
+    }),
+    Modal: Modal.extend({
+      styles: {
+        title: { fontSize: '1.5rem', fontWeight: 700 },
+      },
+    }),
+  },
 })
 
 const queryClient = new QueryClient()

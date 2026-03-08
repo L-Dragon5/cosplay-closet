@@ -1,7 +1,9 @@
-import { SimpleGrid, Text } from "@mantine/core"
+import { Text } from "@mantine/core"
 import { useMemo } from "react"
 import { useCharactersQuery, useOutfitsQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
+import { VirtualCardGrid } from "../VirtualCardGrid"
+import { VirtualTable } from "../VirtualTable"
 import { OutfitCard } from "./OutfitCard"
 
 export function OutfitsSection() {
@@ -32,15 +34,32 @@ export function OutfitsSection() {
       isLoading={oLoading || cLoading}
       error={oError ?? cError}
     >
-      {!data?.length ? (
-        <Text c="dimmed">No outfits added yet.</Text>
-      ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
-          {data.map((o) => (
-            <OutfitCard key={o.id} outfit={o} />
-          ))}
-        </SimpleGrid>
-      )}
+      {(search, view) => {
+        const filtered = (data ?? []).filter((o) =>
+          o.name.toLowerCase().includes(search.toLowerCase()),
+        )
+        if (!filtered.length) {
+          return <Text c="dimmed">{search ? "No matches found." : "No outfits added yet."}</Text>
+        }
+        if (view === "table") {
+          return (
+            <VirtualTable
+              rows={filtered}
+              columns={[
+                { header: "Name", render: (o) => o.name },
+                { header: "Character", render: (o) => o.characterName ?? "—" },
+                { header: "Items", render: (o) => o.items.length },
+              ]}
+            />
+          )
+        }
+        return (
+          <VirtualCardGrid
+            items={filtered}
+            renderItem={(o) => <OutfitCard key={o.id} outfit={o} />}
+          />
+        )
+      }}
     </SectionShell>
   )
 }

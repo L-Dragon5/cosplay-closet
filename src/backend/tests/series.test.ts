@@ -25,8 +25,8 @@ describe("Series Controller", () => {
     const data = await res.json()
     expect(data).toHaveLength(2)
     expect(data.map((s: { name: string }) => s.name)).toEqual([
-      "Jujutsu Kaisen",
       "Chainsaw Man",
+      "Jujutsu Kaisen",
     ])
   })
 

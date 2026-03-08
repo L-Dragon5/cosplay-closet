@@ -16,13 +16,18 @@ export function createTestDb() {
 		series_id INTEGER NULL REFERENCES series(id) ON DELETE SET NULL
 	)`)
 
+  sqlite.run(`CREATE TABLE locations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL
+	)`)
+
   sqlite.run(`CREATE TABLE items (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		name TEXT NOT NULL,
 		series_id INTEGER NULL REFERENCES series(id) ON DELETE SET NULL,
 		character_id INTEGER NULL REFERENCES characters(id) ON DELETE SET NULL,
-		type TEXT NOT NULL CHECK(type IN ('Clothes','Wig','Shoes','Accessories','Prop')),
-		location TEXT NULL,
+		location_id INTEGER NULL REFERENCES locations(id) ON DELETE SET NULL,
+		type TEXT NOT NULL CHECK(type IN ('Clothes','Wig','Shoes','Accessories','Prop','Materials')),
 		notes TEXT NULL
 	)`)
 
@@ -45,6 +50,7 @@ export function clearAll(sqlite: Database) {
   sqlite.run("DELETE FROM outfit_items")
   sqlite.run("DELETE FROM outfits")
   sqlite.run("DELETE FROM items")
+  sqlite.run("DELETE FROM locations")
   sqlite.run("DELETE FROM characters")
   sqlite.run("DELETE FROM series")
 }

@@ -71,20 +71,22 @@ export function SeriesCard({
               style={{ flex: 1 }}
               autoFocus
             />
-            <ActionIcon variant="light" color="green" onClick={handleSave}>
-              <IconCheck size={16} />
-            </ActionIcon>
-            <ActionIcon variant="light" color="gray" onClick={handleCancel}>
-              <IconX size={16} />
-            </ActionIcon>
+            <ActionIcon.Group>
+              <ActionIcon variant="light" color="green" onClick={handleSave}>
+                <IconCheck size={16} />
+              </ActionIcon>
+              <ActionIcon variant="light" color="gray" onClick={handleCancel}>
+                <IconX size={16} />
+              </ActionIcon>
+            </ActionIcon.Group>
           </Group>
         ) : (
           <Group justify="space-between" wrap="nowrap">
             <Title order={4}>{series.name}</Title>
-            <Group gap="xs" wrap="nowrap">
+            <ActionIcon.Group orientation="vertical">
               <ActionIcon
-                variant="subtle"
-                color="gray"
+                variant="light"
+                color="green"
                 onClick={(e) => {
                   e.stopPropagation()
                   setEditing(true)
@@ -93,7 +95,7 @@ export function SeriesCard({
                 <IconPencil size={16} />
               </ActionIcon>
               <ActionIcon
-                variant="subtle"
+                variant="light"
                 color="red"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -102,7 +104,7 @@ export function SeriesCard({
               >
                 <IconTrash size={16} />
               </ActionIcon>
-            </Group>
+            </ActionIcon.Group>
           </Group>
         )}
       </Card>

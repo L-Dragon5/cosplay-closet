@@ -1,4 +1,4 @@
-import { Drawer, SimpleGrid, Text, Title, useDrawersStack } from "@mantine/core"
+import { Drawer, SimpleGrid, Text, useDrawersStack } from "@mantine/core"
 import { useState } from "react"
 import {
   useCharactersQuery,
@@ -8,6 +8,8 @@ import {
 import { CharacterCard } from "../characters/CharacterCard"
 import { OutfitCard } from "../outfits/OutfitCard"
 import { SectionShell } from "../SectionShell"
+import { VirtualCardGrid } from "../VirtualCardGrid"
+import { VirtualTable } from "../VirtualTable"
 import { SeriesCard } from "./SeriesCard"
 
 export function SeriesSection() {
@@ -18,50 +20,56 @@ export function SeriesSection() {
   const { data: characters } = useCharactersQuery()
   const { data: outfits } = useOutfitsQuery()
   const [selectedSeriesId, setSelectedSeriesId] = useState<number | null>(null)
-  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
-    null,
-  )
+  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null)
 
   const selectedSeries = data?.find((s) => s.id === selectedSeriesId) ?? null
   const seriesCharacters = (characters ?? [])
     .filter((c) => c.series_id === selectedSeriesId)
     .map((c) => ({ ...c, seriesName: selectedSeries?.name ?? null }))
 
-  const selectedCharacter =
-    seriesCharacters.find((c) => c.id === selectedCharacterId) ?? null
+  const selectedCharacter = seriesCharacters.find((c) => c.id === selectedCharacterId) ?? null
   const characterOutfits = (outfits ?? [])
     .filter((o) => o.character_id === selectedCharacterId)
     .map((o) => ({ ...o, characterName: selectedCharacter?.name ?? null }))
 
+  function openSeries(id: number) {
+    setSelectedSeriesId(id)
+    stack.open("series")
+  }
+
   return (
     <>
       <SectionShell title="Series" isLoading={isLoading} error={error}>
-        {!data?.length ? (
-          <Text c="dimmed">No series added yet.</Text>
-        ) : (
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
-            {data.map((s) => (
-              <SeriesCard
-                key={s.id}
-                series={s}
-                onClick={() => {
-                  setSelectedSeriesId(s.id)
-                  stack.open("series")
-                }}
+        {(search, view) => {
+          const filtered = (data ?? []).filter((s) =>
+            s.name.toLowerCase().includes(search.toLowerCase()),
+          )
+          if (!filtered.length) {
+            return <Text c="dimmed">{search ? "No matches found." : "No series added yet."}</Text>
+          }
+          if (view === "table") {
+            return (
+              <VirtualTable
+                rows={filtered}
+                columns={[{ header: "Name", render: (s) => s.name }]}
+                onRowClick={(s) => openSeries(s.id)}
               />
-            ))}
-          </SimpleGrid>
-        )}
+            )
+          }
+          return (
+            <VirtualCardGrid
+              items={filtered}
+              renderItem={(s) => <SeriesCard key={s.id} series={s} onClick={() => openSeries(s.id)} />}
+            />
+          )
+        }}
       </SectionShell>
 
       <Drawer.Stack>
         <Drawer
           {...seriesReg}
-          onClose={() => {
-            stack.close("series")
-            setSelectedSeriesId(null)
-          }}
-          title={<Title order={3}>{selectedSeries?.name}</Title>}
+          onClose={() => { stack.close("series"); setSelectedSeriesId(null) }}
+          title={selectedSeries?.name}
           position="bottom"
           size="70%"
           closeOnClickOutside={false}
@@ -74,10 +82,7 @@ export function SeriesSection() {
                 <CharacterCard
                   key={c.id}
                   character={c}
-                  onClick={() => {
-                    setSelectedCharacterId(c.id)
-                    stack.open("character-outfits")
-                  }}
+                  onClick={() => { setSelectedCharacterId(c.id); stack.open("character-outfits") }}
                 />
               ))}
             </SimpleGrid>
@@ -86,16 +91,11 @@ export function SeriesSection() {
 
         <Drawer
           {...characterReg}
-          onClose={() => {
-            stack.close("character-outfits")
-            setSelectedCharacterId(null)
-          }}
+          onClose={() => { stack.close("character-outfits"); setSelectedCharacterId(null) }}
           title={
-            <Title order={3}>
-              {selectedSeries && selectedCharacter
-                ? `${selectedSeries.name} - ${selectedCharacter.name}`
-                : selectedCharacter?.name}
-            </Title>
+            selectedSeries && selectedCharacter
+              ? `${selectedSeries.name} - ${selectedCharacter.name}`
+              : selectedCharacter?.name
           }
           position="bottom"
           size="70%"
