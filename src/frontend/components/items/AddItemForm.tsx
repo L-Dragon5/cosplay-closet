@@ -17,6 +17,9 @@ const ITEM_TYPES = [
   "Materials",
 ]
 
+const CREATE_SERIES = "__create_series__"
+const CREATE_CHARACTER = "__create_character__"
+
 export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient()
   const { data: series } = useSeriesQuery()
@@ -29,24 +32,73 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
   const [characterId, setCharacterId] = useState<string | null>(null)
   const [locationId, setLocationId] = useState<string | null>(null)
   const [notes, setNotes] = useState("")
+  const [seriesSearch, setSeriesSearch] = useState("")
+  const [characterSearch, setCharacterSearch] = useState("")
 
-  const seriesOptions = (series ?? []).map((s) => ({
-    value: String(s.id),
-    label: s.name,
-  }))
+  const exactSeriesMatch = (series ?? []).some(
+    (s) => s.name.toLowerCase() === seriesSearch.toLowerCase(),
+  )
+  const seriesOptions = [
+    ...(series ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+    ...(!exactSeriesMatch && seriesSearch.trim()
+      ? [{ value: CREATE_SERIES, label: `Create "${seriesSearch.trim()}"` }]
+      : []),
+  ]
 
-  const characterOptions = (characters ?? [])
-    .filter((c) => !seriesId || String(c.series_id) === seriesId)
-    .map((c) => ({ value: String(c.id), label: c.name }))
+  const filteredCharacters = (characters ?? []).filter(
+    (c) => !seriesId || String(c.series_id) === seriesId,
+  )
+  const exactCharacterMatch = filteredCharacters.some(
+    (c) => c.name.toLowerCase() === characterSearch.toLowerCase(),
+  )
+  const characterOptions = [
+    ...filteredCharacters.map((c) => ({ value: String(c.id), label: c.name })),
+    ...(!exactCharacterMatch && characterSearch.trim()
+      ? [{ value: CREATE_CHARACTER, label: `Create "${characterSearch.trim()}"` }]
+      : []),
+  ]
 
   const locationOptions = (locations ?? []).map((l) => ({
     value: String(l.id),
     label: l.name,
   }))
 
-  function handleSeriesChange(val: string | null) {
+  async function handleSeriesChange(val: string | null) {
+    if (val === CREATE_SERIES) {
+      const { data: created } = await api.series.post({ name: seriesSearch.trim() })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["series"] })
+        setSeriesId(String(created.id))
+        setSeriesSearch("")
+        setCharacterId(null)
+      }
+      return
+    }
     setSeriesId(val)
     setCharacterId(null)
+  }
+
+  async function handleCharacterChange(val: string | null) {
+    if (val === CREATE_CHARACTER) {
+      const { data: created } = await api.characters.post({
+        name: characterSearch.trim(),
+        series_id: seriesId ? Number(seriesId) : null,
+      })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["characters"] })
+        setCharacterId(String(created.id))
+        setCharacterSearch("")
+        if (created.series_id && !seriesId) {
+          setSeriesId(String(created.series_id))
+        }
+      }
+      return
+    }
+    if (val) {
+      const char = (characters ?? []).find((c) => String(c.id) === val)
+      if (char?.series_id) setSeriesId(String(char.series_id))
+    }
+    setCharacterId(val)
   }
 
   async function handleSubmit() {
@@ -83,22 +135,25 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
       />
       <Select
         label="Series"
-        placeholder="Select series"
+        placeholder="Select or create series"
         data={seriesOptions}
         value={seriesId}
         onChange={handleSeriesChange}
+        searchValue={seriesSearch}
+        onSearchChange={setSeriesSearch}
         clearable
         searchable
       />
       <Select
         label="Character"
-        placeholder="Select character"
+        placeholder="Select or create character"
         data={characterOptions}
         value={characterId}
-        onChange={setCharacterId}
+        onChange={handleCharacterChange}
+        searchValue={characterSearch}
+        onSearchChange={setCharacterSearch}
         clearable
         searchable
-        disabled={characterOptions.length === 0}
       />
       <Select
         label="Location"
