@@ -1,256 +1,5 @@
 import { db } from "@/backend/db"
-
-// Words that are NOT character names — generic descriptors, type words, colors, etc.
-const STOP_WORDS = new Set([
-	// Articles / prepositions
-	"a",
-	"an",
-	"the",
-	"and",
-	"or",
-	"for",
-	"of",
-	"in",
-	"on",
-	"at",
-	"to",
-	"with",
-	"without",
-	"from",
-	"by",
-	"no",
-	"not",
-	// Item type words
-	"outfit",
-	"wig",
-	"shoes",
-	"shoe",
-	"accessories",
-	"accessory",
-	"prop",
-	"props",
-	"boots",
-	"boot",
-	"sandal",
-	"sandals",
-	"heels",
-	"pumps",
-	"sneakers",
-	"flats",
-	"wedges",
-	"dress",
-	"uniform",
-	"suit",
-	"jacket",
-	"skirt",
-	"shirt",
-	"swimsuit",
-	"bikini",
-	"costume",
-	"gown",
-	"glasses",
-	"headset",
-	"headband",
-	"crown",
-	"tiara",
-	"earrings",
-	"bracelets",
-	"bow",
-	"tail",
-	"ears",
-	"wings",
-	"horns",
-	"mask",
-	"gloves",
-	"belt",
-	"purse",
-	"bag",
-	"ponytail",
-	"braid",
-	"shorts",
-	"pants",
-	"socks",
-	"stockings",
-	"cape",
-	"armor",
-	"sword",
-	"staff",
-	"wand",
-	"fan",
-	"umbrella",
-	"plushie",
-	"plushies",
-	"gun",
-	"megaphone",
-	"petticoat",
-	"ribbon",
-	"necklace",
-	"ring",
-	"hoodie",
-	"coat",
-	"vest",
-	"tutu",
-	"lingerie",
-	"kimono",
-	"cellophane",
-	"pendant",
-	"hair",
-	"piece",
-	"maid",
-	"swimwear",
-	"leotard",
-	"bodice",
-	"corset",
-	"apron",
-	"blouse",
-	"cardigan",
-	"blazer",
-	"tights",
-	// Colors
-	"black",
-	"white",
-	"blue",
-	"red",
-	"pink",
-	"green",
-	"gold",
-	"silver",
-	"purple",
-	"grey",
-	"gray",
-	"yellow",
-	"orange",
-	"brown",
-	"dark",
-	"light",
-	"bright",
-	"navy",
-	"teal",
-	"crimson",
-	"magenta",
-	"lavender",
-	"ivory",
-	"beige",
-	// Costume variant descriptors
-	"racing",
-	"wedding",
-	"winter",
-	"summer",
-	"christmas",
-	"halloween",
-	"bunny",
-	"fanart",
-	"new",
-	"old",
-	"cat",
-	"clear",
-	"card",
-	"platinum",
-	"snow",
-	"santa",
-	"pilot",
-	"idol",
-	"magical",
-	"angel",
-	"young",
-	"dream",
-	"moon",
-	"ninja",
-	"cheer",
-	"ghost",
-	"story",
-	"autumn",
-	"arabian",
-	"flower",
-	"festival",
-	"fox",
-	"cyber",
-	"original",
-	"main",
-	"panda",
-	"china",
-	"qipao",
-	"regular",
-	"casual",
-	"default",
-	"spring",
-	"bride",
-	"bridal",
-	"princess",
-	"final",
-	"ultimate",
-	"limited",
-	"event",
-	"holiday",
-	"birthday",
-	"anniversary",
-	"school",
-	"battle",
-	"star",
-	"super",
-	"mega",
-	"mini",
-	"big",
-	"tiny",
-	"small",
-	"large",
-	"medium",
-	"full",
-	"half",
-	"fun",
-	"official",
-	"art",
-	"dazzling",
-	"succubus",
-	"holographic",
-	"deluxe",
-	"premium",
-	"classic",
-	"retro",
-	"alternate",
-	"alt",
-	"version",
-	"ver",
-	"vol",
-	"style",
-	"type",
-	"mode",
-	"form",
-	"themed",
-	"special",
-	"extra",
-	"bonus",
-	"anti-spiral",
-	"swim",
-	"swimming",
-	"little",
-	"gem",
-	"cross",
-	"swim",
-	"bunny",
-	"racing",
-	// Costume style words (never character names)
-	"twintail",
-	"bunnysuit",
-	"peachy",
-	"pirate",
-	"gothic",
-	"lolita",
-	// Numbers
-	"1",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6",
-	"7",
-	"8",
-	"1st",
-	"2nd",
-	"3rd",
-	"4th",
-	"5th",
-])
+import { COMPOUND_STOP_EXCEPTIONS, STOP_WORDS } from "./stopWords"
 
 function parseCSVRow(line: string): string[] {
 	const result: string[] = []
@@ -299,6 +48,11 @@ function isStopToken(token: string): boolean {
 	return STOP_WORDS.has(token) || /^\d+$/.test(token) || token.length <= 1
 }
 
+
+function isCompoundBlocker(token: string): boolean {
+	return isStopToken(token) && !COMPOUND_STOP_EXCEPTIONS.has(token)
+}
+
 /**
  * Within a series, find character names by looking for n-grams (1–3 words)
  * that appear in 2+ item names and aren't purely stop words.
@@ -331,10 +85,16 @@ function findCharacters(itemNames: string[]): string[] {
 		}
 	}
 
-	// Keep candidates appearing in 2+ items
+	// Keep candidates appearing in 2+ items, dropping multi-word n-grams that
+	// contain a stop-word token (e.g. "Fubuki Wig", "Young Ram", "Song For You").
+	// This must happen BEFORE the shorter/longer resolution so that filtered
+	// longer candidates don't cause their shorter base name to be dropped.
 	const candidates = new Map<string, number>()
 	for (const [ngram, count] of frequency) {
-		if (count >= 2) candidates.set(ngram, count)
+		if (count < 2) continue
+		const words = ngram.split(" ")
+		if (words.length > 1 && words.some((w) => isCompoundBlocker(w))) continue
+		candidates.set(ngram, count)
 	}
 
 	// Resolve ambiguity between shorter and longer candidates that share a word:
@@ -395,6 +155,35 @@ function assignCharacter(
 	return best
 }
 
+function levenshtein(a: string, b: string): number {
+	const m = a.length, n = b.length
+	const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
+		Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+	)
+	for (let i = 1; i <= m; i++) {
+		for (let j = 1; j <= n; j++) {
+			dp[i][j] =
+				a[i - 1] === b[j - 1]
+					? dp[i - 1][j - 1]
+					: 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+		}
+	}
+	return dp[m][n]
+}
+
+/**
+ * Given a series name and the list of already-canonical names, returns the
+ * canonical name if the new name is within edit-distance 2 (catches typos
+ * like "Leauge of Legends" → "League of Legends").
+ */
+function findCanonicalSeries(name: string, canonicals: string[]): string | null {
+	const lower = name.toLowerCase()
+	for (const c of canonicals) {
+		if (levenshtein(lower, c.toLowerCase()) <= 2) return c
+	}
+	return null
+}
+
 async function main() {
 	// Read CSV first — Bun 1.3.10 MySQL driver loses connection sync if file
 	// I/O follows a sequence of DB ops on the same connection.
@@ -430,6 +219,23 @@ async function main() {
 	}
 
 	console.log(`Parsed ${rows.length} rows`)
+
+	// Normalize series names: merge typo variants into the first-seen canonical name
+	const canonicalSeries: string[] = []
+	const seriesNorm = new Map<string, string>()
+	for (const row of rows) {
+		if (!row.series || seriesNorm.has(row.series)) continue
+		const canonical = findCanonicalSeries(row.series, canonicalSeries)
+		if (canonical) {
+			seriesNorm.set(row.series, canonical)
+		} else {
+			canonicalSeries.push(row.series)
+			seriesNorm.set(row.series, row.series)
+		}
+	}
+	for (const row of rows) {
+		if (row.series) row.series = seriesNorm.get(row.series) ?? row.series
+	}
 
 	// Group by series
 	const bySeries = new Map<string, typeof rows>()
