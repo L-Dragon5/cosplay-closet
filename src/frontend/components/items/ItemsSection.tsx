@@ -30,6 +30,7 @@ export function ItemsSection() {
 
   return (
     <SectionShell
+      section="items"
       title="Items"
       isLoading={iLoading || cLoading || sLoading || lLoading}
       error={iError ?? cError ?? sError ?? lError}

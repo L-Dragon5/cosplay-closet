@@ -30,6 +30,7 @@ export function OutfitsSection() {
 
   return (
     <SectionShell
+      section="outfits"
       title="Outfits"
       isLoading={oLoading || cLoading}
       error={oError ?? cError}

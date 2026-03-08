@@ -13,16 +13,21 @@ import {
 } from "@mantine/core"
 import { useDebouncedValue } from "@mantine/hooks"
 import { IconFilter, IconLayoutGrid, IconList, IconSearch } from "@tabler/icons-react"
+import { useAtom } from "jotai"
 import { useState } from "react"
+import { sectionViewAtom } from "@/frontend/atoms"
+import type { Section } from "@/frontend/atoms"
 
 export type ViewMode = "card" | "table"
 
 export function SectionShell({
+  section,
   title,
   isLoading,
   error,
   children,
 }: {
+  section: Section
   title: string
   isLoading: boolean
   error: Error | null
@@ -31,7 +36,12 @@ export function SectionShell({
   const [search, setSearch] = useState("")
   const [debounced] = useDebouncedValue(search, 100)
   const [filtersOpen, setFiltersOpen] = useState(false)
-  const [view, setView] = useState<ViewMode>("card")
+  const [sectionView, setSectionView] = useAtom(sectionViewAtom)
+  const view = sectionView[section]
+
+  function setView(mode: ViewMode) {
+    setSectionView((prev) => ({ ...prev, [section]: mode }))
+  }
 
   if (isLoading) {
     return (

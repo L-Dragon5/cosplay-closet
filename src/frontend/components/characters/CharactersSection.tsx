@@ -26,6 +26,7 @@ export function CharactersSection() {
   return (
     <>
       <SectionShell
+        section="characters"
         title="Characters"
         isLoading={cLoading || sLoading}
         error={cError ?? sError}

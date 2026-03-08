@@ -34,6 +34,7 @@ export function LocationsSection() {
   return (
     <>
       <SectionShell
+        section="locations"
         title="Locations"
         isLoading={lLoading || iLoading}
         error={lError ?? iError}

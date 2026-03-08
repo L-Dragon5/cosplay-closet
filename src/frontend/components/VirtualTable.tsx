@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef, useState } from "react"
-import { useWindowVirtualizer } from "@tanstack/react-virtual"
 import { Table } from "@mantine/core"
+import { useWindowVirtualizer } from "@tanstack/react-virtual"
+import { useLayoutEffect, useRef, useState } from "react"
 
 export function VirtualTable<T extends { id: number }>({
   rows,
@@ -34,14 +34,16 @@ export function VirtualTable<T extends { id: number }>({
 
   const firstRow = virtualRows[0]
   const lastRow = virtualRows[virtualRows.length - 1]
-  const paddingTop = firstRow ? firstRow.start - virtualizer.options.scrollMargin : 0
+  const paddingTop = firstRow
+    ? firstRow.start - virtualizer.options.scrollMargin
+    : 0
   const paddingBottom = lastRow
     ? totalSize - (lastRow.end - virtualizer.options.scrollMargin)
     : 0
 
   return (
     <div ref={containerRef}>
-      <Table highlightOnHover>
+      <Table highlightOnHover stickyHeader stickyHeaderOffset={137}>
         <Table.Thead>
           <Table.Tr>
             {columns.map((col) => (
