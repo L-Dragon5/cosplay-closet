@@ -115,7 +115,7 @@ export function SeriesCard({
             ) : (
               <Title order={4}>{series.name}</Title>
             )}
-            <ActionIcon.Group orientation="vertical">
+            <ActionIcon.Group>
               {!series.image_path && (
                 <ActionIcon
                   variant="light"

@@ -32,6 +32,7 @@
     "@tanstack/react-router": "^1.166.2",
     "@tanstack/react-router-devtools": "^1.166.2",
     "@tanstack/react-virtual": "^3.13.21",
+    "cropperjs": "~1.6.0",
     "dayjs": "^1.11.19",
     "dotenv": "^17.3.1",
     "elysia": "^1.4.27",
@@ -39,8 +40,8 @@
     "embla-carousel-react": "^8.6.0",
     "jotai": "^2.18.0",
     "react": "^19.2.4",
+    "react-cropper": "^2.3.3",
     "react-dom": "^19.2.4",
-    "react-easy-crop": "^5.5.6",
     "recharts": "^3.8.0"
   },
   "devDependencies": {
