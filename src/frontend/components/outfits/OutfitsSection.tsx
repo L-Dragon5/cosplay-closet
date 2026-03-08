@@ -72,11 +72,12 @@ export function OutfitsSection() {
               <VirtualTable
                 rows={filtered}
                 columns={[
-                  { header: "Name", render: (o) => o.name },
-                  { header: "Character", render: (o) => o.characterName ?? "—" },
-                  { header: "Items", render: (o) => o.items.length },
+                  { header: "Name", width: "40%", render: (o) => o.name },
+                  { header: "Character", width: "35%", render: (o) => o.characterName ?? "—" },
+                  { header: "Items", width: 80, render: (o) => o.items.length },
                   {
                     header: "Actions",
+                    width: 120,
                     render: (o) => (
                       <ActionIcon.Group>
                         <ActionIcon

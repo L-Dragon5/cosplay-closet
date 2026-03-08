@@ -9,7 +9,7 @@ export function VirtualTable<T extends { id: number }>({
   estimateSize = 48,
 }: {
   rows: T[]
-  columns: { header: string; render: (item: NoInfer<T>) => React.ReactNode }[]
+  columns: { header: string; width?: string | number; render: (item: NoInfer<T>) => React.ReactNode }[]
   onRowClick?: (item: NoInfer<T>) => void
   estimateSize?: number
 }) {
@@ -43,7 +43,12 @@ export function VirtualTable<T extends { id: number }>({
 
   return (
     <div ref={containerRef}>
-      <Table highlightOnHover stickyHeader stickyHeaderOffset={137}>
+      <Table highlightOnHover striped stickyHeader stickyHeaderOffset={137} style={{ tableLayout: "fixed" }}>
+        <colgroup>
+          {columns.map((col) => (
+            <col key={col.header} style={{ width: col.width }} />
+          ))}
+        </colgroup>
         <Table.Thead>
           <Table.Tr>
             {columns.map((col) => (

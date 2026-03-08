@@ -69,10 +69,11 @@ export function CharactersSection() {
               <VirtualTable
                 rows={filtered}
                 columns={[
-                  { header: "Name", render: (c) => c.name },
-                  { header: "Series", render: (c) => c.seriesName ?? "—" },
+                  { header: "Name", width: "40%", render: (c) => c.name },
+                  { header: "Series", width: "40%", render: (c) => c.seriesName ?? "—" },
                   {
                     header: "Actions",
+                    width: 120,
                     render: (c) => (
                       <ActionIcon.Group>
                         <ActionIcon

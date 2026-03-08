@@ -170,22 +170,26 @@ export function ItemsSection() {
               <VirtualTable
                 rows={filtered}
                 columns={[
-                  { header: "Name", render: (item) => item.name },
-                  { header: "Type", render: (item) => item.type },
+                  { header: "Name", width: "25%", render: (item) => item.name },
+                  { header: "Type", width: 110, render: (item) => item.type },
                   {
                     header: "Series",
+                    width: "20%",
                     render: (item) => item.seriesName ?? "—",
                   },
                   {
                     header: "Character",
+                    width: "20%",
                     render: (item) => item.characterName ?? "—",
                   },
                   {
                     header: "Location",
+                    width: "20%",
                     render: (item) => item.locationName ?? "—",
                   },
                   {
                     header: "Actions",
+                    width: 120,
                     render: (item) => (
                       <ActionIcon.Group>
                         {item.notes && (

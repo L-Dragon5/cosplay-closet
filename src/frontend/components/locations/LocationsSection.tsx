@@ -99,6 +99,7 @@ export function LocationsSection() {
                 columns={[
                   {
                     header: "Name",
+                    width: "60%",
                     render: (l) =>
                       editingId === l.id ? (
                         <TextInput
@@ -118,9 +119,10 @@ export function LocationsSection() {
                         l.name
                       ),
                   },
-                  { header: "Items", render: (l) => l.itemCount },
+                  { header: "Items", width: 80, render: (l) => l.itemCount },
                   {
                     header: "Actions",
+                    width: 120,
                     render: (l) =>
                       editingId === l.id ? (
                         <ActionIcon.Group>

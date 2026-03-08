@@ -116,6 +116,7 @@ export function SeriesSection() {
                 columns={[
                   {
                     header: "Name",
+                    width: "70%",
                     render: (s) =>
                       editingId === s.id ? (
                         <TextInput
@@ -137,6 +138,7 @@ export function SeriesSection() {
                   },
                   {
                     header: "Actions",
+                    width: 120,
                     render: (s) =>
                       editingId === s.id ? (
                         <ActionIcon.Group>
