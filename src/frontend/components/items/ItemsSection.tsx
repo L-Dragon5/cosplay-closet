@@ -134,42 +134,34 @@ export function ItemsSection() {
         filterSlot={filterSlot}
       >
         {(search, view) => {
-          const filtered = (data ?? [])
-            .filter((item) =>
-              item.name.toLowerCase().includes(search.toLowerCase()),
-            )
-            .filter(
-              (item) =>
-                !filterSeries.length ||
-                (item.series_id !== null &&
-                  filterSeries.includes(String(item.series_id))),
-            )
-            .filter(
-              (item) =>
-                !filterCharacters.length ||
-                (item.character_id !== null &&
-                  filterCharacters.includes(String(item.character_id))),
-            )
-            .filter(
-              (item) =>
-                !filterTypes.length || filterTypes.includes(item.type),
-            )
-            .filter(
-              (item) =>
-                !filterLocations.length ||
-                (item.location_id !== null &&
-                  filterLocations.includes(String(item.location_id))),
-            )
           const hasActiveFilters =
-            !!search ||
             filterSeries.length > 0 ||
             filterCharacters.length > 0 ||
             filterTypes.length > 0 ||
             filterLocations.length > 0
+          const filtered = (data ?? [])
+            .filter((item) =>
+              item.name.toLowerCase().includes(search.toLowerCase()),
+            )
+            .filter((item) => {
+              if (!hasActiveFilters) return true
+              return (
+                (filterSeries.length > 0 &&
+                  item.series_id !== null &&
+                  filterSeries.includes(String(item.series_id))) ||
+                (filterCharacters.length > 0 &&
+                  item.character_id !== null &&
+                  filterCharacters.includes(String(item.character_id))) ||
+                (filterTypes.length > 0 && filterTypes.includes(item.type)) ||
+                (filterLocations.length > 0 &&
+                  item.location_id !== null &&
+                  filterLocations.includes(String(item.location_id)))
+              )
+            })
           if (!filtered.length) {
             return (
               <Text c="dimmed">
-                {hasActiveFilters ? "No matches found." : "No items added yet."}
+                {hasActiveFilters || search ? "No matches found." : "No items added yet."}
               </Text>
             )
           }
