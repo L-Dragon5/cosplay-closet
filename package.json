@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.8",
+    "@elysiajs/openapi": "^1.4.14",
     "@elysiajs/static": "^1.4.7",
     "@mantine/carousel": "^8.3.16",
     "@mantine/charts": "^8.3.16",

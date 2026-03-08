@@ -3,16 +3,24 @@ import {
   Button,
   Card,
   Group,
+  Image,
   Modal,
   Stack,
   Text,
   TextInput,
   Title,
 } from "@mantine/core"
-import { IconCheck, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import {
+  IconCamera,
+  IconCheck,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { SeriesImageCropper } from "./SeriesImageCropper"
 
 export function SeriesCard({
   series,
@@ -25,6 +33,7 @@ export function SeriesCard({
   const [editing, setEditing] = useState(false)
   const [name, setName] = useState(series.name)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [uploadOpened, setUploadOpened] = useState(false)
 
   async function handleSave() {
     if (!name.trim() || name === series.name) {
@@ -58,8 +67,27 @@ export function SeriesCard({
         style={{ cursor: editing ? "default" : "pointer" }}
         onClick={editing ? undefined : onClick}
       >
+        {series.image_path && (
+          <Card.Section style={{ position: "relative" }}>
+            <Image src={series.image_path} height={160} fit="cover" />
+            <ActionIcon
+              style={{ position: "absolute", top: 8, right: 8 }}
+              variant="filled"
+              color="dark"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                setUploadOpened(true)
+              }}
+              aria-label="Change image"
+            >
+              <IconCamera size={14} />
+            </ActionIcon>
+          </Card.Section>
+        )}
+
         {editing ? (
-          <Group gap="xs" wrap="nowrap">
+          <Group gap="xs" wrap="nowrap" mt={series.image_path ? "md" : 0}>
             <TextInput
               value={name}
               onChange={(e) => setName(e.currentTarget.value)}
@@ -81,9 +109,25 @@ export function SeriesCard({
             </ActionIcon.Group>
           </Group>
         ) : (
-          <Group justify="space-between" wrap="nowrap">
-            <Title order={4}>{series.name}</Title>
+          <Group justify="space-between" wrap="nowrap" mt={series.image_path ? "md" : 0}>
+            {series.image_path ? (
+              <Text size="sm" c="dimmed" fw={500}>{series.name}</Text>
+            ) : (
+              <Title order={4}>{series.name}</Title>
+            )}
             <ActionIcon.Group orientation="vertical">
+              {!series.image_path && (
+                <ActionIcon
+                  variant="light"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setUploadOpened(true)
+                  }}
+                  aria-label="Add image"
+                >
+                  <IconCamera size={20} />
+                </ActionIcon>
+              )}
               <ActionIcon
                 variant="light"
                 color="green"
@@ -108,6 +152,19 @@ export function SeriesCard({
           </Group>
         )}
       </Card>
+
+      <Modal
+        opened={uploadOpened}
+        onClose={() => setUploadOpened(false)}
+        title={`${series.image_path ? "Change" : "Add"} Image — ${series.name}`}
+        centered
+        size="lg"
+      >
+        <SeriesImageCropper
+          seriesId={series.id}
+          onSuccess={() => setUploadOpened(false)}
+        />
+      </Modal>
 
       <Modal
         opened={confirmDelete}

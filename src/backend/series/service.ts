@@ -27,3 +27,11 @@ export async function deleteSeries(id: number) {
   const result = await db`DELETE FROM series WHERE id = ${id}`
   return result.affectedRows > 0
 }
+
+export async function updateSeriesImage(id: number, imagePath: string | null) {
+  const result =
+    await db`UPDATE series SET image_path = ${imagePath} WHERE id = ${id}`
+  if (result.affectedRows === 0) return null
+  const rows = await db`SELECT * FROM series WHERE id = ${id}`
+  return rows[0]
+}

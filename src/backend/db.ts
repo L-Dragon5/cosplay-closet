@@ -9,8 +9,16 @@ export const db = new SQL(
 export async function initDb() {
   await db`CREATE TABLE IF NOT EXISTS series (
 		id INT AUTO_INCREMENT PRIMARY KEY,
-		name VARCHAR(255) NOT NULL
+		name VARCHAR(255) NOT NULL,
+		image_path VARCHAR(255) NULL
 	)`
+
+  // Migrate existing tables that may not have image_path
+  try {
+    await db`ALTER TABLE series ADD COLUMN image_path VARCHAR(255) NULL`
+  } catch {
+    // Column already exists
+  }
 
   await db`CREATE TABLE IF NOT EXISTS characters (
 		id INT AUTO_INCREMENT PRIMARY KEY,

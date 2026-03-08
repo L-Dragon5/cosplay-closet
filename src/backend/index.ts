@@ -1,3 +1,4 @@
+import { openapi } from "@elysiajs/openapi"
 import { Elysia } from "elysia"
 import { charactersController } from "@/backend/characters"
 import { initDb } from "@/backend/db"
@@ -10,18 +11,26 @@ import indexHtml from "../../public/index.html"
 await initDb()
 
 const api = new Elysia({ prefix: "/api" })
+  .use(openapi({
+    path: '/docs',
+  }))
   .use(seriesController)
   .use(charactersController)
   .use(itemsController)
   .use(locationsController)
   .use(outfitsController)
-  .get("/", () => "Hello World")
 
 const server = Bun.serve({
   routes: {
     "/": indexHtml,
   },
-  fetch(req) {
+  async fetch(req) {
+    const { pathname } = new URL(req.url)
+    if (pathname.startsWith("/uploads/")) {
+      const file = Bun.file(`public${pathname}`)
+      if (await file.exists()) return new Response(file)
+      return new Response("Not found", { status: 404 })
+    }
     return api.handle(req)
   },
   development: {
