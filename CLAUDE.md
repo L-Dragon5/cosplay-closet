@@ -48,13 +48,14 @@ Built with **ElysiaJS** (v1.4.27). Each resource has its own folder with two fil
 
 **Resources and API prefix `/api`:**
 
-| Resource   | Controller                        | Prefix        | Notable extra routes        |
-|------------|-----------------------------------|---------------|-----------------------------|
-| series     | `src/backend/series/index.ts`     | `/series`     | `POST /:id/image` (upload)  |
-| characters | `src/backend/characters/index.ts` | `/characters` |                             |
-| items      | `src/backend/items/index.ts`      | `/items`      |                             |
-| locations  | `src/backend/locations/index.ts`  | `/locations`  |                             |
-| outfits    | `src/backend/outfits/index.ts`    | `/outfits`    |                             |
+| Resource   | Controller                        | Prefix        | Notable extra routes                     |
+|------------|-----------------------------------|---------------|------------------------------------------|
+| series     | `src/backend/series/index.ts`     | `/series`     | `POST /:id/image` (upload)               |
+| characters | `src/backend/characters/index.ts` | `/characters` | `POST /:id/image` (upload)               |
+| items      | `src/backend/items/index.ts`      | `/items`      |                                          |
+| locations  | `src/backend/locations/index.ts`  | `/locations`  |                                          |
+| outfits    | `src/backend/outfits/index.ts`    | `/outfits`    | `POST /:id/image` (upload)               |
+| —          | `src/backend/index.ts`            | —             | `GET /api/proxy-image?url=` (CORS proxy) |
 
 All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference. OpenAPI docs available at `/api/docs`.
 
@@ -75,10 +76,11 @@ Each resource folder also has a `model.ts` exporting a TypeBox schema and TypeSc
   ```
 - Item type enum: `Clothes | Wig | Shoes | Accessories | Prop | Materials`
 
-**Static file serving** (`src/backend/index.ts`):
+**Static file serving & proxy** (`src/backend/index.ts`):
 
 - `/uploads/*` requests are served from `public/uploads/` via `Bun.file()` in the `fetch` handler before passing to Elysia
-- Uploaded series images are stored at `public/uploads/series/{id}.jpg`
+- Uploaded images are stored at `public/uploads/{resource}/{id}.jpg` (series, characters, outfits)
+- `GET /api/proxy-image?url=` — server-side proxy for external images (e.g. Jikan/MAL CDN) to avoid browser CORS restrictions; returns `new Response(res.body, { headers: { "Content-Type": ... } })` directly to bypass Elysia serialization
 
 ### Frontend — `src/frontend/`
 
@@ -91,23 +93,34 @@ Built with **React 19**, **Mantine v8**, **TanStack Router**, **TanStack Query v
 - `src/frontend/atoms.ts` — Jotai `activeSectionAtom` (persisted to localStorage). `Section` type: `"series" | "characters" | "items" | "locations" | "outfits"`
 - `src/frontend/routes/__root.tsx` — App shell with nav buttons that set `activeSectionAtom`
 - `src/frontend/routes/index.tsx` — Switches on `activeSectionAtom` to render the active section component
+- `src/frontend/hooks/useJikanCharacters.ts` — Jikan (MyAnimeList) API hooks:
+  - `useJikanCharacters(seriesName)` — fetches character names for a series (two chained queries: anime search → character list); normalizes "Last, First" names; used in Add/Edit Character forms for name suggestions
+  - `useJikanSeriesImages(seriesName)` — fetches up to 3 anime poster images for a series name
+  - `useJikanCharacterImages(characterName)` — fetches up to 3 character images by name
+  - All hooks: 400ms debounce, 10-min staleTime; image URLs must be routed through `/api/proxy-image` due to MAL CDN CORS restrictions
 
 **Section components** (`src/frontend/components/<resource>/`):
 
 Each section has:
 - `<Resource>Section.tsx` — calls the relevant query hook(s), joins related data in `useMemo`, renders cards via `VirtualCardGrid` or rows via `VirtualTable`
 - `<Resource>Card.tsx` — display card using Mantine `Card`, `Badge`, `Title`, etc. with inline edit/delete actions
-- `Edit<Resource>Form.tsx` — pre-populated edit modal form (Characters and Items only); opened from card and table pencil actions
+- `Edit<Resource>Form.tsx` — pre-populated edit modal form (Characters, Items, and Outfits); opened from card and table pencil actions
 
 `SectionShell` (`src/frontend/components/SectionShell.tsx`) is a shared wrapper handling loading, error, sticky header with search + view toggle + Filters panel. Accepts an optional `filterSlot?: React.ReactNode` rendered inside the Filters collapse (used by ItemsSection for its MultiSelect filters).
 
 `VirtualCardGrid` (`src/frontend/components/VirtualCardGrid.tsx`) — `useWindowVirtualizer` with ResizeObserver for responsive column count (1/2/3/4 at 576/768/1200px). ResizeObserver callback is wrapped in `requestAnimationFrame` to prevent loop errors.
 
-`VirtualTable` (`src/frontend/components/VirtualTable.tsx`) — virtualized `<Table>` with sticky header, paddingTop/Bottom spacer rows.
+`VirtualTable` (`src/frontend/components/VirtualTable.tsx`) — virtualized `<Table>` with sticky header, paddingTop/Bottom spacer rows, fixed column widths via `<colgroup>`, `table-layout: fixed`, and `striped`.
+
+`ImageCropper` (`src/frontend/components/ImageCropper.tsx`) — shared image upload component used by Series, Character, and Outfit cards. Features: Dropzone, URL paste, optional Jikan image suggestions (`jikanSearchName` for series posters, `jikanCharacterName` for character portraits), react-cropper with `viewMode={1}` (crop box stays within image bounds), uploads as JPEG via FormData POST.
 
 **Per-section view preference** is persisted via `sectionViewAtom` (Jotai `atomWithStorage`, key `"sectionView"`) in `src/frontend/atoms.ts` — stores `"card" | "table"` per section.
 
 **Items section filters** — MultiSelect filters for Series, Characters, Type, and Location. Uses inclusive (OR) logic across categories: an item matches if it satisfies any active filter. Search applies independently on top.
+
+**UPDATE service pattern** — MySQL `affectedRows=0` when an UPDATE changes no values (same data), causing false 404s. Always check existence with `SELECT id` first, then unconditionally run UPDATE. Applied to characters, items, and outfits services.
+
+**Outfits** — `OutfitItemsDrawer` shows items table (name + location) when an outfit is clicked; integrated into `CharacterOutfitsDrawer` and `SeriesSection` via `Drawer.Stack`. `EditOutfitForm` includes suggested items based on selected character + outfit name match. Characters are grouped by series in the character Select.
 
 **Nav sections (in order):** Series → Characters → Items → Locations → Outfits
 
