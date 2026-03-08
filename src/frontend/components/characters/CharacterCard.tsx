@@ -47,7 +47,7 @@ export function CharacterCard({
       >
         {character.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={character.image_path} height={500} fit="cover" />
+            <Image src={character.image_path} height={500} fit="cover" style={{ pointerEvents: "none" }} />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"

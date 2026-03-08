@@ -69,7 +69,7 @@ export function SeriesCard({
       >
         {series.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={series.image_path} height={160} fit="cover" />
+            <Image src={series.image_path} height={160} fit="cover" style={{ pointerEvents: "none" }} />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"
