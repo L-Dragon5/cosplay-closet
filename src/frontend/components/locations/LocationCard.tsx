@@ -1,20 +1,29 @@
 import { Badge, Card, Group, Title } from "@mantine/core"
 
 export function LocationCard({
-	location,
-	itemCount,
+  location,
+  itemCount,
+  onClick,
 }: {
-	location: any
-	itemCount: number
+  location: any
+  itemCount: number
+  onClick: () => void
 }) {
-	return (
-		<Card shadow="sm" padding="lg" radius="md" withBorder>
-			<Group justify="space-between" align="flex-start">
-				<Title order={4}>{location.name}</Title>
-				<Badge color="gray" variant="light">
-					{itemCount} {itemCount === 1 ? "item" : "items"}
-				</Badge>
-			</Group>
-		</Card>
-	)
+  return (
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      style={{ cursor: "pointer" }}
+      onClick={onClick}
+    >
+      <Group justify="space-between" align="flex-start">
+        <Title order={4}>{location.name}</Title>
+        <Badge size="lg" color="blue" variant="filled">
+          {itemCount} {itemCount === 1 ? "item" : "items"}
+        </Badge>
+      </Group>
+    </Card>
+  )
 }

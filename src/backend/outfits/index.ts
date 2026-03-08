@@ -1,77 +1,77 @@
 import { Elysia, t } from "elysia"
 import {
-	createOutfit,
-	deleteOutfit,
-	getAllOutfits,
-	getOutfitById,
-	updateOutfit,
+  createOutfit,
+  deleteOutfit,
+  getAllOutfits,
+  getOutfitById,
+  updateOutfit,
 } from "./service"
 
 export const outfitsController = new Elysia({ prefix: "/outfits" })
-	.get("/", () => getAllOutfits())
-	.get(
-		"/:id",
-		async ({ params, set }) => {
-			const outfit = await getOutfitById(params.id)
-			if (!outfit) {
-				set.status = 404
-				return { error: "Not found" }
-			}
-			return outfit
-		},
-		{ params: t.Object({ id: t.Numeric() }) },
-	)
-	.post(
-		"/",
-		async ({ body, set }) => {
-			set.status = 201
-			return createOutfit(
-				body.name,
-				body.character_id ?? null,
-				body.item_ids ?? [],
-			)
-		},
-		{
-			body: t.Object({
-				name: t.String(),
-				character_id: t.Optional(t.Nullable(t.Number())),
-				item_ids: t.Optional(t.Array(t.Number())),
-			}),
-		},
-	)
-	.put(
-		"/:id",
-		async ({ params, body, set }) => {
-			const outfit = await updateOutfit(
-				params.id,
-				body.name,
-				body.character_id,
-				body.item_ids,
-			)
-			if (!outfit) {
-				set.status = 404
-				return { error: "Not found" }
-			}
-			return outfit
-		},
-		{
-			params: t.Object({ id: t.Numeric() }),
-			body: t.Object({
-				name: t.String(),
-				character_id: t.Nullable(t.Number()),
-				item_ids: t.Array(t.Number()),
-			}),
-		},
-	)
-	.delete(
-		"/:id",
-		async ({ params, set }) => {
-			const deleted = await deleteOutfit(params.id)
-			if (!deleted) {
-				set.status = 404
-				return { error: "Not found" }
-			}
-			return { success: true }
-		},
-		{ params: t.Object({ id: t.Numeric() }) },
-	)
+  .get("/", () => getAllOutfits())
+  .get(
+    "/:id",
+    async ({ params, set }) => {
+      const outfit = await getOutfitById(params.id)
+      if (!outfit) {
+        set.status = 404
+        return { error: "Not found" }
+      }
+      return outfit
+    },
+    { params: t.Object({ id: t.Numeric() }) },
+  )
+  .post(
+    "/",
+    async ({ body, set }) => {
+      set.status = 201
+      return createOutfit(
+        body.name,
+        body.character_id ?? null,
+        body.item_ids ?? [],
+      )
+    },
+    {
+      body: t.Object({
+        name: t.String(),
+        character_id: t.Optional(t.Nullable(t.Number())),
+        item_ids: t.Optional(t.Array(t.Number())),
+      }),
+    },
+  )
+  .put(
+    "/:id",
+    async ({ params, body, set }) => {
+      const outfit = await updateOutfit(
+        params.id,
+        body.name,
+        body.character_id,
+        body.item_ids,
+      )
+      if (!outfit) {
+        set.status = 404
+        return { error: "Not found" }
+      }
+      return outfit
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      body: t.Object({
+        name: t.String(),
+        character_id: t.Nullable(t.Number()),
+        item_ids: t.Array(t.Number()),
+      }),
+    },
+  )
+  .delete(
+    "/:id",
+    async ({ params, set }) => {
+      const deleted = await deleteOutfit(params.id)
+      if (!deleted) {
+        set.status = 404
+        return { error: "Not found" }
+      }
+      return { success: true }
+    },
+    { params: t.Object({ id: t.Numeric() }) },
+  )

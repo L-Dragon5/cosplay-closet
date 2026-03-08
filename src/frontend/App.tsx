@@ -9,7 +9,7 @@ import { routeTree } from "./routeTree.gen"
 
 // Mantine theme override
 const theme = createTheme({
-	/** Put your mantine theme override here */
+  /** Put your mantine theme override here */
 })
 
 const queryClient = new QueryClient()
@@ -19,21 +19,21 @@ const router = createRouter({ routeTree })
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
-	interface Register {
-		router: typeof router
-	}
+  interface Register {
+    router: typeof router
+  }
 }
 
 export function App() {
-	return (
-		<StrictMode>
-			<QueryClientProvider client={queryClient}>
-				<MantineProvider theme={theme}>
-					<RouterProvider router={router} />
-				</MantineProvider>
-			</QueryClientProvider>
-		</StrictMode>
-	)
+  return (
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider theme={theme}>
+          <RouterProvider router={router} />
+        </MantineProvider>
+      </QueryClientProvider>
+    </StrictMode>
+  )
 }
 
 export default App
