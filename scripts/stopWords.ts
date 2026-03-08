@@ -300,7 +300,7 @@ export const STOP_WORDS = new Set([
 	"3rd",
 	"4th",
 	"5th",
-  "10th",
+	"10th",
 ])
 
 // Stop words that should still allow multi-word character names containing them.
@@ -309,9 +309,30 @@ export const STOP_WORDS = new Set([
 export const COMPOUND_STOP_EXCEPTIONS = new Set([
 	"the",
 	// Colors may appear in character names ("Silver Wolf", "Golden Darkness")
-	"black", "white", "blue", "red", "pink", "green", "gold", "silver",
-	"purple", "grey", "gray", "yellow", "orange", "brown", "dark", "light",
-	"bright", "navy", "teal", "crimson", "magenta", "lavender", "ivory", "beige",
+	"black",
+	"white",
+	"blue",
+	"red",
+	"pink",
+	"green",
+	"gold",
+	"silver",
+	"purple",
+	"grey",
+	"gray",
+	"yellow",
+	"orange",
+	"brown",
+	"dark",
+	"light",
+	"bright",
+	"navy",
+	"teal",
+	"crimson",
+	"magenta",
+	"lavender",
+	"ivory",
+	"beige",
 	// Character variant suffix — "X Alter" is a distinct character from "X"
 	"alter",
 ])

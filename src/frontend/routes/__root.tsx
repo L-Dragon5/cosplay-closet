@@ -28,6 +28,7 @@ const RootLayout = () => (
 					<NavButton section="series" label="Series" />
 					<NavButton section="characters" label="Characters" />
 					<NavButton section="items" label="Items" />
+					<NavButton section="locations" label="Locations" />
 					<NavButton section="outfits" label="Outfits" />
 				</Group>
 			</Group>

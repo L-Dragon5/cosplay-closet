@@ -3,6 +3,7 @@ import { useAtomValue } from "jotai"
 import { activeSectionAtom } from "@/frontend/atoms"
 import { CharactersSection } from "@/frontend/components/characters/CharactersSection"
 import { ItemsSection } from "@/frontend/components/items/ItemsSection"
+import { LocationsSection } from "@/frontend/components/locations/LocationsSection"
 import { OutfitsSection } from "@/frontend/components/outfits/OutfitsSection"
 import { SeriesSection } from "@/frontend/components/series/SeriesSection"
 
@@ -19,6 +20,8 @@ function IndexPage() {
 			return <CharactersSection />
 		case "items":
 			return <ItemsSection />
+		case "locations":
+			return <LocationsSection />
 		case "outfits":
 			return <OutfitsSection />
 	}

@@ -29,9 +29,9 @@ export function ItemCard({ item }: { item: any }) {
 						{item.characterName}
 					</Text>
 				)}
-				{item.location && (
+				{item.locationName && (
 					<Text size="sm" c="dimmed">
-						{item.location}
+						{item.locationName}
 					</Text>
 				)}
 			</Stack>

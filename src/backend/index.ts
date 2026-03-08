@@ -2,6 +2,7 @@ import { Elysia } from "elysia"
 import { charactersController } from "@/backend/characters"
 import { initDb } from "@/backend/db"
 import { itemsController } from "@/backend/items"
+import { locationsController } from "@/backend/locations"
 import { outfitsController } from "@/backend/outfits"
 import { seriesController } from "@/backend/series"
 import indexHtml from "../../public/index.html"
@@ -12,6 +13,7 @@ const api = new Elysia({ prefix: "/api" })
 	.use(seriesController)
 	.use(charactersController)
 	.use(itemsController)
+	.use(locationsController)
 	.use(outfitsController)
 	.get("/", () => "Hello World")
 

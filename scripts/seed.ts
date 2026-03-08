@@ -48,7 +48,6 @@ function isStopToken(token: string): boolean {
 	return STOP_WORDS.has(token) || /^\d+$/.test(token) || token.length <= 1
 }
 
-
 function isCompoundBlocker(token: string): boolean {
 	return isStopToken(token) && !COMPOUND_STOP_EXCEPTIONS.has(token)
 }
@@ -156,7 +155,8 @@ function assignCharacter(
 }
 
 function levenshtein(a: string, b: string): number {
-	const m = a.length, n = b.length
+	const m = a.length,
+		n = b.length
 	const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
 		Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
 	)
@@ -176,7 +176,10 @@ function levenshtein(a: string, b: string): number {
  * canonical name if the new name is within edit-distance 2 (catches typos
  * like "Leauge of Legends" → "League of Legends").
  */
-function findCanonicalSeries(name: string, canonicals: string[]): string | null {
+function findCanonicalSeries(
+	name: string,
+	canonicals: string[],
+): string | null {
 	const lower = name.toLowerCase()
 	for (const c of canonicals) {
 		if (levenshtein(lower, c.toLowerCase()) <= 2) return c
@@ -193,6 +196,7 @@ async function main() {
 	await db`TRUNCATE TABLE outfit_items`
 	await db`TRUNCATE TABLE outfits`
 	await db`TRUNCATE TABLE items`
+	await db`TRUNCATE TABLE locations`
 	await db`TRUNCATE TABLE characters`
 	await db`TRUNCATE TABLE series`
 	await db`SET FOREIGN_KEY_CHECKS = 1`
@@ -277,6 +281,18 @@ async function main() {
 	}
 	console.log(`Characters: ${characterIds.size}`)
 
+	// Insert locations
+	const locationIds = new Map<string, number>()
+	const uniqueLocations = [
+		...new Set(rows.map((r) => r.location).filter(Boolean)),
+	]
+	for (const name of uniqueLocations) {
+		await db`INSERT IGNORE INTO locations (name) VALUES (${name})`
+		const [l] = await db`SELECT id FROM locations WHERE name = ${name}`
+		locationIds.set(name, l.id)
+	}
+	console.log(`Locations: ${locationIds.size}`)
+
 	// Insert items
 	let inserted = 0
 
@@ -296,14 +312,18 @@ async function main() {
 			}
 		}
 
+		const locationId = row.location
+			? (locationIds.get(row.location) ?? null)
+			: null
+
 		await db`
-			INSERT INTO items (name, type, series_id, character_id, location, notes)
+			INSERT INTO items (name, type, series_id, character_id, location_id, notes)
 			VALUES (
 				${row.name},
 				${type},
 				${seriesId},
 				${characterId},
-				${row.location || null},
+				${locationId},
 				${row.notes || null}
 			)
 		`

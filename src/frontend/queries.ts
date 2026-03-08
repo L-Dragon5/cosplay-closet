@@ -40,3 +40,13 @@ export function useOutfitsQuery() {
 		},
 	})
 }
+
+export function useLocationsQuery() {
+	return useQuery({
+		queryKey: ["locations"],
+		queryFn: async () => {
+			const { data } = await api.locations.get()
+			return data!
+		},
+	})
+}

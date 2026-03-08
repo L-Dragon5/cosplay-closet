@@ -3,6 +3,7 @@ import { useMemo } from "react"
 import {
 	useCharactersQuery,
 	useItemsQuery,
+	useLocationsQuery,
 	useSeriesQuery,
 } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
@@ -16,6 +17,11 @@ export function ItemsSection() {
 		error: cError,
 	} = useCharactersQuery()
 	const { data: series, isLoading: sLoading, error: sError } = useSeriesQuery()
+	const {
+		data: locations,
+		isLoading: lLoading,
+		error: lError,
+	} = useLocationsQuery()
 
 	const data = useMemo(
 		() =>
@@ -24,15 +30,17 @@ export function ItemsSection() {
 				characterName:
 					characters?.find((c) => c.id === item.character_id)?.name ?? null,
 				seriesName: series?.find((s) => s.id === item.series_id)?.name ?? null,
+				locationName:
+					locations?.find((l) => l.id === item.location_id)?.name ?? null,
 			})),
-		[items, characters, series],
+		[items, characters, series, locations],
 	)
 
 	return (
 		<SectionShell
 			title="Items"
-			isLoading={iLoading || cLoading || sLoading}
-			error={iError ?? cError ?? sError}
+			isLoading={iLoading || cLoading || sLoading || lLoading}
+			error={iError ?? cError ?? sError ?? lError}
 		>
 			{!data?.length ? (
 				<Text c="dimmed">No items added yet.</Text>
