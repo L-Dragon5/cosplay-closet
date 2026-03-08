@@ -42,9 +42,9 @@ export async function updateOutfit(
   character_id: number | null,
   item_ids: number[],
 ) {
-  const result =
-    await db`UPDATE outfits SET name = ${name}, character_id = ${character_id} WHERE id = ${id}`
-  if (result.affectedRows === 0) return null
+  const rows = await db`SELECT id FROM outfits WHERE id = ${id}`
+  if (rows.length === 0) return null
+  await db`UPDATE outfits SET name = ${name}, character_id = ${character_id} WHERE id = ${id}`
   await db`DELETE FROM outfit_items WHERE outfit_id = ${id}`
   for (const itemId of item_ids) {
     await db`INSERT INTO outfit_items (outfit_id, item_id) VALUES (${id}, ${itemId})`
