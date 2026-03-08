@@ -6,6 +6,7 @@ const TYPE_COLORS: Record<string, string> = {
 	Shoes: "orange",
 	Accessories: "yellow",
 	Prop: "gray",
+	Materials: "teal",
 }
 
 export function ItemCard({ item }: { item: any }) {

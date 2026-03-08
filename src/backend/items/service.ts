@@ -1,6 +1,12 @@
 import { db } from "@/backend/db"
 
-export type ItemType = "Clothes" | "Wig" | "Shoes" | "Accessories" | "Prop"
+export type ItemType =
+	| "Clothes"
+	| "Wig"
+	| "Shoes"
+	| "Accessories"
+	| "Prop"
+	| "Materials"
 
 export async function getAllItems() {
 	return db`SELECT * FROM items ORDER BY id`

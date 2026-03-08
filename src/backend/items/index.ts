@@ -13,6 +13,7 @@ const itemType = t.Union([
 	t.Literal("Shoes"),
 	t.Literal("Accessories"),
 	t.Literal("Prop"),
+	t.Literal("Materials"),
 ])
 
 export const itemsController = new Elysia({ prefix: "/items" })

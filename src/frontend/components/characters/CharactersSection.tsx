@@ -5,7 +5,11 @@ import { SectionShell } from "../SectionShell"
 import { CharacterCard } from "./CharacterCard"
 
 export function CharactersSection() {
-	const { data: characters, isLoading: cLoading, error: cError } = useCharactersQuery()
+	const {
+		data: characters,
+		isLoading: cLoading,
+		error: cError,
+	} = useCharactersQuery()
 	const { data: series, isLoading: sLoading, error: sError } = useSeriesQuery()
 
 	const data = useMemo(
@@ -18,7 +22,11 @@ export function CharactersSection() {
 	)
 
 	return (
-		<SectionShell title="Characters" isLoading={cLoading || sLoading} error={cError ?? sError}>
+		<SectionShell
+			title="Characters"
+			isLoading={cLoading || sLoading}
+			error={cError ?? sError}
+		>
 			{!data?.length ? (
 				<Text c="dimmed">No characters added yet.</Text>
 			) : (

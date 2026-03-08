@@ -5,20 +5,33 @@ import { SectionShell } from "../SectionShell"
 import { OutfitCard } from "./OutfitCard"
 
 export function OutfitsSection() {
-	const { data: outfits, isLoading: oLoading, error: oError } = useOutfitsQuery()
-	const { data: characters, isLoading: cLoading, error: cError } = useCharactersQuery()
+	const {
+		data: outfits,
+		isLoading: oLoading,
+		error: oError,
+	} = useOutfitsQuery()
+	const {
+		data: characters,
+		isLoading: cLoading,
+		error: cError,
+	} = useCharactersQuery()
 
 	const data = useMemo(
 		() =>
 			outfits?.map((o) => ({
 				...o,
-				characterName: characters?.find((c) => c.id === o.character_id)?.name ?? null,
+				characterName:
+					characters?.find((c) => c.id === o.character_id)?.name ?? null,
 			})),
 		[outfits, characters],
 	)
 
 	return (
-		<SectionShell title="Outfits" isLoading={oLoading || cLoading} error={oError ?? cError}>
+		<SectionShell
+			title="Outfits"
+			isLoading={oLoading || cLoading}
+			error={oError ?? cError}
+		>
 			{!data?.length ? (
 				<Text c="dimmed">No outfits added yet.</Text>
 			) : (

@@ -10,7 +10,8 @@
 		"build": "bun run generate-routes && bun build --compile --target bun --outfile server src/backend/index.ts",
 		"start": "NODE_ENV=production bun dist/index.ts",
 		"test": "bun test",
-		"lint": "bunx --bun @biomejs/biome check --write"
+		"lint": "bunx --bun @biomejs/biome check --write",
+		"seed": "bun run scripts/seed.ts"
 	},
 	"dependencies": {
 		"@elysiajs/eden": "^1.4.8",

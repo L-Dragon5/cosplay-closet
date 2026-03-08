@@ -17,8 +17,7 @@ export async function createSeries(name: string) {
 }
 
 export async function updateSeries(id: number, name: string) {
-	const result =
-		await db`UPDATE series SET name = ${name} WHERE id = ${id}`
+	const result = await db`UPDATE series SET name = ${name} WHERE id = ${id}`
 	if (result.affectedRows === 0) return null
 	const rows = await db`SELECT * FROM series WHERE id = ${id}`
 	return rows[0]

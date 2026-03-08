@@ -24,9 +24,7 @@ describe("Characters Controller", () => {
 			"Yuji Itadori",
 			seriesId,
 		])
-		const res = await app.handle(
-			new Request("http://localhost/characters"),
-		)
+		const res = await app.handle(new Request("http://localhost/characters"))
 		expect(res.status).toBe(200)
 		const data = await res.json()
 		expect(data).toHaveLength(2)
@@ -45,9 +43,7 @@ describe("Characters Controller", () => {
 	})
 
 	test("GET /characters/:id returns 404 when not found", async () => {
-		const res = await app.handle(
-			new Request("http://localhost/characters/999"),
-		)
+		const res = await app.handle(new Request("http://localhost/characters/999"))
 		expect(res.status).toBe(404)
 		expect(await res.json()).toEqual({ error: "Not found" })
 	})

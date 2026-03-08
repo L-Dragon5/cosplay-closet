@@ -9,10 +9,7 @@ export async function getCharacterById(id: number) {
 	return rows[0] ?? null
 }
 
-export async function createCharacter(
-	name: string,
-	series_id: number | null,
-) {
+export async function createCharacter(name: string, series_id: number | null) {
 	const result =
 		await db`INSERT INTO characters (name, series_id) VALUES (${name}, ${series_id})`
 	const rows =

@@ -1,5 +1,5 @@
 import { AppShell, Button, Group, Text } from "@mantine/core"
-import { Outlet, createRootRoute } from "@tanstack/react-router"
+import { createRootRoute, Outlet } from "@tanstack/react-router"
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools"
 import { useAtom } from "jotai"
 import { activeSectionAtom, type Section } from "@/frontend/atoms"

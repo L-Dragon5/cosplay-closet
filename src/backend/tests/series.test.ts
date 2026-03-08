@@ -35,9 +35,7 @@ describe("Series Controller", () => {
 			"INSERT INTO series (name) VALUES (?)",
 			["Jujutsu Kaisen"],
 		)
-		const res = await app.handle(
-			new Request(`http://localhost/series/${id}`),
-		)
+		const res = await app.handle(new Request(`http://localhost/series/${id}`))
 		expect(res.status).toBe(200)
 		expect((await res.json()).name).toBe("Jujutsu Kaisen")
 	})

@@ -12,14 +12,14 @@ describe("Items Controller", () => {
 	beforeEach(() => clearAll(sqlite))
 
 	test("GET /items returns all items", async () => {
-		sqlite.run(
-			"INSERT INTO items (name, type) VALUES (?, ?)",
-			["Blindfold", "Accessories"],
-		)
-		sqlite.run(
-			"INSERT INTO items (name, type) VALUES (?, ?)",
-			["White Wig", "Wig"],
-		)
+		sqlite.run("INSERT INTO items (name, type) VALUES (?, ?)", [
+			"Blindfold",
+			"Accessories",
+		])
+		sqlite.run("INSERT INTO items (name, type) VALUES (?, ?)", [
+			"White Wig",
+			"Wig",
+		])
 		const res = await app.handle(new Request("http://localhost/items"))
 		expect(res.status).toBe(200)
 		expect(await res.json()).toHaveLength(2)
@@ -30,9 +30,7 @@ describe("Items Controller", () => {
 			"INSERT INTO items (name, type) VALUES (?, ?)",
 			["Blindfold", "Accessories"],
 		)
-		const res = await app.handle(
-			new Request(`http://localhost/items/${id}`),
-		)
+		const res = await app.handle(new Request(`http://localhost/items/${id}`))
 		expect(res.status).toBe(200)
 		const data = await res.json()
 		expect(data.name).toBe("Blindfold")

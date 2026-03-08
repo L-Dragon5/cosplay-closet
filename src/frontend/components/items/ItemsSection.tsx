@@ -1,19 +1,28 @@
 import { SimpleGrid, Text } from "@mantine/core"
 import { useMemo } from "react"
-import { useCharactersQuery, useItemsQuery, useSeriesQuery } from "@/frontend/queries"
+import {
+	useCharactersQuery,
+	useItemsQuery,
+	useSeriesQuery,
+} from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { ItemCard } from "./ItemCard"
 
 export function ItemsSection() {
 	const { data: items, isLoading: iLoading, error: iError } = useItemsQuery()
-	const { data: characters, isLoading: cLoading, error: cError } = useCharactersQuery()
+	const {
+		data: characters,
+		isLoading: cLoading,
+		error: cError,
+	} = useCharactersQuery()
 	const { data: series, isLoading: sLoading, error: sError } = useSeriesQuery()
 
 	const data = useMemo(
 		() =>
 			items?.map((item) => ({
 				...item,
-				characterName: characters?.find((c) => c.id === item.character_id)?.name ?? null,
+				characterName:
+					characters?.find((c) => c.id === item.character_id)?.name ?? null,
 				seriesName: series?.find((s) => s.id === item.series_id)?.name ?? null,
 			})),
 		[items, characters, series],

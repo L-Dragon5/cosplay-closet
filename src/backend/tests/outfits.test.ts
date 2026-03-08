@@ -25,10 +25,10 @@ function seedOutfit(name: string, characterId: number | null = null) {
 }
 
 function linkItem(outfitId: number, itemId: number) {
-	sqlite.run(
-		"INSERT INTO outfit_items (outfit_id, item_id) VALUES (?, ?)",
-		[outfitId, itemId],
-	)
+	sqlite.run("INSERT INTO outfit_items (outfit_id, item_id) VALUES (?, ?)", [
+		outfitId,
+		itemId,
+	])
 }
 
 describe("Outfits Controller", () => {
@@ -72,9 +72,7 @@ describe("Outfits Controller", () => {
 	})
 
 	test("GET /outfits/:id returns 404 when not found", async () => {
-		const res = await app.handle(
-			new Request("http://localhost/outfits/999"),
-		)
+		const res = await app.handle(new Request("http://localhost/outfits/999"))
 		expect(res.status).toBe(404)
 		expect(await res.json()).toEqual({ error: "Not found" })
 	})

@@ -1,10 +1,10 @@
 import { Elysia } from "elysia"
-import indexHtml from "../../public/index.html"
-import { initDb } from "@/backend/db"
-import { seriesController } from "@/backend/series"
 import { charactersController } from "@/backend/characters"
+import { initDb } from "@/backend/db"
 import { itemsController } from "@/backend/items"
 import { outfitsController } from "@/backend/outfits"
+import { seriesController } from "@/backend/series"
+import indexHtml from "../../public/index.html"
 
 await initDb()
 

@@ -1,8 +1,8 @@
 import { createRoot } from "react-dom/client"
 import { App } from "@/frontend/App"
 
-const rootElement = document.getElementById('root')!
+const rootElement = document.getElementById("root")!
 if (!rootElement.innerHTML) {
-  const root = createRoot(rootElement)
-  root.render(<App />)
+	const root = createRoot(rootElement)
+	root.render(<App />)
 }

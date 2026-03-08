@@ -24,7 +24,7 @@ export async function initDb() {
 		name VARCHAR(255) NOT NULL,
 		series_id INT NULL,
 		character_id INT NULL,
-		type ENUM('Clothes','Wig','Shoes','Accessories','Prop') NOT NULL,
+		type ENUM('Clothes','Wig','Shoes','Accessories','Prop','Materials') NOT NULL,
 		location VARCHAR(255) NULL,
 		notes TEXT NULL,
 		CONSTRAINT fk_items_series FOREIGN KEY (series_id) REFERENCES series(id) ON DELETE SET NULL,
