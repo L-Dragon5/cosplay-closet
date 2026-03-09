@@ -6,6 +6,7 @@ import { useRef, useState } from "react"
 import Cropper from "react-cropper"
 import "cropperjs/dist/cropper.css"
 import { useJikanCharacterImages, useJikanSeriesImages } from "@/frontend/hooks/useJikanCharacters"
+import { useSchoolIdoluImages } from "@/frontend/hooks/useSchoolIdoluImages"
 
 export function ImageCropper({
   uploadUrl,
@@ -13,12 +14,16 @@ export function ImageCropper({
   onSuccess,
   jikanSearchName,
   jikanCharacterName,
+  schoolIdoluCharacterName,
+  schoolIdoluOutfitName,
 }: {
   uploadUrl: string
   queryKey: string
   onSuccess: () => void
   jikanSearchName?: string
   jikanCharacterName?: string
+  schoolIdoluCharacterName?: string
+  schoolIdoluOutfitName?: string
 }) {
   const queryClient = useQueryClient()
   const cropperRef = useRef<HTMLImageElement>(null)
@@ -30,6 +35,10 @@ export function ImageCropper({
   )
   const { data: jikanCharImages, isFetching: jikanCharFetching } = useJikanCharacterImages(
     jikanCharacterName ?? null,
+  )
+  const { data: schoolIdoluImages, isFetching: schoolIdoluFetching } = useSchoolIdoluImages(
+    schoolIdoluCharacterName ?? null,
+    schoolIdoluOutfitName ?? null,
   )
 
   function handleDrop(files: File[]) {
@@ -159,6 +168,34 @@ export function ImageCropper({
                   >
                     <Image
                       src={`/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`}
+                      height={120}
+                      fit="cover"
+                      radius="sm"
+                    />
+                    <Text size="xs" c="dimmed" lineClamp={2} ta="center">
+                      {img.title}
+                    </Text>
+                  </Stack>
+                ))}
+              </SimpleGrid>
+            )}
+          </>
+        )}
+        {(schoolIdoluCharacterName || schoolIdoluOutfitName) && (
+          <>
+            <Divider label="or pick from School Idol Tomodachi" labelPosition="center" />
+            {schoolIdoluFetching && <Text size="xs" c="dimmed">Searching School Idol Tomodachi…</Text>}
+            {schoolIdoluImages && schoolIdoluImages.length > 0 && (
+              <SimpleGrid cols={3} spacing="xs">
+                {schoolIdoluImages.map((img, i) => (
+                  <Stack
+                    key={i}
+                    gap={4}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setImageSrc(img.imageUrl)}
+                  >
+                    <Image
+                      src={img.imageUrl}
                       height={120}
                       fit="cover"
                       radius="sm"

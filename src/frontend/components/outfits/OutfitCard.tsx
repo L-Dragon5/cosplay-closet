@@ -124,6 +124,12 @@ export function OutfitCard({
           uploadUrl={`/api/outfits/${outfit.id}/image`}
           queryKey="outfits"
           onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
+          schoolIdoluCharacterName={
+            outfit.seriesName?.toLowerCase().includes("love live") ? outfit.characterName : undefined
+          }
+          schoolIdoluOutfitName={
+            outfit.seriesName?.toLowerCase().includes("love live") ? outfit.name : undefined
+          }
         />
       </Modal>
 

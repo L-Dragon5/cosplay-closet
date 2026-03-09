@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Outfit } from "@/backend/outfits/model"
 import { api } from "@/frontend/api"
-import { useCharactersQuery, useOutfitsQuery } from "@/frontend/queries"
+import { useCharactersQuery, useOutfitsQuery, useSeriesQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
 import { VirtualTable } from "../VirtualTable"
@@ -23,6 +23,7 @@ export function OutfitsSection() {
     isLoading: cLoading,
     error: cError,
   } = useCharactersQuery()
+  const { data: series } = useSeriesQuery()
   const queryClient = useQueryClient()
 
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -31,12 +32,15 @@ export function OutfitsSection() {
 
   const data = useMemo(
     () =>
-      outfits?.map((o) => ({
-        ...o,
-        characterName:
-          characters?.find((c) => c.id === o.character_id)?.name ?? null,
-      })),
-    [outfits, characters],
+      outfits?.map((o) => {
+        const character = characters?.find((c) => c.id === o.character_id)
+        return {
+          ...o,
+          characterName: character?.name ?? null,
+          seriesName: series?.find((s) => s.id === character?.series_id)?.name ?? null,
+        }
+      }),
+    [outfits, characters, series],
   )
 
   const selectedOutfit = data?.find((o) => o.id === selectedId) ?? null
