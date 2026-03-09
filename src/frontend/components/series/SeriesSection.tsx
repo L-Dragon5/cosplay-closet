@@ -6,8 +6,10 @@ import {
   Modal,
   SimpleGrid,
   Stack,
+  Table,
   Text,
   TextInput,
+  Title,
   useDrawersStack,
 } from "@mantine/core"
 import {
@@ -23,6 +25,8 @@ import type { Series } from "@/backend/series/model"
 import { api } from "@/frontend/api"
 import {
   useCharactersQuery,
+  useItemsQuery,
+  useLocationsQuery,
   useOutfitsQuery,
   useSeriesQuery,
 } from "@/frontend/queries"
@@ -42,6 +46,8 @@ export function SeriesSection() {
   const { data, isLoading, error } = useSeriesQuery()
   const { data: characters } = useCharactersQuery()
   const { data: outfits } = useOutfitsQuery()
+  const { data: items } = useItemsQuery()
+  const { data: locations } = useLocationsQuery()
   const queryClient = useQueryClient()
   const [selectedSeriesId, setSelectedSeriesId] = useState<number | null>(null)
   const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
@@ -84,6 +90,11 @@ export function SeriesSection() {
     .map((o) => ({ ...o, characterName: selectedCharacter?.name ?? null }))
 
   const selectedOutfit = characterOutfits.find((o) => o.id === selectedOutfitId) ?? null
+
+  const locationMap = Object.fromEntries((locations ?? []).map((l) => [l.id, l.name]))
+  const unassignedItems = (items ?? []).filter(
+    (i) => i.series_id === selectedSeriesId && i.character_id === null,
+  )
 
   function openSeries(id: number) {
     setSelectedSeriesId(id)
@@ -275,6 +286,29 @@ export function SeriesSection() {
                 />
               ))}
             </SimpleGrid>
+          )}
+          {unassignedItems.length > 0 && (
+            <>
+              <Title order={5} mt="xl" mb="xs">Unassigned Items</Title>
+              <Table highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Name</Table.Th>
+                    <Table.Th>Location</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {unassignedItems.map((item) => (
+                    <Table.Tr key={item.id}>
+                      <Table.Td>{item.name}</Table.Td>
+                      <Table.Td>
+                        {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </>
           )}
         </Drawer>
 

@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Button,
+  Chip,
   Group,
   Modal,
   MultiSelect,
@@ -43,6 +44,8 @@ export function ItemsSection() {
   const [filterCharacters, setFilterCharacters] = useState<string[]>([])
   const [filterTypes, setFilterTypes] = useState<string[]>([])
   const [filterLocations, setFilterLocations] = useState<string[]>([])
+  const [filterNoSeries, setFilterNoSeries] = useState(false)
+  const [filterNoCharacter, setFilterNoCharacter] = useState(false)
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [notesItem, setNotesItem] = useState<Item | null>(null)
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<Item | null>(null)
@@ -82,39 +85,45 @@ export function ItemsSection() {
   }))
 
   const filterSlot = (
-    <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="sm" mb="xs">
-      <MultiSelect
-        placeholder="Series"
-        data={seriesOptions}
-        value={filterSeries}
-        onChange={setFilterSeries}
-        searchable
-        clearable
-      />
-      <MultiSelect
-        placeholder="Characters"
-        data={characterOptions}
-        value={filterCharacters}
-        onChange={setFilterCharacters}
-        searchable
-        clearable
-      />
-      <MultiSelect
-        placeholder="Type"
-        data={typeOptions}
-        value={filterTypes}
-        onChange={setFilterTypes}
-        clearable
-      />
-      <MultiSelect
-        placeholder="Location"
-        data={locationOptions}
-        value={filterLocations}
-        onChange={setFilterLocations}
-        searchable
-        clearable
-      />
-    </SimpleGrid>
+    <Stack gap="sm" mb="xs">
+      <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="sm">
+        <MultiSelect
+          placeholder="Series"
+          data={seriesOptions}
+          value={filterSeries}
+          onChange={setFilterSeries}
+          searchable
+          clearable
+        />
+        <MultiSelect
+          placeholder="Characters"
+          data={characterOptions}
+          value={filterCharacters}
+          onChange={setFilterCharacters}
+          searchable
+          clearable
+        />
+        <MultiSelect
+          placeholder="Type"
+          data={typeOptions}
+          value={filterTypes}
+          onChange={setFilterTypes}
+          clearable
+        />
+        <MultiSelect
+          placeholder="Location"
+          data={locationOptions}
+          value={filterLocations}
+          onChange={setFilterLocations}
+          searchable
+          clearable
+        />
+      </SimpleGrid>
+      <Group gap="sm">
+        <Chip checked={filterNoSeries} onChange={setFilterNoSeries}>No Series</Chip>
+        <Chip checked={filterNoCharacter} onChange={setFilterNoCharacter}>No Character</Chip>
+      </Group>
+    </Stack>
   )
 
   async function handleTableDelete() {
@@ -138,7 +147,9 @@ export function ItemsSection() {
             filterSeries.length > 0 ||
             filterCharacters.length > 0 ||
             filterTypes.length > 0 ||
-            filterLocations.length > 0
+            filterLocations.length > 0 ||
+            filterNoSeries ||
+            filterNoCharacter
           const filtered = (data ?? [])
             .filter((item) =>
               item.name.toLowerCase().includes(search.toLowerCase()),
@@ -155,7 +166,9 @@ export function ItemsSection() {
                 (filterTypes.length > 0 && filterTypes.includes(item.type)) ||
                 (filterLocations.length > 0 &&
                   item.location_id !== null &&
-                  filterLocations.includes(String(item.location_id)))
+                  filterLocations.includes(String(item.location_id))) ||
+                (filterNoSeries && item.series_id === null) ||
+                (filterNoCharacter && item.character_id === null)
               )
             })
           if (!filtered.length) {
