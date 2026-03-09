@@ -1,6 +1,6 @@
-import { Drawer, SimpleGrid, Text, useDrawersStack } from "@mantine/core"
+import { Drawer, SimpleGrid, Table, Text, Title, useDrawersStack } from "@mantine/core"
 import { useMemo, useState } from "react"
-import { useOutfitsQuery } from "@/frontend/queries"
+import { useItemsQuery, useLocationsQuery, useOutfitsQuery } from "@/frontend/queries"
 import { OutfitCard } from "../outfits/OutfitCard"
 import { OutfitItemsDrawer } from "../outfits/OutfitItemsDrawer"
 
@@ -16,10 +16,17 @@ export function CharacterOutfitsDrawer({
   onClose: () => void
 }) {
   const { data: outfits } = useOutfitsQuery()
+  const { data: items } = useItemsQuery()
+  const { data: locations } = useLocationsQuery()
   const stack = useDrawersStack(["character-outfits", "outfit-items"])
   const characterReg = stack.register("character-outfits")
   const outfitItemsReg = stack.register("outfit-items")
   const [selectedOutfit, setSelectedOutfit] = useState<any | null>(null)
+
+  const locationMap = useMemo(
+    () => Object.fromEntries((locations ?? []).map((l) => [l.id, l.name])),
+    [locations],
+  )
 
   const characterOutfits = useMemo(
     () =>
@@ -28,6 +35,15 @@ export function CharacterOutfitsDrawer({
         .map((o) => ({ ...o, characterName: characterName ?? null })),
     [outfits, characterId, characterName],
   )
+
+  const unassignedItems = useMemo(() => {
+    const referencedIds = new Set(
+      characterOutfits.flatMap((o) => o.items.map((i) => i.id)),
+    )
+    return (items ?? []).filter(
+      (i) => i.character_id === characterId && !referencedIds.has(i.id),
+    )
+  }, [items, characterId, characterOutfits])
 
   return (
     <Drawer.Stack>
@@ -57,6 +73,29 @@ export function CharacterOutfitsDrawer({
               />
             ))}
           </SimpleGrid>
+        )}
+        {unassignedItems.length > 0 && (
+          <>
+            <Title order={5} mt="xl" mb="xs">Unassigned Items</Title>
+            <Table highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th>Name</Table.Th>
+                  <Table.Th>Location</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {unassignedItems.map((item) => (
+                  <Table.Tr key={item.id}>
+                    <Table.Td>{item.name}</Table.Td>
+                    <Table.Td>
+                      {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </>
         )}
       </Drawer>
 
