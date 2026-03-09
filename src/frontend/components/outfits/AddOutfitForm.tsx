@@ -38,10 +38,21 @@ export function AddOutfitForm({
     .sort(([a], [b]) => (a === "No Series" ? 1 : b === "No Series" ? -1 : a.localeCompare(b)))
     .map(([group, items]) => ({ group, items }))
 
-  const itemOptions = (items ?? []).map((i) => ({
-    value: String(i.id),
-    label: i.name,
-  }))
+  const itemOptions = useMemo(() => {
+    if (!characterId) {
+      return (items ?? []).map((i) => ({ value: String(i.id), label: i.name }))
+    }
+    const charItems = (items ?? []).filter((i) => String(i.character_id) === characterId)
+    const otherItems = (items ?? []).filter((i) => String(i.character_id) !== characterId)
+    const groups: { group: string; items: { value: string; label: string }[] }[] = []
+    if (charItems.length > 0) {
+      groups.push({ group: "Character's Items", items: charItems.map((i) => ({ value: String(i.id), label: i.name })) })
+    }
+    if (otherItems.length > 0) {
+      groups.push({ group: "Other Items", items: otherItems.map((i) => ({ value: String(i.id), label: i.name })) })
+    }
+    return groups
+  }, [items, characterId])
 
   const suggestedItems = useMemo(() => {
     if (!characterId) return []

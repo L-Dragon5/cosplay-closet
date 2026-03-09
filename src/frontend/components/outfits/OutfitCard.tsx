@@ -5,11 +5,11 @@ import {
   Card,
   Group,
   Image,
-  Modal,
   Stack,
   Text,
   Title,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconCamera, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -20,9 +20,11 @@ import { EditOutfitForm } from "./EditOutfitForm"
 export function OutfitCard({
   outfit,
   onClick,
+  lockedCharacterId,
 }: {
   outfit: any
   onClick?: () => void
+  lockedCharacterId?: number | null
 }) {
   const queryClient = useQueryClient()
   const [editOpened, setEditOpened] = useState(false)
@@ -113,7 +115,7 @@ export function OutfitCard({
         </Group>
       </Card>
 
-      <Modal
+      <AppModal
         opened={uploadOpened}
         onClose={() => setUploadOpened(false)}
         title={`${outfit.image_path ? "Change" : "Add"} Image — ${outfit.name}`}
@@ -131,18 +133,18 @@ export function OutfitCard({
             outfit.seriesName?.toLowerCase().includes("love live") ? outfit.name : undefined
           }
         />
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={editOpened}
         onClose={() => setEditOpened(false)}
         title="Edit Outfit Version"
         centered
       >
-        <EditOutfitForm outfit={outfit} onSuccess={() => setEditOpened(false)} />
-      </Modal>
+        <EditOutfitForm outfit={outfit} onSuccess={() => setEditOpened(false)} lockedCharacterId={lockedCharacterId} />
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Delete Outfit Version"
@@ -170,7 +172,7 @@ export function OutfitCard({
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

@@ -1,4 +1,5 @@
-import { ActionIcon, Button, Group, Modal, Stack, Text } from "@mantine/core"
+import { ActionIcon, Button, Group, Stack, Text } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
@@ -132,7 +133,7 @@ export function OutfitsSection() {
         onClose={() => setSelectedId(null)}
       />
 
-      <Modal
+      <AppModal
         opened={editingOutfit !== null}
         onClose={() => setEditingOutfit(null)}
         title="Edit Outfit Version"
@@ -144,9 +145,9 @@ export function OutfitsSection() {
             onSuccess={() => setEditingOutfit(null)}
           />
         )}
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDeleteOutfit !== null}
         onClose={() => setConfirmDeleteOutfit(null)}
         title="Delete Outfit Version"
@@ -175,7 +176,7 @@ export function OutfitsSection() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

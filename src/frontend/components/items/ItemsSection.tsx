@@ -3,13 +3,13 @@ import {
   Button,
   Chip,
   Group,
-  Modal,
   MultiSelect,
   SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core"
-import { IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { AppModal } from "@/frontend/components/AppModal"
+import { IconLayoutGridAdd, IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Item } from "@/backend/items/model"
@@ -23,6 +23,7 @@ import {
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
 import { VirtualTable } from "../VirtualTable"
+import { AddItemToOutfitForm } from "./AddItemToOutfitForm"
 import { EditItemForm } from "./EditItemForm"
 import { ItemCard } from "./ItemCard"
 
@@ -49,6 +50,7 @@ export function ItemsSection() {
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [notesItem, setNotesItem] = useState<Item | null>(null)
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<Item | null>(null)
+  const [addToOutfitItem, setAddToOutfitItem] = useState<Item | null>(null)
 
   const data = useMemo(
     () =>
@@ -202,7 +204,7 @@ export function ItemsSection() {
                   },
                   {
                     header: "Actions",
-                    width: 120,
+                    width: 160,
                     render: (item) => (
                       <ActionIcon.Group>
                         {item.notes && (
@@ -217,6 +219,16 @@ export function ItemsSection() {
                             <IconNotebook size={20} />
                           </ActionIcon>
                         )}
+                        <ActionIcon
+                          variant="light"
+                          color="violet"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setAddToOutfitItem(item)
+                          }}
+                        >
+                          <IconLayoutGridAdd size={20} />
+                        </ActionIcon>
                         <ActionIcon
                           variant="light"
                           color="green"
@@ -253,7 +265,22 @@ export function ItemsSection() {
         }}
       </SectionShell>
 
-      <Modal
+      <AppModal
+        opened={addToOutfitItem !== null}
+        onClose={() => setAddToOutfitItem(null)}
+        title={addToOutfitItem ? `Add to Outfit Version — ${addToOutfitItem.name}` : "Add to Outfit Version"}
+        centered
+        size="sm"
+      >
+        {addToOutfitItem && (
+          <AddItemToOutfitForm
+            itemId={addToOutfitItem.id}
+            onSuccess={() => setAddToOutfitItem(null)}
+          />
+        )}
+      </AppModal>
+
+      <AppModal
         opened={notesItem !== null}
         onClose={() => setNotesItem(null)}
         title="Notes"
@@ -261,9 +288,9 @@ export function ItemsSection() {
         size="sm"
       >
         <Text>{notesItem?.notes}</Text>
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={editingItem !== null}
         onClose={() => setEditingItem(null)}
         title="Edit Item"
@@ -275,9 +302,9 @@ export function ItemsSection() {
             onSuccess={() => setEditingItem(null)}
           />
         )}
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDeleteItem !== null}
         onClose={() => setConfirmDeleteItem(null)}
         title="Delete Item"
@@ -306,7 +333,7 @@ export function ItemsSection() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

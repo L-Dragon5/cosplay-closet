@@ -1,4 +1,5 @@
-import { ActionIcon, Button, Modal, Transition } from "@mantine/core"
+import { ActionIcon, Button, Transition } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { useWindowScroll } from "@mantine/hooks"
 import { IconArrowUp, IconPlus } from "@tabler/icons-react"
 import { useAtomValue } from "jotai"
@@ -60,7 +61,7 @@ export function AddButton() {
         Add
       </Button>
 
-      <Modal
+      <AppModal
         opened={opened}
         onClose={() => setOpened(false)}
         title={`Add ${label}`}
@@ -75,7 +76,7 @@ export function AddButton() {
           <AddLocationForm onSuccess={handleSuccess} />
         )}
         {section === "outfits" && <AddOutfitForm onSuccess={handleSuccess} />}
-      </Modal>
+      </AppModal>
     </>
   )
 }

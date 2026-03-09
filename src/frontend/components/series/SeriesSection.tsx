@@ -3,7 +3,6 @@ import {
   Button,
   Drawer,
   Group,
-  Modal,
   SimpleGrid,
   Stack,
   Table,
@@ -12,6 +11,7 @@ import {
   Title,
   useDrawersStack,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCheck,
   IconEye,
@@ -219,7 +219,7 @@ export function SeriesSection() {
         }}
       </SectionShell>
 
-      <Modal
+      <AppModal
         opened={confirmDeleteSeries !== null}
         onClose={() => setConfirmDeleteSeries(null)}
         title="Delete Series"
@@ -248,7 +248,7 @@ export function SeriesSection() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
 
       <Drawer.Stack>
         <Drawer

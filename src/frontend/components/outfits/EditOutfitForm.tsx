@@ -17,9 +17,11 @@ import { useCharactersQuery, useItemsQuery, useSeriesQuery } from "@/frontend/qu
 export function EditOutfitForm({
   outfit,
   onSuccess,
+  lockedCharacterId,
 }: {
   outfit: Outfit
   onSuccess: () => void
+  lockedCharacterId?: number | null
 }) {
   const queryClient = useQueryClient()
   const { data: characters } = useCharactersQuery()
@@ -51,10 +53,21 @@ export function EditOutfitForm({
     )
     .map(([group, items]) => ({ group, items }))
 
-  const itemOptions = (items ?? []).map((i) => ({
-    value: String(i.id),
-    label: i.name,
-  }))
+  const itemOptions = useMemo(() => {
+    if (!characterId) {
+      return (items ?? []).map((i) => ({ value: String(i.id), label: i.name }))
+    }
+    const charItems = (items ?? []).filter((i) => String(i.character_id) === characterId)
+    const otherItems = (items ?? []).filter((i) => String(i.character_id) !== characterId)
+    const groups: { group: string; items: { value: string; label: string }[] }[] = []
+    if (charItems.length > 0) {
+      groups.push({ group: "Character's Items", items: charItems.map((i) => ({ value: String(i.id), label: i.name })) })
+    }
+    if (otherItems.length > 0) {
+      groups.push({ group: "Other Items", items: otherItems.map((i) => ({ value: String(i.id), label: i.name })) })
+    }
+    return groups
+  }, [items, characterId])
 
   const suggestedItems = useMemo(() => {
     if (!characterId) return []
@@ -91,15 +104,24 @@ export function EditOutfitForm({
         autoFocus
         required
       />
-      <Select
-        label="Character"
-        placeholder="Select character"
-        data={characterOptions}
-        value={characterId}
-        onChange={setCharacterId}
-        clearable
-        searchable
-      />
+      {lockedCharacterId != null ? (
+        <TextInput
+          label="Character"
+          value={(characters ?? []).find((c) => c.id === lockedCharacterId)?.name ?? ""}
+          readOnly
+          disabled
+        />
+      ) : (
+        <Select
+          label="Character"
+          placeholder="Select character"
+          data={characterOptions}
+          value={characterId}
+          onChange={setCharacterId}
+          clearable
+          searchable
+        />
+      )}
       {suggestedItems.length > 0 && (
         <Stack gap={4}>
           <Text size="xs" c="dimmed" fw={500}>

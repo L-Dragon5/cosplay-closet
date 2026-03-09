@@ -11,7 +11,8 @@ import {
 } from "@mantine/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
-import { StrictMode } from "react"
+import { StrictMode, useEffect } from "react"
+import { closeTopModal, hasOpenModal } from "@/frontend/modalStack"
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen"
@@ -67,11 +68,26 @@ declare module "@tanstack/react-router" {
   }
 }
 
+function EscapeInterceptor() {
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && hasOpenModal()) {
+        e.stopImmediatePropagation()
+        closeTopModal()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown, { capture: true })
+    return () => window.removeEventListener("keydown", handleKeyDown, { capture: true })
+  }, [])
+  return null
+}
+
 export function App() {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <MantineProvider theme={theme}>
+          <EscapeInterceptor />
           <RouterProvider router={router} />
         </MantineProvider>
       </QueryClientProvider>

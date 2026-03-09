@@ -5,11 +5,11 @@ import {
   Card,
   Group,
   Image,
-  Modal,
   Stack,
   Text,
   Title,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconCamera, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -113,7 +113,7 @@ export function CharacterCard({
         </Group>
       </Card>
 
-      <Modal
+      <AppModal
         opened={uploadOpened}
         onClose={() => setUploadOpened(false)}
         title={`${character.image_path ? "Change" : "Add"} Image — ${character.name}`}
@@ -126,9 +126,9 @@ export function CharacterCard({
           onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
           jikanCharacterName={character.name}
         />
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={editOpened}
         onClose={() => setEditOpened(false)}
         title="Edit Character"
@@ -138,9 +138,9 @@ export function CharacterCard({
           character={character}
           onSuccess={() => setEditOpened(false)}
         />
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Delete Character"
@@ -168,7 +168,7 @@ export function CharacterCard({
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

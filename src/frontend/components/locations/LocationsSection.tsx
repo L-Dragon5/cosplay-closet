@@ -3,11 +3,11 @@ import {
   Button,
   Group,
   List,
-  Modal,
   Stack,
   Text,
   TextInput,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCheck,
   IconEye,
@@ -203,7 +203,7 @@ export function LocationsSection() {
         }}
       </SectionShell>
 
-      <Modal
+      <AppModal
         opened={confirmDeleteLocation !== null}
         onClose={() => setConfirmDeleteLocation(null)}
         title="Delete Location"
@@ -232,9 +232,9 @@ export function LocationsSection() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={selectedId !== null}
         onClose={() => setSelectedId(null)}
         title={selectedLocation?.name}
@@ -249,7 +249,7 @@ export function LocationsSection() {
             ))}
           </List>
         )}
-      </Modal>
+      </AppModal>
     </>
   )
 }

@@ -4,12 +4,12 @@ import {
   Card,
   Group,
   Image,
-  Modal,
   Stack,
   Text,
   TextInput,
   Title,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCamera,
   IconCheck,
@@ -150,7 +150,7 @@ export function SeriesCard({
         )}
       </Card>
 
-      <Modal
+      <AppModal
         opened={uploadOpened}
         onClose={() => setUploadOpened(false)}
         title={`${series.image_path ? "Change" : "Add"} Image — ${series.name}`}
@@ -163,9 +163,9 @@ export function SeriesCard({
           onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
           jikanSearchName={series.name}
         />
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Delete Series"
@@ -193,7 +193,7 @@ export function SeriesCard({
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

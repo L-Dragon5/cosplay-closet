@@ -1,4 +1,5 @@
-import { ActionIcon, Button, Group, Modal, Stack, Text } from "@mantine/core"
+import { ActionIcon, Button, Group, Stack, Text } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
@@ -128,7 +129,7 @@ export function CharactersSection() {
         }}
       </SectionShell>
 
-      <Modal
+      <AppModal
         opened={editingCharacter !== null}
         onClose={() => setEditingCharacter(null)}
         title="Edit Character"
@@ -140,9 +141,9 @@ export function CharactersSection() {
             onSuccess={() => setEditingCharacter(null)}
           />
         )}
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDeleteCharacter !== null}
         onClose={() => setConfirmDeleteCharacter(null)}
         title="Delete Character"
@@ -171,7 +172,7 @@ export function CharactersSection() {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
 
       <CharacterOutfitsDrawer
         characterId={selectedId}

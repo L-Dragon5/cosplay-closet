@@ -4,15 +4,16 @@ import {
   Button,
   Card,
   Group,
-  Modal,
   Stack,
   Text,
   Title,
 } from "@mantine/core"
-import { IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import { AppModal } from "@/frontend/components/AppModal"
+import { IconLayoutGridAdd, IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AddItemToOutfitForm } from "./AddItemToOutfitForm"
 import { EditItemForm } from "./EditItemForm"
 
 const TYPE_COLORS: Record<string, string> = {
@@ -29,6 +30,7 @@ export function ItemCard({ item }: { item: any }) {
   const [editOpened, setEditOpened] = useState(false)
   const [notesOpened, setNotesOpened] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [addToOutfitOpened, setAddToOutfitOpened] = useState(false)
 
   async function handleDelete() {
     await api.items({ id: item.id }).delete()
@@ -83,6 +85,16 @@ export function ItemCard({ item }: { item: any }) {
               )}
               <ActionIcon
                 variant="light"
+                color="violet"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setAddToOutfitOpened(true)
+                }}
+              >
+                <IconLayoutGridAdd size={20} />
+              </ActionIcon>
+              <ActionIcon
+                variant="light"
                 color="green"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -106,7 +118,20 @@ export function ItemCard({ item }: { item: any }) {
         </Stack>
       </Card>
 
-      <Modal
+      <AppModal
+        opened={addToOutfitOpened}
+        onClose={() => setAddToOutfitOpened(false)}
+        title={`Add to Outfit Version — ${item.name}`}
+        centered
+        size="sm"
+      >
+        <AddItemToOutfitForm
+          itemId={item.id}
+          onSuccess={() => setAddToOutfitOpened(false)}
+        />
+      </AppModal>
+
+      <AppModal
         opened={notesOpened}
         onClose={() => setNotesOpened(false)}
         title="Notes"
@@ -114,18 +139,18 @@ export function ItemCard({ item }: { item: any }) {
         size="sm"
       >
         <Text>{item.notes}</Text>
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={editOpened}
         onClose={() => setEditOpened(false)}
         title="Edit Item"
         centered
       >
         <EditItemForm item={item} onSuccess={() => setEditOpened(false)} />
-      </Modal>
+      </AppModal>
 
-      <Modal
+      <AppModal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Delete Item"
@@ -153,7 +178,7 @@ export function ItemCard({ item }: { item: any }) {
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

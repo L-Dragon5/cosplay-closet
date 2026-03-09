@@ -4,12 +4,12 @@ import {
   Button,
   Card,
   Group,
-  Modal,
   Stack,
   Text,
   TextInput,
   Title,
 } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconCheck, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
@@ -117,7 +117,7 @@ export function LocationCard({
         )}
       </Card>
 
-      <Modal
+      <AppModal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
         title="Delete Location"
@@ -145,7 +145,7 @@ export function LocationCard({
             </Button>
           </Group>
         </Stack>
-      </Modal>
+      </AppModal>
     </>
   )
 }

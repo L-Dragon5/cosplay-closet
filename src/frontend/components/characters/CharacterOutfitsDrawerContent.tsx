@@ -1,4 +1,5 @@
-import { Button, Modal, SimpleGrid, Table, Text, Title } from "@mantine/core"
+import { Button, SimpleGrid, Table, Text, Title } from "@mantine/core"
+import { AppModal } from "@/frontend/components/AppModal"
 import { IconPlus } from "@tabler/icons-react"
 import { useMemo, useState } from "react"
 import { useItemsQuery, useLocationsQuery, useOutfitsQuery } from "@/frontend/queries"
@@ -64,7 +65,7 @@ export function CharacterOutfitsDrawerContent({
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
           {characterOutfits.map((o) => (
-            <OutfitCard key={o.id} outfit={o} onClick={() => onOutfitClick(o)} />
+            <OutfitCard key={o.id} outfit={o} onClick={() => onOutfitClick(o)} lockedCharacterId={characterId} />
           ))}
         </SimpleGrid>
       )}
@@ -92,7 +93,7 @@ export function CharacterOutfitsDrawerContent({
         </>
       )}
 
-      <Modal
+      <AppModal
         opened={addOpened}
         onClose={() => setAddOpened(false)}
         title="Add Outfit Version"
@@ -102,7 +103,7 @@ export function CharacterOutfitsDrawerContent({
           lockedCharacterId={characterId}
           onSuccess={() => setAddOpened(false)}
         />
-      </Modal>
+      </AppModal>
     </>
   )
 }
