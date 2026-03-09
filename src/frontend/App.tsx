@@ -1,10 +1,13 @@
 import "@mantine/core/styles.css"
 import {
   ActionIcon,
+  Autocomplete,
   createTheme,
   Drawer,
   MantineProvider,
   Modal,
+  MultiSelect,
+  Select,
 } from "@mantine/core"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
@@ -27,8 +30,26 @@ const theme = createTheme({
       },
     }),
     Modal: Modal.extend({
+      defaultProps: {
+        zIndex: 400,
+      },
       styles: {
         title: { fontSize: "1.5rem", fontWeight: 700 },
+      },
+    }),
+    Select: Select.extend({
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
+      },
+    }),
+    MultiSelect: MultiSelect.extend({
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
+      },
+    }),
+    Autocomplete: Autocomplete.extend({
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
       },
     }),
   },

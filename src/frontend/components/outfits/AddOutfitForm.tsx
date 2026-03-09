@@ -4,14 +4,22 @@ import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
 import { useCharactersQuery, useItemsQuery, useSeriesQuery } from "@/frontend/queries"
 
-export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
+export function AddOutfitForm({
+  onSuccess,
+  lockedCharacterId,
+}: {
+  onSuccess: () => void
+  lockedCharacterId?: number | null
+}) {
   const queryClient = useQueryClient()
   const { data: characters } = useCharactersQuery()
   const { data: items } = useItemsQuery()
   const { data: series } = useSeriesQuery()
 
   const [name, setName] = useState("")
-  const [characterId, setCharacterId] = useState<string | null>(null)
+  const [characterId, setCharacterId] = useState<string | null>(
+    lockedCharacterId != null ? String(lockedCharacterId) : null,
+  )
   const [itemIds, setItemIds] = useState<string[]>([])
 
   const seriesMap = Object.fromEntries((series ?? []).map((s) => [s.id, s.name]))
@@ -69,15 +77,24 @@ export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
         autoFocus
         required
       />
-      <Select
-        label="Character"
-        placeholder="Select character"
-        data={characterOptions}
-        value={characterId}
-        onChange={setCharacterId}
-        clearable
-        searchable
-      />
+      {lockedCharacterId != null ? (
+        <TextInput
+          label="Character"
+          value={(characters ?? []).find((c) => c.id === lockedCharacterId)?.name ?? ""}
+          readOnly
+          disabled
+        />
+      ) : (
+        <Select
+          label="Character"
+          placeholder="Select character"
+          data={characterOptions}
+          value={characterId}
+          onChange={setCharacterId}
+          clearable
+          searchable
+        />
+      )}
       {suggestedItems.length > 0 && (
         <Stack gap={4}>
           <Text size="xs" c="dimmed" fw={500}>

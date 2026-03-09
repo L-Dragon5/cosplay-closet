@@ -1,6 +1,8 @@
-import { SimpleGrid, Table, Text, Title } from "@mantine/core"
-import { useMemo } from "react"
+import { Button, Modal, SimpleGrid, Table, Text, Title } from "@mantine/core"
+import { IconPlus } from "@tabler/icons-react"
+import { useMemo, useState } from "react"
 import { useItemsQuery, useLocationsQuery, useOutfitsQuery } from "@/frontend/queries"
+import { AddOutfitForm } from "../outfits/AddOutfitForm"
 import { OutfitCard } from "../outfits/OutfitCard"
 
 export function CharacterOutfitsDrawerContent({
@@ -14,6 +16,8 @@ export function CharacterOutfitsDrawerContent({
   seriesName: string | null
   onOutfitClick: (outfit: any) => void
 }) {
+  const [addOpened, setAddOpened] = useState(false)
+
   const { data: outfits } = useOutfitsQuery()
   const { data: items } = useItemsQuery()
   const { data: locations } = useLocationsQuery()
@@ -46,6 +50,15 @@ export function CharacterOutfitsDrawerContent({
 
   return (
     <>
+      <Button
+        leftSection={<IconPlus size={16} />}
+        variant="light"
+        mb="md"
+        onClick={() => setAddOpened(true)}
+      >
+        Add Outfit Version
+      </Button>
+
       {characterOutfits.length === 0 ? (
         <Text c="dimmed">No outfit versions associated with this character.</Text>
       ) : (
@@ -78,6 +91,18 @@ export function CharacterOutfitsDrawerContent({
           </Table>
         </>
       )}
+
+      <Modal
+        opened={addOpened}
+        onClose={() => setAddOpened(false)}
+        title="Add Outfit Version"
+        centered
+      >
+        <AddOutfitForm
+          lockedCharacterId={characterId}
+          onSuccess={() => setAddOpened(false)}
+        />
+      </Modal>
     </>
   )
 }
