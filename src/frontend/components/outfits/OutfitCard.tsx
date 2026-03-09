@@ -136,7 +136,7 @@ export function OutfitCard({
       <Modal
         opened={editOpened}
         onClose={() => setEditOpened(false)}
-        title="Edit Outfit"
+        title="Edit Outfit Version"
         centered
       >
         <EditOutfitForm outfit={outfit} onSuccess={() => setEditOpened(false)} />
@@ -145,7 +145,7 @@ export function OutfitCard({
       <Modal
         opened={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        title="Delete Outfit"
+        title="Delete Outfit Version"
         centered
         size="sm"
       >

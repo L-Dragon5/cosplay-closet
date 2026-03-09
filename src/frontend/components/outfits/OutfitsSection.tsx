@@ -56,7 +56,7 @@ export function OutfitsSection() {
     <>
       <SectionShell
         section="outfits"
-        title="Outfits"
+        title="Outfit Versions"
         isLoading={oLoading || cLoading}
         error={oError ?? cError}
       >
@@ -67,7 +67,7 @@ export function OutfitsSection() {
           if (!filtered.length) {
             return (
               <Text c="dimmed">
-                {search ? "No matches found." : "No outfits added yet."}
+                {search ? "No matches found." : "No outfit versions added yet."}
               </Text>
             )
           }
@@ -87,7 +87,7 @@ export function OutfitsSection() {
                         <ActionIcon
                           variant="light"
                           onClick={(e) => { e.stopPropagation(); setSelectedId(o.id) }}
-                          aria-label="View outfit"
+                          aria-label="View outfit version"
                         >
                           <IconEye size={20} />
                         </ActionIcon>
@@ -135,7 +135,7 @@ export function OutfitsSection() {
       <Modal
         opened={editingOutfit !== null}
         onClose={() => setEditingOutfit(null)}
-        title="Edit Outfit"
+        title="Edit Outfit Version"
         centered
       >
         {editingOutfit && (
@@ -149,7 +149,7 @@ export function OutfitsSection() {
       <Modal
         opened={confirmDeleteOutfit !== null}
         onClose={() => setConfirmDeleteOutfit(null)}
-        title="Delete Outfit"
+        title="Delete Outfit Version"
         centered
         size="sm"
       >

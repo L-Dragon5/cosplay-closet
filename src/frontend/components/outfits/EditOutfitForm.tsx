@@ -84,7 +84,7 @@ export function EditOutfitForm({
     <Stack>
       <TextInput
         label="Name"
-        placeholder="Outfit name"
+        placeholder="Outfit version name"
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
         onKeyDown={(e) => { if (e.key === "Enter") handleSubmit() }}

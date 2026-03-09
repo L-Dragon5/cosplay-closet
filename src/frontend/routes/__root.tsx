@@ -31,7 +31,7 @@ const RootLayout = () => (
           <NavButton section="characters" label="Characters" />
           <NavButton section="items" label="Items" />
           <NavButton section="locations" label="Locations" />
-          <NavButton section="outfits" label="Outfits" />
+          <NavButton section="outfits" label="Outfit Versions" />
         </Group>
       </Group>
     </AppShell.Header>

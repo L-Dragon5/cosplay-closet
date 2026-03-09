@@ -15,7 +15,7 @@ const SECTION_LABELS: Record<string, string> = {
   characters: "Character",
   items: "Item",
   locations: "Location",
-  outfits: "Outfit",
+  outfits: "Outfit Version",
 }
 
 export function AddButton() {

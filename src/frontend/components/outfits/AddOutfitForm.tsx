@@ -63,7 +63,7 @@ export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
     <Stack>
       <TextInput
         label="Name"
-        placeholder="Outfit name"
+        placeholder="Outfit version name"
         value={name}
         onChange={(e) => setName(e.currentTarget.value)}
         autoFocus
@@ -106,7 +106,7 @@ export function AddOutfitForm({ onSuccess }: { onSuccess: () => void }) {
         searchable
       />
       <Button onClick={handleSubmit} disabled={!name.trim()}>
-        Add Outfit
+        Add Outfit Version
       </Button>
     </Stack>
   )

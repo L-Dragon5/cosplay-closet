@@ -43,7 +43,7 @@ export function CharacterOutfitsDrawer({
         size="70%"
       >
         {characterOutfits.length === 0 ? (
-          <Text c="dimmed">No outfits associated with this character.</Text>
+          <Text c="dimmed">No outfit versions associated with this character.</Text>
         ) : (
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
             {characterOutfits.map((o) => (
