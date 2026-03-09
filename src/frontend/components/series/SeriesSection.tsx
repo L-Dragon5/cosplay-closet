@@ -11,7 +11,6 @@ import {
   Title,
   useDrawersStack,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCheck,
   IconEye,
@@ -23,6 +22,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import type { Series } from "@/backend/series/model"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import {
   useCharactersQuery,
   useItemsQuery,
@@ -50,11 +50,15 @@ export function SeriesSection() {
   const { data: locations } = useLocationsQuery()
   const queryClient = useQueryClient()
   const [selectedSeriesId, setSelectedSeriesId] = useState<number | null>(null)
-  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(null)
+  const [selectedCharacterId, setSelectedCharacterId] = useState<number | null>(
+    null,
+  )
   const [selectedOutfit, setSelectedOutfit] = useState<any | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editingName, setEditingName] = useState("")
-  const [confirmDeleteSeries, setConfirmDeleteSeries] = useState<Series | null>(null)
+  const [confirmDeleteSeries, setConfirmDeleteSeries] = useState<Series | null>(
+    null,
+  )
 
   async function handleTableSave(series: Series) {
     const trimmed = editingName.trim()
@@ -79,9 +83,12 @@ export function SeriesSection() {
     .filter((c) => c.series_id === selectedSeriesId)
     .map((c) => ({ ...c, seriesName: selectedSeries?.name ?? null }))
 
-  const selectedCharacter = seriesCharacters.find((c) => c.id === selectedCharacterId) ?? null
+  const selectedCharacter =
+    seriesCharacters.find((c) => c.id === selectedCharacterId) ?? null
 
-  const locationMap = Object.fromEntries((locations ?? []).map((l) => [l.id, l.name]))
+  const locationMap = Object.fromEntries(
+    (locations ?? []).map((l) => [l.id, l.name]),
+  )
   const unassignedItems = (items ?? []).filter(
     (i) => i.series_id === selectedSeriesId && i.character_id === null,
   )
@@ -279,7 +286,9 @@ export function SeriesSection() {
           )}
           {unassignedItems.length > 0 && (
             <>
-              <Title order={5} mt="xl" mb="xs">Unassigned Items</Title>
+              <Title order={5} mt="xl" mb="xs">
+                Unassigned Items to Specific Characters
+              </Title>
               <Table highlightOnHover>
                 <Table.Thead>
                   <Table.Tr>
@@ -292,7 +301,9 @@ export function SeriesSection() {
                     <Table.Tr key={item.id}>
                       <Table.Td>{item.name}</Table.Td>
                       <Table.Td>
-                        {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                        {item.location_id
+                          ? (locationMap[item.location_id] ?? "—")
+                          : "—"}
                       </Table.Td>
                     </Table.Tr>
                   ))}

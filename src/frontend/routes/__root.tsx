@@ -27,10 +27,10 @@ const RootLayout = () => (
           Cosplay Closet
         </Text>
         <Group gap="xs">
-          <NavButton section="series" label="Series" />
-          <NavButton section="characters" label="Characters" />
           <NavButton section="items" label="Items" />
           <NavButton section="locations" label="Locations" />
+          <NavButton section="series" label="Series" />
+          <NavButton section="characters" label="Characters" />
           <NavButton section="outfits" label="Outfit Versions" />
         </Group>
       </Group>

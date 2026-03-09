@@ -10,7 +10,7 @@ export type Section =
 
 export const activeSectionAtom = atomWithStorage<Section>(
   "activeSection",
-  "outfits",
+  "items",
 )
 
 export const sectionViewAtom = atomWithStorage<Record<Section, ViewMode>>(
@@ -18,7 +18,7 @@ export const sectionViewAtom = atomWithStorage<Record<Section, ViewMode>>(
   {
     series: "card",
     characters: "card",
-    items: "card",
+    items: "table",
     locations: "card",
     outfits: "card",
   },
