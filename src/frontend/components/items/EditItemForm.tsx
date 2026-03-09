@@ -18,6 +18,10 @@ const ITEM_TYPES = [
   "Materials",
 ]
 
+const CREATE_SERIES = "__create_series__"
+const CREATE_CHARACTER = "__create_character__"
+const CREATE_LOCATION = "__create_location__"
+
 export function EditItemForm({
   item,
   onSuccess,
@@ -42,24 +46,92 @@ export function EditItemForm({
     item.location_id ? String(item.location_id) : null,
   )
   const [notes, setNotes] = useState(item.notes ?? "")
+  const [seriesSearch, setSeriesSearch] = useState("")
+  const [characterSearch, setCharacterSearch] = useState("")
+  const [locationSearch, setLocationSearch] = useState("")
 
-  const seriesOptions = (series ?? []).map((s) => ({
-    value: String(s.id),
-    label: s.name,
-  }))
+  const exactSeriesMatch = (series ?? []).some(
+    (s) => s.name.toLowerCase() === seriesSearch.toLowerCase(),
+  )
+  const seriesOptions = [
+    ...(series ?? []).map((s) => ({ value: String(s.id), label: s.name })),
+    ...(!exactSeriesMatch && seriesSearch.trim()
+      ? [{ value: CREATE_SERIES, label: `Create "${seriesSearch.trim()}"` }]
+      : []),
+  ]
 
-  const characterOptions = (characters ?? [])
-    .filter((c) => !seriesId || String(c.series_id) === seriesId)
-    .map((c) => ({ value: String(c.id), label: c.name }))
+  const filteredCharacters = (characters ?? []).filter(
+    (c) => !seriesId || String(c.series_id) === seriesId,
+  )
+  const exactCharacterMatch = filteredCharacters.some(
+    (c) => c.name.toLowerCase() === characterSearch.toLowerCase(),
+  )
+  const characterOptions = [
+    ...filteredCharacters.map((c) => ({ value: String(c.id), label: c.name })),
+    ...(!exactCharacterMatch && characterSearch.trim()
+      ? [{ value: CREATE_CHARACTER, label: `Create "${characterSearch.trim()}"` }]
+      : []),
+  ]
 
-  const locationOptions = (locations ?? []).map((l) => ({
-    value: String(l.id),
-    label: l.name,
-  }))
+  const exactLocationMatch = (locations ?? []).some(
+    (l) => l.name.toLowerCase() === locationSearch.toLowerCase(),
+  )
+  const locationOptions = [
+    ...(locations ?? []).map((l) => ({ value: String(l.id), label: l.name })),
+    ...(!exactLocationMatch && locationSearch.trim()
+      ? [{ value: CREATE_LOCATION, label: `Create "${locationSearch.trim()}"` }]
+      : []),
+  ]
 
-  function handleSeriesChange(val: string | null) {
+  async function handleSeriesChange(val: string | null) {
+    if (val === CREATE_SERIES) {
+      const { data: created } = await api.series.post({ name: seriesSearch.trim() })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["series"] })
+        setSeriesId(String(created.id))
+        setSeriesSearch("")
+        setCharacterId(null)
+      }
+      return
+    }
     setSeriesId(val)
     setCharacterId(null)
+  }
+
+  async function handleCharacterChange(val: string | null) {
+    if (val === CREATE_CHARACTER) {
+      const { data: created } = await api.characters.post({
+        name: characterSearch.trim(),
+        series_id: seriesId ? Number(seriesId) : null,
+      })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["characters"] })
+        setCharacterId(String(created.id))
+        setCharacterSearch("")
+        if (created.series_id && !seriesId) {
+          setSeriesId(String(created.series_id))
+        }
+      }
+      return
+    }
+    if (val) {
+      const char = (characters ?? []).find((c) => String(c.id) === val)
+      if (char?.series_id) setSeriesId(String(char.series_id))
+    }
+    setCharacterId(val)
+  }
+
+  async function handleLocationChange(val: string | null) {
+    if (val === CREATE_LOCATION) {
+      const { data: created } = await api.locations.post({ name: locationSearch.trim() })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["locations"] })
+        setLocationId(String(created.id))
+        setLocationSearch("")
+      }
+      return
+    }
+    setLocationId(val)
   }
 
   async function handleSubmit() {
@@ -96,29 +168,34 @@ export function EditItemForm({
       />
       <Select
         label="Series"
-        placeholder="Select series"
+        placeholder="Select or create series"
         data={seriesOptions}
         value={seriesId}
         onChange={handleSeriesChange}
+        searchValue={seriesSearch}
+        onSearchChange={setSeriesSearch}
         clearable
         searchable
       />
       <Select
         label="Character"
-        placeholder="Select character"
+        placeholder="Select or create character"
         data={characterOptions}
         value={characterId}
-        onChange={setCharacterId}
+        onChange={handleCharacterChange}
+        searchValue={characterSearch}
+        onSearchChange={setCharacterSearch}
         clearable
         searchable
-        disabled={characterOptions.length === 0}
       />
       <Select
         label="Location"
-        placeholder="Select location"
+        placeholder="Select or create location"
         data={locationOptions}
         value={locationId}
-        onChange={setLocationId}
+        onChange={handleLocationChange}
+        searchValue={locationSearch}
+        onSearchChange={setLocationSearch}
         clearable
         searchable
       />

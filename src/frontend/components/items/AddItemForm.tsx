@@ -19,6 +19,7 @@ const ITEM_TYPES = [
 
 const CREATE_SERIES = "__create_series__"
 const CREATE_CHARACTER = "__create_character__"
+const CREATE_LOCATION = "__create_location__"
 
 export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient()
@@ -34,6 +35,7 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
   const [notes, setNotes] = useState("")
   const [seriesSearch, setSeriesSearch] = useState("")
   const [characterSearch, setCharacterSearch] = useState("")
+  const [locationSearch, setLocationSearch] = useState("")
 
   const exactSeriesMatch = (series ?? []).some(
     (s) => s.name.toLowerCase() === seriesSearch.toLowerCase(),
@@ -58,10 +60,15 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
       : []),
   ]
 
-  const locationOptions = (locations ?? []).map((l) => ({
-    value: String(l.id),
-    label: l.name,
-  }))
+  const exactLocationMatch = (locations ?? []).some(
+    (l) => l.name.toLowerCase() === locationSearch.toLowerCase(),
+  )
+  const locationOptions = [
+    ...(locations ?? []).map((l) => ({ value: String(l.id), label: l.name })),
+    ...(!exactLocationMatch && locationSearch.trim()
+      ? [{ value: CREATE_LOCATION, label: `Create "${locationSearch.trim()}"` }]
+      : []),
+  ]
 
   async function handleSeriesChange(val: string | null) {
     if (val === CREATE_SERIES) {
@@ -99,6 +106,19 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
       if (char?.series_id) setSeriesId(String(char.series_id))
     }
     setCharacterId(val)
+  }
+
+  async function handleLocationChange(val: string | null) {
+    if (val === CREATE_LOCATION) {
+      const { data: created } = await api.locations.post({ name: locationSearch.trim() })
+      if (created) {
+        await queryClient.invalidateQueries({ queryKey: ["locations"] })
+        setLocationId(String(created.id))
+        setLocationSearch("")
+      }
+      return
+    }
+    setLocationId(val)
   }
 
   async function handleSubmit() {
@@ -157,10 +177,12 @@ export function AddItemForm({ onSuccess }: { onSuccess: () => void }) {
       />
       <Select
         label="Location"
-        placeholder="Select location"
+        placeholder="Select or create location"
         data={locationOptions}
         value={locationId}
-        onChange={setLocationId}
+        onChange={handleLocationChange}
+        searchValue={locationSearch}
+        onSearchChange={setLocationSearch}
         clearable
         searchable
       />
