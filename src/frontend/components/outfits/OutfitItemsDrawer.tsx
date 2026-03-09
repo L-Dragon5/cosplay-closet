@@ -31,7 +31,6 @@ export function OutfitItemsDrawer({
       title={outfit ? (outfit.characterName ? `${outfit.characterName} - ${outfit.name}` : outfit.name) : undefined}
       position="bottom"
       size="50%"
-      closeOnClickOutside={false}
     >
       {outfit?.items.length === 0 ? (
         <Text c="dimmed">No items in this outfit.</Text>

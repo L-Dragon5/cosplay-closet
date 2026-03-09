@@ -1,8 +1,6 @@
 import {
   ActionIcon,
-  Button,
   Center,
-  Collapse,
   Container,
   Group,
   Loader,
@@ -13,7 +11,6 @@ import {
 } from "@mantine/core"
 import { useDebouncedValue } from "@mantine/hooks"
 import {
-  IconFilter,
   IconLayoutGrid,
   IconList,
   IconSearch,
@@ -42,7 +39,6 @@ export function SectionShell({
 }) {
   const [search, setSearch] = useState("")
   const [debounced] = useDebouncedValue(search, 100)
-  const [filtersOpen, setFiltersOpen] = useState(false)
   const [sectionView, setSectionView] = useAtom(sectionViewAtom)
   const view = sectionView[section]
 
@@ -78,11 +74,7 @@ export function SectionShell({
         }}
         py="md"
       >
-        <Group
-          justify="space-between"
-          align="center"
-          mb={filtersOpen ? "sm" : 0}
-        >
+        <Group justify="space-between" align="center" mb="sm">
           <Title>{title}</Title>
           <Group gap="xs">
             <Tooltip label="Card view">
@@ -103,28 +95,16 @@ export function SectionShell({
                 <IconList size={18} />
               </ActionIcon>
             </Tooltip>
-            <Button
-              variant={filtersOpen ? "light" : "subtle"}
-              leftSection={<IconFilter size={20} />}
-              onClick={() => {
-                setFiltersOpen((o) => !o)
-                if (filtersOpen) setSearch("")
-              }}
-            >
-              Filters
-            </Button>
           </Group>
         </Group>
-        <Collapse in={filtersOpen}>
-          <TextInput
-            placeholder={`Search ${title.toLowerCase()}…`}
-            leftSection={<IconSearch size={20} />}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            mb={filterSlot ? "sm" : "xs"}
-          />
-          {filterSlot}
-        </Collapse>
+        <TextInput
+          placeholder={`Search ${title.toLowerCase()}…`}
+          leftSection={<IconSearch size={20} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          mb={filterSlot ? "sm" : 0}
+        />
+        {filterSlot}
       </Container>
 
       <Container size="xl" py="xl">

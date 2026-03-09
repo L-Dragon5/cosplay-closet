@@ -41,7 +41,6 @@ export function CharacterOutfitsDrawer({
         title={seriesName ? `${seriesName} - ${characterName}` : characterName}
         position="bottom"
         size="70%"
-        closeOnClickOutside={false}
       >
         {characterOutfits.length === 0 ? (
           <Text c="dimmed">No outfits associated with this character.</Text>

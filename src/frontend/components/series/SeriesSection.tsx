@@ -259,7 +259,6 @@ export function SeriesSection() {
           title={selectedSeries?.name}
           position="bottom"
           size="70%"
-          closeOnClickOutside={false}
         >
           {seriesCharacters.length === 0 ? (
             <Text c="dimmed">No characters detected for this series.</Text>
@@ -292,7 +291,6 @@ export function SeriesSection() {
           }
           position="bottom"
           size="70%"
-          closeOnClickOutside={false}
           transitionProps={{ duration: seriesReg.opened ? 0 : undefined }}
         >
           {characterOutfits.length === 0 ? (
