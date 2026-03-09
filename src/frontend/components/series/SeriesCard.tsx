@@ -34,6 +34,7 @@ export function SeriesCard({
   const [name, setName] = useState(series.name)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [uploadOpened, setUploadOpened] = useState(false)
+  const [imageCacheBuster, setImageCacheBuster] = useState(0)
 
   async function handleSave() {
     if (!name.trim() || name === series.name) {
@@ -69,7 +70,7 @@ export function SeriesCard({
       >
         {series.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={series.image_path} height={160} fit="cover" style={{ pointerEvents: "none" }} />
+            <Image src={`${series.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`} height={160} fit="contain" style={{ pointerEvents: "none" }} />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"
@@ -110,11 +111,7 @@ export function SeriesCard({
           </Group>
         ) : (
           <Group justify="space-between" wrap="nowrap" mt={series.image_path ? "md" : 0}>
-            {series.image_path ? (
-              <Text size="sm" c="dimmed" fw={500}>{series.name}</Text>
-            ) : (
-              <Title order={4}>{series.name}</Title>
-            )}
+            <Title order={4}>{series.name}</Title>
             <ActionIcon.Group>
               {!series.image_path && (
                 <ActionIcon
@@ -163,7 +160,7 @@ export function SeriesCard({
         <ImageCropper
           uploadUrl={`/api/series/${series.id}/image`}
           queryKey="series"
-          onSuccess={() => setUploadOpened(false)}
+          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
           jikanSearchName={series.name}
         />
       </Modal>

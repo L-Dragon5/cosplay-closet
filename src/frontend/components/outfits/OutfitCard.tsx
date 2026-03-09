@@ -27,6 +27,7 @@ export function OutfitCard({
   const queryClient = useQueryClient()
   const [editOpened, setEditOpened] = useState(false)
   const [uploadOpened, setUploadOpened] = useState(false)
+  const [imageCacheBuster, setImageCacheBuster] = useState(0)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleDelete() {
@@ -48,7 +49,7 @@ export function OutfitCard({
         {outfit.image_path && (
           <Card.Section style={{ position: "relative" }}>
             <Image
-              src={outfit.image_path}
+              src={`${outfit.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`}
               height={500}
               fit="cover"
               style={{ pointerEvents: "none" }}
@@ -122,7 +123,7 @@ export function OutfitCard({
         <ImageCropper
           uploadUrl={`/api/outfits/${outfit.id}/image`}
           queryKey="outfits"
-          onSuccess={() => setUploadOpened(false)}
+          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
         />
       </Modal>
 

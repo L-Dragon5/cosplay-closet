@@ -27,6 +27,7 @@ export function CharacterCard({
   const queryClient = useQueryClient()
   const [editOpened, setEditOpened] = useState(false)
   const [uploadOpened, setUploadOpened] = useState(false)
+  const [imageCacheBuster, setImageCacheBuster] = useState(0)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleDelete() {
@@ -47,7 +48,7 @@ export function CharacterCard({
       >
         {character.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={character.image_path} height={500} fit="cover" style={{ pointerEvents: "none" }} />
+            <Image src={`${character.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`} height={500} fit="cover" style={{ pointerEvents: "none" }} />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"
@@ -74,13 +75,7 @@ export function CharacterCard({
           {character.seriesName ?? "No Series"}
         </Badge>
         <Group justify="space-between" wrap="nowrap" my="xs">
-          {character.image_path ? (
-            <Text size="sm" c="dimmed" fw={500}>
-              {character.name}
-            </Text>
-          ) : (
-            <Title order={4}>{character.name}</Title>
-          )}
+          <Title order={4}>{character.name}</Title>
           <ActionIcon.Group>
             {!character.image_path && (
               <ActionIcon
@@ -128,7 +123,7 @@ export function CharacterCard({
         <ImageCropper
           uploadUrl={`/api/characters/${character.id}/image`}
           queryKey="characters"
-          onSuccess={() => setUploadOpened(false)}
+          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
           jikanCharacterName={character.name}
         />
       </Modal>
