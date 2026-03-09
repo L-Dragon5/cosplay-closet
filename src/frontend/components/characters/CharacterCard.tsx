@@ -119,6 +119,7 @@ export function CharacterCard({
         title={`${character.image_path ? "Change" : "Add"} Image — ${character.name}`}
         centered
         size="lg"
+        zIndex={400}
       >
         <ImageCropper
           uploadUrl={`/api/characters/${character.id}/image`}
@@ -133,6 +134,7 @@ export function CharacterCard({
         onClose={() => setEditOpened(false)}
         title="Edit Character"
         centered
+        zIndex={400}
       >
         <EditCharacterForm
           character={character}
@@ -146,6 +148,7 @@ export function CharacterCard({
         title="Delete Character"
         centered
         size="sm"
+        zIndex={400}
       >
         <Stack>
           <Text>

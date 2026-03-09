@@ -125,7 +125,14 @@ function getOutfitName(
   // Starts with series name → e.g. "Kamichama Karin Staff"
   if (seriesName && baseLower.startsWith(seriesName.trim().toLowerCase())) return "Default"
 
-  return base
+  // Strip any remaining character name tokens from the result
+  let result = base
+  for (const token of charFull === charFirst ? [charFull] : [charFull, charFirst, ...(charLast ? [charLast] : [])]) {
+    result = result.replace(new RegExp(`\\b${token}\\b`, "gi"), "").trim()
+  }
+  result = result.replace(/\s{2,}/g, " ").trim()
+
+  return result || "Default"
 }
 
 // Fetch items that have a character and are not Materials

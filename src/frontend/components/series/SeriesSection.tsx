@@ -96,6 +96,11 @@ export function SeriesSection() {
     (i) => i.series_id === selectedSeriesId && i.character_id === null,
   )
 
+  const referencedByOutfit = new Set(characterOutfits.flatMap((o) => o.items.map((i) => i.id)))
+  const characterUnassignedItems = (items ?? []).filter(
+    (i) => i.character_id === selectedCharacterId && !referencedByOutfit.has(i.id),
+  )
+
   function openSeries(id: number) {
     setSelectedSeriesId(id)
     stack.open("series")
@@ -342,6 +347,29 @@ export function SeriesSection() {
                 />
               ))}
             </SimpleGrid>
+          )}
+          {characterUnassignedItems.length > 0 && (
+            <>
+              <Title order={5} mt="xl" mb="xs">Unassigned Items</Title>
+              <Table highlightOnHover>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Name</Table.Th>
+                    <Table.Th>Location</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {characterUnassignedItems.map((item) => (
+                    <Table.Tr key={item.id}>
+                      <Table.Td>{item.name}</Table.Td>
+                      <Table.Td>
+                        {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </>
           )}
         </Drawer>
         <OutfitItemsDrawer
