@@ -79,13 +79,13 @@ export function OutfitCard({
         >
           {outfit.image_path ? (
             <Text size="sm" c="dimmed" fw={500}>
-              {outfit.characterName
+              {outfit.characterName && !lockedCharacterId
                 ? `${outfit.characterName} - ${outfit.name}`
                 : outfit.name}
             </Text>
           ) : (
             <Title order={4}>
-              {outfit.characterName
+              {outfit.characterName && !lockedCharacterId
                 ? `${outfit.characterName} - ${outfit.name}`
                 : outfit.name}
             </Title>
