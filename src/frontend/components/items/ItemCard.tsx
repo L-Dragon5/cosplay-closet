@@ -8,11 +8,17 @@ import {
   Text,
   Title,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
-import { IconLayoutGridAdd, IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import {
+  IconLayoutGridAdd,
+  IconNotebook,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { AddItemToOutfitForm } from "./AddItemToOutfitForm"
 import { EditItemForm } from "./EditItemForm"
 import { ItemOutfitsModal } from "./ItemOutfitsModal"
@@ -42,7 +48,14 @@ export function ItemCard({ item }: { item: any }) {
 
   return (
     <>
-      <Card shadow="sm" padding="lg" radius="md" withBorder style={{ cursor: "pointer" }} onClick={() => setOutfitsOpened(true)}>
+      <Card
+        shadow="sm"
+        padding="lg"
+        radius="md"
+        withBorder
+        style={{ cursor: "pointer" }}
+        onClick={() => setOutfitsOpened(true)}
+      >
         <Stack gap="xs">
           <Stack gap=".25rem">
             {item.seriesName && (
@@ -58,13 +71,13 @@ export function ItemCard({ item }: { item: any }) {
           </Stack>
 
           <Title order={4}>{item.name}</Title>
-          
+
           <Group gap="xs">
             <Badge color={TYPE_COLORS[item.type] ?? "gray"} variant="light">
               {item.type}
             </Badge>
           </Group>
-          
+
           <Group justify="space-between" align="flex-end" wrap="nowrap">
             {item.locationName && (
               <Text size="sm" c="dimmed">

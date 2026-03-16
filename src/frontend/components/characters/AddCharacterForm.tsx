@@ -1,9 +1,17 @@
-import { Badge, Button, Group, Select, Stack, Text, TextInput } from "@mantine/core"
+import {
+  Badge,
+  Button,
+  Group,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
-import { useSeriesQuery } from "@/frontend/queries"
 import { useJikanCharacters } from "@/frontend/hooks/useJikanCharacters"
+import { useSeriesQuery } from "@/frontend/queries"
 
 export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
   const queryClient = useQueryClient()
@@ -17,10 +25,14 @@ export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
   }))
 
   const selectedSeriesName = useMemo(
-    () => (seriesId ? (series ?? []).find((s) => String(s.id) === seriesId)?.name ?? null : null),
+    () =>
+      seriesId
+        ? ((series ?? []).find((s) => String(s.id) === seriesId)?.name ?? null)
+        : null,
     [series, seriesId],
   )
-  const { names: jikanNames, isLoading: jikanLoading } = useJikanCharacters(selectedSeriesName)
+  const { names: jikanNames, isLoading: jikanLoading } =
+    useJikanCharacters(selectedSeriesName)
   const suggestedNames = useMemo(() => {
     if (!selectedSeriesName || jikanNames.length === 0) return []
     const query = name.toLowerCase().trim()
@@ -69,7 +81,9 @@ export function AddCharacterForm({ onSuccess }: { onSuccess: () => void }) {
         </Stack>
       )}
       {jikanLoading && suggestedNames.length === 0 && selectedSeriesName && (
-        <Text size="xs" c="dimmed">Loading suggestions…</Text>
+        <Text size="xs" c="dimmed">
+          Loading suggestions…
+        </Text>
       )}
       <Select
         label="Series"

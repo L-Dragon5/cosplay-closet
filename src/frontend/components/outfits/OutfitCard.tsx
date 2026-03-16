@@ -9,11 +9,11 @@ import {
   Text,
   Title,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconCamera, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { ImageCropper } from "../ImageCropper"
 import { EditOutfitForm } from "./EditOutfitForm"
 
@@ -61,7 +61,10 @@ export function OutfitCard({
               variant="filled"
               color="dark"
               size="sm"
-              onClick={(e) => { e.stopPropagation(); setUploadOpened(true) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setUploadOpened(true)
+              }}
               aria-label="Change image"
             >
               <IconCamera size={14} />
@@ -76,16 +79,25 @@ export function OutfitCard({
         >
           {outfit.image_path ? (
             <Text size="sm" c="dimmed" fw={500}>
-              {outfit.characterName ? `${outfit.characterName} - ${outfit.name}` : outfit.name}
+              {outfit.characterName
+                ? `${outfit.characterName} - ${outfit.name}`
+                : outfit.name}
             </Text>
           ) : (
-            <Title order={4}>{outfit.characterName ? `${outfit.characterName} - ${outfit.name}` : outfit.name}</Title>
+            <Title order={4}>
+              {outfit.characterName
+                ? `${outfit.characterName} - ${outfit.name}`
+                : outfit.name}
+            </Title>
           )}
           <ActionIcon.Group>
             {!outfit.image_path && (
               <ActionIcon
                 variant="light"
-                onClick={(e) => { e.stopPropagation(); setUploadOpened(true) }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setUploadOpened(true)
+                }}
                 aria-label="Add image"
               >
                 <IconCamera size={20} />
@@ -94,14 +106,20 @@ export function OutfitCard({
             <ActionIcon
               variant="light"
               color="green"
-              onClick={(e) => { e.stopPropagation(); setEditOpened(true) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setEditOpened(true)
+              }}
             >
               <IconPencil size={20} />
             </ActionIcon>
             <ActionIcon
               variant="light"
               color="red"
-              onClick={(e) => { e.stopPropagation(); setConfirmDelete(true) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                setConfirmDelete(true)
+              }}
             >
               <IconTrash size={20} />
             </ActionIcon>
@@ -125,12 +143,19 @@ export function OutfitCard({
         <ImageCropper
           uploadUrl={`/api/outfits/${outfit.id}/image`}
           queryKey="outfits"
-          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
+          onSuccess={() => {
+            setUploadOpened(false)
+            setImageCacheBuster(Date.now())
+          }}
           schoolIdoluCharacterName={
-            outfit.seriesName?.toLowerCase().includes("love live") ? outfit.characterName : undefined
+            outfit.seriesName?.toLowerCase().includes("love live")
+              ? outfit.characterName
+              : undefined
           }
           schoolIdoluOutfitName={
-            outfit.seriesName?.toLowerCase().includes("love live") ? outfit.name : undefined
+            outfit.seriesName?.toLowerCase().includes("love live")
+              ? outfit.name
+              : undefined
           }
         />
       </AppModal>
@@ -141,7 +166,11 @@ export function OutfitCard({
         title="Edit Outfit Version"
         centered
       >
-        <EditOutfitForm outfit={outfit} onSuccess={() => setEditOpened(false)} lockedCharacterId={lockedCharacterId} />
+        <EditOutfitForm
+          outfit={outfit}
+          onSuccess={() => setEditOpened(false)}
+          lockedCharacterId={lockedCharacterId}
+        />
       </AppModal>
 
       <AppModal

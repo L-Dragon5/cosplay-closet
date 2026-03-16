@@ -3,22 +3,17 @@ import { useQuery } from "@tanstack/react-query"
 
 const STALE_TIME = 10 * 60 * 1000
 
-export function useSchoolIdoluImages(
-  characterName: string | null,
-  outfitName: string | null,
-) {
+export function useIdolStoryImages(characterName: string | null) {
   const [debouncedCharacter] = useDebouncedValue(characterName, 400)
-  const [debouncedOutfit] = useDebouncedValue(outfitName, 400)
 
   return useQuery({
-    queryKey: ["schoolidolu", "images", debouncedCharacter, debouncedOutfit],
-    enabled: !!(debouncedCharacter || debouncedOutfit),
+    queryKey: ["idolstory", "images", debouncedCharacter],
+    enabled: !!debouncedCharacter,
     staleTime: STALE_TIME,
     queryFn: async () => {
       const params = new URLSearchParams()
       if (debouncedCharacter) params.set("name", debouncedCharacter)
-      if (debouncedOutfit) params.set("search", debouncedOutfit)
-      const res = await fetch(`/api/schoolidolu?${params}`)
+      const res = await fetch(`/api/idolstory?${params}`)
       if (!res.ok) return []
       const data = (await res.json()) as {
         images: { label: string; imageUrl: string }[]

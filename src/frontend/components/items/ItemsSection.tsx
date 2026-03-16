@@ -9,12 +9,18 @@ import {
   Stack,
   Text,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
-import { IconLayoutGridAdd, IconNotebook, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
+import {
+  IconLayoutGridAdd,
+  IconNotebook,
+  IconPencil,
+  IconTrash,
+  IconX,
+} from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Item } from "@/backend/items/model"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import {
   useCharactersQuery,
   useItemsQuery,
@@ -127,8 +133,12 @@ export function ItemsSection() {
       </SimpleGrid>
       <Group gap="sm" justify="space-between">
         <Group gap="sm">
-          <Chip checked={filterNoSeries} onChange={setFilterNoSeries}>No Series</Chip>
-          <Chip checked={filterNoCharacter} onChange={setFilterNoCharacter}>No Character</Chip>
+          <Chip checked={filterNoSeries} onChange={setFilterNoSeries}>
+            No Series
+          </Chip>
+          <Chip checked={filterNoCharacter} onChange={setFilterNoCharacter}>
+            No Character
+          </Chip>
         </Group>
         <SegmentedControl
           size="xs"
@@ -175,16 +185,17 @@ export function ItemsSection() {
               if (!hasActiveFilters) return true
               const checks = [
                 filterSeries.length > 0
-                  ? item.series_id !== null && filterSeries.includes(String(item.series_id))
+                  ? item.series_id !== null &&
+                    filterSeries.includes(String(item.series_id))
                   : null,
                 filterCharacters.length > 0
-                  ? item.character_id !== null && filterCharacters.includes(String(item.character_id))
+                  ? item.character_id !== null &&
+                    filterCharacters.includes(String(item.character_id))
                   : null,
-                filterTypes.length > 0
-                  ? filterTypes.includes(item.type)
-                  : null,
+                filterTypes.length > 0 ? filterTypes.includes(item.type) : null,
                 filterLocations.length > 0
-                  ? item.location_id !== null && filterLocations.includes(String(item.location_id))
+                  ? item.location_id !== null &&
+                    filterLocations.includes(String(item.location_id))
                   : null,
                 filterNoSeries ? item.series_id === null : null,
                 filterNoCharacter ? item.character_id === null : null,
@@ -196,7 +207,9 @@ export function ItemsSection() {
           if (!filtered.length) {
             return (
               <Text c="dimmed">
-                {hasActiveFilters || search ? "No matches found." : "No items added yet."}
+                {hasActiveFilters || search
+                  ? "No matches found."
+                  : "No items added yet."}
               </Text>
             )
           }
@@ -289,18 +302,29 @@ export function ItemsSection() {
       <AppModal
         opened={viewOutfitsItem !== null}
         onClose={() => setViewOutfitsItem(null)}
-        title={viewOutfitsItem ? `Outfit Versions — ${viewOutfitsItem.name}` : "Outfit Versions"}
+        title={
+          viewOutfitsItem
+            ? `Outfit Versions — ${viewOutfitsItem.name}`
+            : "Outfit Versions"
+        }
         centered
       >
         {viewOutfitsItem && (
-          <ItemOutfitsModal itemId={viewOutfitsItem.id} itemName={viewOutfitsItem.name} />
+          <ItemOutfitsModal
+            itemId={viewOutfitsItem.id}
+            itemName={viewOutfitsItem.name}
+          />
         )}
       </AppModal>
 
       <AppModal
         opened={addToOutfitItem !== null}
         onClose={() => setAddToOutfitItem(null)}
-        title={addToOutfitItem ? `Add to Outfit Version — ${addToOutfitItem.name}` : "Add to Outfit Version"}
+        title={
+          addToOutfitItem
+            ? `Add to Outfit Version — ${addToOutfitItem.name}`
+            : "Add to Outfit Version"
+        }
         centered
         size="sm"
       >

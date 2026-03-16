@@ -3,7 +3,11 @@ import { IconUnlink } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { api } from "@/frontend/api"
-import { useCharactersQuery, useOutfitsQuery, useSeriesQuery } from "@/frontend/queries"
+import {
+  useCharactersQuery,
+  useOutfitsQuery,
+  useSeriesQuery,
+} from "@/frontend/queries"
 
 export function ItemOutfitsModal({
   itemId,
@@ -59,9 +63,13 @@ export function ItemOutfitsModal({
         <Table.Tbody>
           {assignedOutfits.map((o) => {
             const char = o.character_id ? characterMap[o.character_id] : null
-            const seriesName = char?.series_id ? (seriesMap[char.series_id] ?? null) : null
+            const seriesName = char?.series_id
+              ? (seriesMap[char.series_id] ?? null)
+              : null
             const charLabel = char
-              ? (seriesName ? `${seriesName} - ${char.name}` : char.name)
+              ? seriesName
+                ? `${seriesName} - ${char.name}`
+                : char.name
               : "—"
             return (
               <Table.Tr key={o.id}>

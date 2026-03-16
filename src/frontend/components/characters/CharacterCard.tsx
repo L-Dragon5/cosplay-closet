@@ -9,11 +9,11 @@ import {
   Text,
   Title,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconCamera, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { ImageCropper } from "../ImageCropper"
 import { EditCharacterForm } from "./EditCharacterForm"
 
@@ -48,7 +48,12 @@ export function CharacterCard({
       >
         {character.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={`${character.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`} height={500} fit="cover" style={{ pointerEvents: "none" }} />
+            <Image
+              src={`${character.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`}
+              height={500}
+              fit="cover"
+              style={{ pointerEvents: "none" }}
+            />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"
@@ -123,7 +128,10 @@ export function CharacterCard({
         <ImageCropper
           uploadUrl={`/api/characters/${character.id}/image`}
           queryKey="characters"
-          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
+          onSuccess={() => {
+            setUploadOpened(false)
+            setImageCacheBuster(Date.now())
+          }}
           jikanCharacterName={character.name}
         />
       </AppModal>

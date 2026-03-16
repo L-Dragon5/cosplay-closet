@@ -9,11 +9,11 @@ import {
   TextInput,
   Title,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconCheck, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 
 export function LocationCard({
   location,

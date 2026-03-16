@@ -10,11 +10,7 @@ import {
   Tooltip,
 } from "@mantine/core"
 import { useDebouncedValue } from "@mantine/hooks"
-import {
-  IconLayoutGrid,
-  IconList,
-  IconSearch,
-} from "@tabler/icons-react"
+import { IconLayoutGrid, IconList, IconSearch } from "@tabler/icons-react"
 import { useAtom } from "jotai"
 import { useState } from "react"
 import type { Section } from "@/frontend/atoms"

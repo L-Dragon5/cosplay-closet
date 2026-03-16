@@ -1,40 +1,148 @@
 import { db } from "@/backend/db"
 
 // Words at the start of a base name that indicate "Default", not a real outfit
-const MODIFIER_PREFIXES = new Set(["new", "old", "alt", "alternate", "classic", "original"])
+const MODIFIER_PREFIXES = new Set([
+  "new",
+  "old",
+  "alt",
+  "alternate",
+  "classic",
+  "original",
+])
 
 // Words that on their own don't constitute a meaningful outfit name.
 // Used to determine whether what follows a character name prefix is a real outfit.
 const FILLER_WORDS = new Set([
   // Item type words
-  "outfit", "wig", "shoes", "shoe", "dress", "costume", "prop", "hat", "gloves",
-  "accessories", "accessory", "armor", "jacket", "coat", "pants", "skirt", "top",
-  "shirt", "cape", "cloak", "scarf", "belt", "boots", "heels", "sandals",
-  "stockings", "socks", "tights", "bag", "purse",
+  "outfit",
+  "wig",
+  "shoes",
+  "shoe",
+  "dress",
+  "costume",
+  "prop",
+  "hat",
+  "gloves",
+  "accessories",
+  "accessory",
+  "armor",
+  "jacket",
+  "coat",
+  "pants",
+  "skirt",
+  "top",
+  "shirt",
+  "cape",
+  "cloak",
+  "scarf",
+  "belt",
+  "boots",
+  "heels",
+  "sandals",
+  "stockings",
+  "socks",
+  "tights",
+  "bag",
+  "purse",
   // Weapon/prop type words
-  "gun", "guns", "airsoft", "rifle", "pistol", "sword", "swords", "blade", "blades",
-  "wand", "wands", "staff", "shield", "shields", "bow", "bows", "spear", "spears",
-  "lance", "lances", "axe", "axes", "hammer", "hammers", "cannon", "cannons",
-  "knife", "knives", "dagger", "daggers",
+  "gun",
+  "guns",
+  "airsoft",
+  "rifle",
+  "pistol",
+  "sword",
+  "swords",
+  "blade",
+  "blades",
+  "wand",
+  "wands",
+  "staff",
+  "shield",
+  "shields",
+  "bow",
+  "bows",
+  "spear",
+  "spears",
+  "lance",
+  "lances",
+  "axe",
+  "axes",
+  "hammer",
+  "hammers",
+  "cannon",
+  "cannons",
+  "knife",
+  "knives",
+  "dagger",
+  "daggers",
   // Body part descriptors (singular and plural)
-  "shoulder", "shoulders", "chest", "head", "arm", "arms", "leg", "legs",
-  "foot", "feet", "hand", "hands", "neck", "back", "waist",
-  "ear", "ears", "eye", "eyes", "face", "hair",
-  "tail", "tails", "wing", "wings", "horn", "horns", "paw", "paws",
-  "fang", "fangs", "claw", "claws",
+  "shoulder",
+  "shoulders",
+  "chest",
+  "head",
+  "arm",
+  "arms",
+  "leg",
+  "legs",
+  "foot",
+  "feet",
+  "hand",
+  "hands",
+  "neck",
+  "back",
+  "waist",
+  "ear",
+  "ears",
+  "eye",
+  "eyes",
+  "face",
+  "hair",
+  "tail",
+  "tails",
+  "wing",
+  "wings",
+  "horn",
+  "horns",
+  "paw",
+  "paws",
+  "fang",
+  "fangs",
+  "claw",
+  "claws",
   // Connectors
-  "with", "and", "or", "the", "a", "an", "for", "of", "in", "at", "by", "from", "to", "as",
+  "with",
+  "and",
+  "or",
+  "the",
+  "a",
+  "an",
+  "for",
+  "of",
+  "in",
+  "at",
+  "by",
+  "from",
+  "to",
+  "as",
   // Default indicators
-  "regular", "default", "normal", "standard", "basic",
+  "regular",
+  "default",
+  "normal",
+  "standard",
+  "basic",
 ])
 
 // If the base starts with the character's name, extract what follows.
 // Returns the outfit name (possibly "Default") or null if char name not at start.
-function extractAfterCharName(base: string, charFull: string, charFirst: string): string | null {
+function extractAfterCharName(
+  base: string,
+  charFull: string,
+  charFirst: string,
+): string | null {
   const lower = base.toLowerCase()
-  const prefix = lower.startsWith(charFull + " ")
+  const prefix = lower.startsWith(`${charFull} `)
     ? charFull
-    : lower.startsWith(charFirst + " ")
+    : lower.startsWith(`${charFirst} `)
       ? charFirst
       : null
   if (!prefix) return null
@@ -49,7 +157,10 @@ function extractAfterCharName(base: string, charFull: string, charFirst: string)
 
   // Strip trailing filler words (e.g. dangling "and", "with")
   const trimmedWords = remaining.split(/\s+/)
-  while (trimmedWords.length > 0 && FILLER_WORDS.has(trimmedWords[trimmedWords.length - 1].toLowerCase())) {
+  while (
+    trimmedWords.length > 0 &&
+    FILLER_WORDS.has(trimmedWords[trimmedWords.length - 1].toLowerCase())
+  ) {
     trimmedWords.pop()
   }
   return trimmedWords.join(" ") || "Default"
@@ -62,7 +173,10 @@ function getOutfitName(
   seriesName: string | null,
 ): string {
   // Strip trailing parentheticals e.g. "(3 parts)", "(ver. 2)"
-  const trimmed = itemName.trim().replace(/\s*\(.*$/, "").trim()
+  const trimmed = itemName
+    .trim()
+    .replace(/\s*\(.*$/, "")
+    .trim()
 
   // Strip trailing variant markers: #1, #2, "#1 and #2", "#1 & #2", "#1, #2", etc.
   const normalized = trimmed.replace(/\s+#\d+.*$/, "").trim()
@@ -72,7 +186,9 @@ function getOutfitName(
   // Prop/Accessories items often have a descriptor before the type word (e.g. "Tambourine Prop")
   // Strip 2 words for those when the name is long enough, otherwise 1
   const stripCount =
-    (itemType === "Prop" || itemType === "Accessories") && words.length >= 4 ? 2 : 1
+    (itemType === "Prop" || itemType === "Accessories") && words.length >= 4
+      ? 2
+      : 1
   const base = words.slice(0, -stripCount).join(" ")
 
   const baseLower = base.toLowerCase()
@@ -82,16 +198,20 @@ function getOutfitName(
   const charLast = charParts.length > 1 ? charParts[charParts.length - 1] : null
 
   // Exact match: full name, first name, or last name → Default
-  if (baseLower === charFull || baseLower === charFirst || (charLast && baseLower === charLast)) {
+  if (
+    baseLower === charFull ||
+    baseLower === charFirst ||
+    (charLast && baseLower === charLast)
+  ) {
     return "Default"
   }
 
   // Char name appears at end of normalized name (e.g. "White Sneakers for Kiyoko") → Default
   const normalizedLower = normalized.toLowerCase()
   if (
-    normalizedLower.endsWith(" " + charFull) ||
-    (charFirst !== charFull && normalizedLower.endsWith(" " + charFirst)) ||
-    (charLast && normalizedLower.endsWith(" " + charLast))
+    normalizedLower.endsWith(` ${charFull}`) ||
+    (charFirst !== charFull && normalizedLower.endsWith(` ${charFirst}`)) ||
+    (charLast && normalizedLower.endsWith(` ${charLast}`))
   ) {
     return "Default"
   }
@@ -101,14 +221,21 @@ function getOutfitName(
   if (fromPrefix !== null) return fromPrefix
 
   // Char name mid-string with filler suffix: "Cyber Rin Outfit and" → "Cyber Rin"
-  for (const cn of charFull === charFirst ? [charFull] : [charFull, charFirst]) {
+  for (const cn of charFull === charFirst
+    ? [charFull]
+    : [charFull, charFirst]) {
     const re = new RegExp(`\\b${cn}\\b`, "i")
     const match = base.match(re)
     if (!match || match.index === undefined) continue
     const afterIdx = match.index + cn.length
     const afterChar = base.slice(afterIdx).trim()
     if (!afterChar) continue
-    if (afterChar.toLowerCase().split(/\s+/).every((w) => FILLER_WORDS.has(w))) {
+    if (
+      afterChar
+        .toLowerCase()
+        .split(/\s+/)
+        .every((w) => FILLER_WORDS.has(w))
+    ) {
       return base.slice(0, afterIdx).trim() || "Default"
     }
   }
@@ -120,14 +247,18 @@ function getOutfitName(
   if (MODIFIER_PREFIXES.has(baseLower.split(" ")[0])) return "Default"
 
   // Exact match with series name
-  if (seriesName && baseLower === seriesName.trim().toLowerCase()) return "Default"
+  if (seriesName && baseLower === seriesName.trim().toLowerCase())
+    return "Default"
 
   // Starts with series name → e.g. "Kamichama Karin Staff"
-  if (seriesName && baseLower.startsWith(seriesName.trim().toLowerCase())) return "Default"
+  if (seriesName && baseLower.startsWith(seriesName.trim().toLowerCase()))
+    return "Default"
 
   // Strip any remaining character name tokens from the result
   let result = base
-  for (const token of charFull === charFirst ? [charFull] : [charFull, charFirst, ...(charLast ? [charLast] : [])]) {
+  for (const token of charFull === charFirst
+    ? [charFull]
+    : [charFull, charFirst, ...(charLast ? [charLast] : [])]) {
     result = result.replace(new RegExp(`\\b${token}\\b`, "gi"), "").trim()
   }
   result = result.replace(/\s{2,}/g, " ").trim()
@@ -176,14 +307,19 @@ for (const [characterId, characterItems] of byCharacter) {
 
   // If Default only contains Wig items and other outfits exist, move them there
   const defaultIds = outfitGroups.get("Default") ?? []
-  const defaultItems = characterItems.filter((i) => defaultIds.includes(i.id as number))
+  const defaultItems = characterItems.filter((i) =>
+    defaultIds.includes(i.id as number),
+  )
   const defaultIsOnlyWigs =
     defaultIds.length > 0 && defaultItems.every((i) => i.type === "Wig")
   const otherOutfits = [...outfitGroups.keys()].filter((k) => k !== "Default")
 
   if (defaultIsOnlyWigs && otherOutfits.length > 0) {
     for (const outfitName of otherOutfits) {
-      outfitGroups.set(outfitName, [...outfitGroups.get(outfitName)!, ...defaultIds])
+      outfitGroups.set(outfitName, [
+        ...outfitGroups.get(outfitName)!,
+        ...defaultIds,
+      ])
     }
     outfitGroups.delete("Default")
   }
@@ -216,5 +352,7 @@ for (const [characterId, characterItems] of byCharacter) {
   }
 }
 
-console.log(`\nDone. Created ${outfitsCreated} outfit(s), skipped ${outfitsSkipped} existing.`)
+console.log(
+  `\nDone. Created ${outfitsCreated} outfit(s), skipped ${outfitsSkipped} existing.`,
+)
 process.exit(0)

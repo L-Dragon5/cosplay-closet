@@ -9,7 +9,6 @@ import {
   TextInput,
   Title,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCamera,
   IconCheck,
@@ -20,6 +19,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { ImageCropper } from "../ImageCropper"
 
 export function SeriesCard({
@@ -70,7 +70,12 @@ export function SeriesCard({
       >
         {series.image_path && (
           <Card.Section style={{ position: "relative" }}>
-            <Image src={`${series.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`} height={160} fit="contain" style={{ pointerEvents: "none" }} />
+            <Image
+              src={`${series.image_path}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`}
+              height={160}
+              fit="contain"
+              style={{ pointerEvents: "none" }}
+            />
             <ActionIcon
               style={{ position: "absolute", top: 8, right: 8 }}
               variant="filled"
@@ -110,7 +115,11 @@ export function SeriesCard({
             </ActionIcon.Group>
           </Group>
         ) : (
-          <Group justify="space-between" wrap="nowrap" mt={series.image_path ? "md" : 0}>
+          <Group
+            justify="space-between"
+            wrap="nowrap"
+            mt={series.image_path ? "md" : 0}
+          >
             <Title order={4}>{series.name}</Title>
             <ActionIcon.Group>
               {!series.image_path && (
@@ -160,7 +169,10 @@ export function SeriesCard({
         <ImageCropper
           uploadUrl={`/api/series/${series.id}/image`}
           queryKey="series"
-          onSuccess={() => { setUploadOpened(false); setImageCacheBuster(Date.now()) }}
+          onSuccess={() => {
+            setUploadOpened(false)
+            setImageCacheBuster(Date.now())
+          }}
           jikanSearchName={series.name}
         />
       </AppModal>

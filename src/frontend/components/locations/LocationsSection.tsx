@@ -7,7 +7,6 @@ import {
   Text,
   TextInput,
 } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import {
   IconCheck,
   IconEye,
@@ -19,6 +18,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Location } from "@/backend/locations/model"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { useItemsQuery, useLocationsQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"

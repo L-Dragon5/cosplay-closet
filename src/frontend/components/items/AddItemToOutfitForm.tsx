@@ -2,7 +2,11 @@ import { Button, MultiSelect, Stack } from "@mantine/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
-import { useCharactersQuery, useOutfitsQuery, useSeriesQuery } from "@/frontend/queries"
+import {
+  useCharactersQuery,
+  useOutfitsQuery,
+  useSeriesQuery,
+} from "@/frontend/queries"
 
 export function AddItemToOutfitForm({
   itemId,
@@ -19,7 +23,13 @@ export function AddItemToOutfitForm({
   const [outfitIds, setOutfitIds] = useState<string[]>([])
 
   const characterMap = useMemo(
-    () => Object.fromEntries((characters ?? []).map((c) => [c.id, { name: c.name, series_id: c.series_id }])),
+    () =>
+      Object.fromEntries(
+        (characters ?? []).map((c) => [
+          c.id,
+          { name: c.name, series_id: c.series_id },
+        ]),
+      ),
     [characters],
   )
 
@@ -32,15 +42,25 @@ export function AddItemToOutfitForm({
     const grouped: Record<string, { value: string; label: string }[]> = {}
     for (const o of outfits ?? []) {
       const char = o.character_id ? characterMap[o.character_id] : null
-      const seriesName = char?.series_id ? (seriesMap[char.series_id] ?? null) : null
+      const seriesName = char?.series_id
+        ? (seriesMap[char.series_id] ?? null)
+        : null
       const group = char
-        ? (seriesName ? `${seriesName} - ${char.name}` : char.name)
+        ? seriesName
+          ? `${seriesName} - ${char.name}`
+          : char.name
         : "No Character"
       if (!grouped[group]) grouped[group] = []
       grouped[group].push({ value: String(o.id), label: o.name })
     }
     return Object.entries(grouped)
-      .sort(([a], [b]) => (a === "No Character" ? 1 : b === "No Character" ? -1 : a.localeCompare(b)))
+      .sort(([a], [b]) =>
+        a === "No Character"
+          ? 1
+          : b === "No Character"
+            ? -1
+            : a.localeCompare(b),
+      )
       .map(([group, items]) => ({ group, items }))
   }, [outfits, characterMap, seriesMap])
 

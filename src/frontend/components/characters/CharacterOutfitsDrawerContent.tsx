@@ -1,8 +1,12 @@
 import { Button, SimpleGrid, Table, Text, Title } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconPlus } from "@tabler/icons-react"
 import { useMemo, useState } from "react"
-import { useItemsQuery, useLocationsQuery, useOutfitsQuery } from "@/frontend/queries"
+import { AppModal } from "@/frontend/components/AppModal"
+import {
+  useItemsQuery,
+  useLocationsQuery,
+  useOutfitsQuery,
+} from "@/frontend/queries"
 import { AddOutfitForm } from "../outfits/AddOutfitForm"
 import { OutfitCard } from "../outfits/OutfitCard"
 
@@ -32,7 +36,11 @@ export function CharacterOutfitsDrawerContent({
     () =>
       (outfits ?? [])
         .filter((o) => o.character_id === characterId)
-        .map((o) => ({ ...o, characterName: characterName ?? null, seriesName: seriesName ?? null })),
+        .map((o) => ({
+          ...o,
+          characterName: characterName ?? null,
+          seriesName: seriesName ?? null,
+        })),
     [outfits, characterId, characterName, seriesName],
   )
 
@@ -46,7 +54,7 @@ export function CharacterOutfitsDrawerContent({
     return counts
   }, [characterOutfits])
 
-const referencedIds = useMemo(
+  const referencedIds = useMemo(
     () => new Set(Object.keys(outfitCountById).map(Number)),
     [outfitCountById],
   )
@@ -85,17 +93,26 @@ const referencedIds = useMemo(
       </Button>
 
       {characterOutfits.length === 0 ? (
-        <Text c="dimmed">No outfit versions associated with this character.</Text>
+        <Text c="dimmed">
+          No outfit versions associated with this character.
+        </Text>
       ) : (
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing="md">
           {characterOutfits.map((o) => (
-            <OutfitCard key={o.id} outfit={o} onClick={() => onOutfitClick(o)} lockedCharacterId={characterId} />
+            <OutfitCard
+              key={o.id}
+              outfit={o}
+              onClick={() => onOutfitClick(o)}
+              lockedCharacterId={characterId}
+            />
           ))}
         </SimpleGrid>
       )}
       {characterWigs.length > 0 && (
         <>
-          <Title order={5} mt="xl" mb="xs">Character Wigs</Title>
+          <Title order={5} mt="xl" mb="xs">
+            Character Wigs
+          </Title>
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
@@ -108,7 +125,9 @@ const referencedIds = useMemo(
                 <Table.Tr key={item.id}>
                   <Table.Td>{item.name}</Table.Td>
                   <Table.Td>
-                    {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                    {item.location_id
+                      ? (locationMap[item.location_id] ?? "—")
+                      : "—"}
                   </Table.Td>
                 </Table.Tr>
               ))}
@@ -118,7 +137,9 @@ const referencedIds = useMemo(
       )}
       {unassignedItems.length > 0 && (
         <>
-          <Title order={5} mt="xl" mb="xs">Unassigned Items</Title>
+          <Title order={5} mt="xl" mb="xs">
+            Unassigned Items
+          </Title>
           <Table highlightOnHover>
             <Table.Thead>
               <Table.Tr>
@@ -131,7 +152,9 @@ const referencedIds = useMemo(
                 <Table.Tr key={item.id}>
                   <Table.Td>{item.name}</Table.Td>
                   <Table.Td>
-                    {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                    {item.location_id
+                      ? (locationMap[item.location_id] ?? "—")
+                      : "—"}
                   </Table.Td>
                 </Table.Tr>
               ))}

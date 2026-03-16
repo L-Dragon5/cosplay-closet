@@ -1,11 +1,15 @@
 import { ActionIcon, Button, Group, Stack, Text } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Outfit } from "@/backend/outfits/model"
 import { api } from "@/frontend/api"
-import { useCharactersQuery, useOutfitsQuery, useSeriesQuery } from "@/frontend/queries"
+import { AppModal } from "@/frontend/components/AppModal"
+import {
+  useCharactersQuery,
+  useOutfitsQuery,
+  useSeriesQuery,
+} from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
 import { VirtualTable } from "../VirtualTable"
@@ -29,7 +33,9 @@ export function OutfitsSection() {
 
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [editingOutfit, setEditingOutfit] = useState<Outfit | null>(null)
-  const [confirmDeleteOutfit, setConfirmDeleteOutfit] = useState<Outfit | null>(null)
+  const [confirmDeleteOutfit, setConfirmDeleteOutfit] = useState<Outfit | null>(
+    null,
+  )
 
   const data = useMemo(
     () =>
@@ -38,7 +44,8 @@ export function OutfitsSection() {
         return {
           ...o,
           characterName: character?.name ?? null,
-          seriesName: series?.find((s) => s.id === character?.series_id)?.name ?? null,
+          seriesName:
+            series?.find((s) => s.id === character?.series_id)?.name ?? null,
         }
       }),
     [outfits, characters, series],
@@ -78,7 +85,11 @@ export function OutfitsSection() {
                 rows={filtered}
                 columns={[
                   { header: "Name", width: "40%", render: (o) => o.name },
-                  { header: "Character", width: "35%", render: (o) => o.characterName ?? "—" },
+                  {
+                    header: "Character",
+                    width: "35%",
+                    render: (o) => o.characterName ?? "—",
+                  },
                   { header: "Items", width: 80, render: (o) => o.items.length },
                   {
                     header: "Actions",
@@ -87,7 +98,10 @@ export function OutfitsSection() {
                       <ActionIcon.Group>
                         <ActionIcon
                           variant="light"
-                          onClick={(e) => { e.stopPropagation(); setSelectedId(o.id) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedId(o.id)
+                          }}
                           aria-label="View outfit version"
                         >
                           <IconEye size={20} />
@@ -95,14 +109,20 @@ export function OutfitsSection() {
                         <ActionIcon
                           variant="light"
                           color="green"
-                          onClick={(e) => { e.stopPropagation(); setEditingOutfit(o) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingOutfit(o)
+                          }}
                         >
                           <IconPencil size={20} />
                         </ActionIcon>
                         <ActionIcon
                           variant="light"
                           color="red"
-                          onClick={(e) => { e.stopPropagation(); setConfirmDeleteOutfit(o) }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setConfirmDeleteOutfit(o)
+                          }}
                         >
                           <IconTrash size={20} />
                         </ActionIcon>

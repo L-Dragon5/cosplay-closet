@@ -69,7 +69,12 @@ export function EditItemForm({
   const characterOptions = [
     ...filteredCharacters.map((c) => ({ value: String(c.id), label: c.name })),
     ...(!exactCharacterMatch && characterSearch.trim()
-      ? [{ value: CREATE_CHARACTER, label: `Create "${characterSearch.trim()}"` }]
+      ? [
+          {
+            value: CREATE_CHARACTER,
+            label: `Create "${characterSearch.trim()}"`,
+          },
+        ]
       : []),
   ]
 
@@ -85,7 +90,9 @@ export function EditItemForm({
 
   async function handleSeriesChange(val: string | null) {
     if (val === CREATE_SERIES) {
-      const { data: created } = await api.series.post({ name: seriesSearch.trim() })
+      const { data: created } = await api.series.post({
+        name: seriesSearch.trim(),
+      })
       if (created) {
         await queryClient.invalidateQueries({ queryKey: ["series"] })
         setSeriesId(String(created.id))
@@ -123,7 +130,9 @@ export function EditItemForm({
 
   async function handleLocationChange(val: string | null) {
     if (val === CREATE_LOCATION) {
-      const { data: created } = await api.locations.post({ name: locationSearch.trim() })
+      const { data: created } = await api.locations.post({
+        name: locationSearch.trim(),
+      })
       if (created) {
         await queryClient.invalidateQueries({ queryKey: ["locations"] })
         setLocationId(String(created.id))

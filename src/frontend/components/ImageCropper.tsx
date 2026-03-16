@@ -1,11 +1,24 @@
-import { Button, Divider, Group, Image, SimpleGrid, Stack, Text, TextInput } from "@mantine/core"
+import {
+  Button,
+  Divider,
+  Group,
+  Image,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core"
 import { Dropzone, IMAGE_MIME_TYPE } from "@mantine/dropzone"
 import { IconLink, IconPhoto, IconUpload, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRef, useState } from "react"
 import Cropper from "react-cropper"
 import "cropperjs/dist/cropper.css"
-import { useJikanCharacterImages, useJikanSeriesImages } from "@/frontend/hooks/useJikanCharacters"
+import { useIdolStoryImages } from "@/frontend/hooks/useIdolStoryImages"
+import {
+  useJikanCharacterImages,
+  useJikanSeriesImages,
+} from "@/frontend/hooks/useJikanCharacters"
 import { useSchoolIdoluImages } from "@/frontend/hooks/useSchoolIdoluImages"
 
 export function ImageCropper({
@@ -33,13 +46,15 @@ export function ImageCropper({
   const { data: jikanImages, isFetching: jikanFetching } = useJikanSeriesImages(
     jikanSearchName ?? null,
   )
-  const { data: jikanCharImages, isFetching: jikanCharFetching } = useJikanCharacterImages(
-    jikanCharacterName ?? null,
-  )
-  const { data: schoolIdoluImages, isFetching: schoolIdoluFetching } = useSchoolIdoluImages(
-    schoolIdoluCharacterName ?? null,
-    schoolIdoluOutfitName ?? null,
-  )
+  const { data: jikanCharImages, isFetching: jikanCharFetching } =
+    useJikanCharacterImages(jikanCharacterName ?? null)
+  const { data: schoolIdoluImages, isFetching: schoolIdoluFetching } =
+    useSchoolIdoluImages(
+      schoolIdoluCharacterName ?? null,
+      schoolIdoluOutfitName ?? null,
+    )
+  const { data: idolStoryImages, isFetching: idolStoryFetching } =
+    useIdolStoryImages(schoolIdoluCharacterName ?? null)
 
   function handleDrop(files: File[]) {
     const file = files[0]
@@ -128,7 +143,11 @@ export function ImageCropper({
         {jikanSearchName && (
           <>
             <Divider label="or pick from MyAnimeList" labelPosition="center" />
-            {jikanFetching && <Text size="xs" c="dimmed">Searching MyAnimeList…</Text>}
+            {jikanFetching && (
+              <Text size="xs" c="dimmed">
+                Searching MyAnimeList…
+              </Text>
+            )}
             {jikanImages && jikanImages.length > 0 && (
               <SimpleGrid cols={3} spacing="xs">
                 {jikanImages.map((img) => (
@@ -136,7 +155,11 @@ export function ImageCropper({
                     key={img.malId}
                     gap={4}
                     style={{ cursor: "pointer" }}
-                    onClick={() => setImageSrc(`/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`)}
+                    onClick={() =>
+                      setImageSrc(
+                        `/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`,
+                      )
+                    }
                   >
                     <Image
                       src={`/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`}
@@ -156,7 +179,11 @@ export function ImageCropper({
         {jikanCharacterName && (
           <>
             <Divider label="or pick from MyAnimeList" labelPosition="center" />
-            {jikanCharFetching && <Text size="xs" c="dimmed">Searching MyAnimeList…</Text>}
+            {jikanCharFetching && (
+              <Text size="xs" c="dimmed">
+                Searching MyAnimeList…
+              </Text>
+            )}
             {jikanCharImages && jikanCharImages.length > 0 && (
               <SimpleGrid cols={3} spacing="xs">
                 {jikanCharImages.map((img) => (
@@ -164,7 +191,11 @@ export function ImageCropper({
                     key={img.malId}
                     gap={4}
                     style={{ cursor: "pointer" }}
-                    onClick={() => setImageSrc(`/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`)}
+                    onClick={() =>
+                      setImageSrc(
+                        `/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`,
+                      )
+                    }
                   >
                     <Image
                       src={`/api/proxy-image?url=${encodeURIComponent(img.imageUrl)}`}
@@ -183,11 +214,50 @@ export function ImageCropper({
         )}
         {(schoolIdoluCharacterName || schoolIdoluOutfitName) && (
           <>
-            <Divider label="or pick from School Idol Tomodachi" labelPosition="center" />
-            {schoolIdoluFetching && <Text size="xs" c="dimmed">Searching School Idol Tomodachi…</Text>}
+            <Divider
+              label="or pick from School Idol Tomodachi"
+              labelPosition="center"
+            />
+            {schoolIdoluFetching && (
+              <Text size="xs" c="dimmed">
+                Searching School Idol Tomodachi…
+              </Text>
+            )}
             {schoolIdoluImages && schoolIdoluImages.length > 0 && (
               <SimpleGrid cols={3} spacing="xs">
                 {schoolIdoluImages.map((img, i) => (
+                  <Stack
+                    key={i}
+                    gap={4}
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setImageSrc(img.imageUrl)}
+                  >
+                    <Image
+                      src={img.imageUrl}
+                      height={120}
+                      fit="cover"
+                      radius="sm"
+                    />
+                    <Text size="xs" c="dimmed" lineClamp={2} ta="center">
+                      {img.title}
+                    </Text>
+                  </Stack>
+                ))}
+              </SimpleGrid>
+            )}
+          </>
+        )}
+        {(schoolIdoluCharacterName || schoolIdoluOutfitName) && (
+          <>
+            <Divider label="or pick from Idol Story" labelPosition="center" />
+            {idolStoryFetching && (
+              <Text size="xs" c="dimmed">
+                Searching Idol Story…
+              </Text>
+            )}
+            {idolStoryImages && idolStoryImages.length > 0 && (
+              <SimpleGrid cols={3} spacing="xs">
+                {idolStoryImages.map((img, i) => (
                   <Stack
                     key={i}
                     gap={4}

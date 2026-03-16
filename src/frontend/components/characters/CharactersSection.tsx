@@ -1,10 +1,10 @@
 import { ActionIcon, Button, Group, Stack, Text } from "@mantine/core"
-import { AppModal } from "@/frontend/components/AppModal"
 import { IconEye, IconPencil, IconTrash, IconX } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import type { Character } from "@/backend/characters/model"
 import { api } from "@/frontend/api"
+import { AppModal } from "@/frontend/components/AppModal"
 import { useCharactersQuery, useSeriesQuery } from "@/frontend/queries"
 import { SectionShell } from "../SectionShell"
 import { VirtualCardGrid } from "../VirtualCardGrid"
@@ -71,7 +71,11 @@ export function CharactersSection() {
                 rows={filtered}
                 columns={[
                   { header: "Name", width: "40%", render: (c) => c.name },
-                  { header: "Series", width: "40%", render: (c) => c.seriesName ?? "—" },
+                  {
+                    header: "Series",
+                    width: "40%",
+                    render: (c) => c.seriesName ?? "—",
+                  },
                   {
                     header: "Actions",
                     width: 120,

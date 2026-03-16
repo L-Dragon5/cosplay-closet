@@ -34,7 +34,9 @@ export function useJikanCharacters(seriesName: string | null) {
     enabled: !!animeQuery.data,
     staleTime: STALE_TIME,
     queryFn: async () => {
-      const res = await fetch(`${JIKAN_BASE}/anime/${animeQuery.data}/characters`)
+      const res = await fetch(
+        `${JIKAN_BASE}/anime/${animeQuery.data}/characters`,
+      )
       if (!res.ok) throw new Error("Jikan characters fetch failed")
       const json = await res.json()
       return (json.data as { character: { name: string } }[]).map((entry) =>

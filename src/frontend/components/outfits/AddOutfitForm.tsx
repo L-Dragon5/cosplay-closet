@@ -1,8 +1,21 @@
-import { Badge, Button, Group, MultiSelect, Select, Stack, Text, TextInput } from "@mantine/core"
+import {
+  Badge,
+  Button,
+  Group,
+  MultiSelect,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core"
 import { useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 import { api } from "@/frontend/api"
-import { useCharactersQuery, useItemsQuery, useSeriesQuery } from "@/frontend/queries"
+import {
+  useCharactersQuery,
+  useItemsQuery,
+  useSeriesQuery,
+} from "@/frontend/queries"
 
 export function AddOutfitForm({
   onSuccess,
@@ -22,34 +35,52 @@ export function AddOutfitForm({
   )
   const [itemIds, setItemIds] = useState<string[]>([])
 
-  const seriesMap = Object.fromEntries((series ?? []).map((s) => [s.id, s.name]))
-
-  const grouped = (characters ?? []).reduce<Record<string, { value: string; label: string }[]>>(
-    (acc, c) => {
-      const group = c.series_id ? (seriesMap[c.series_id] ?? "No Series") : "No Series"
-      if (!acc[group]) acc[group] = []
-      acc[group].push({ value: String(c.id), label: c.name })
-      return acc
-    },
-    {},
+  const seriesMap = Object.fromEntries(
+    (series ?? []).map((s) => [s.id, s.name]),
   )
 
+  const grouped = (characters ?? []).reduce<
+    Record<string, { value: string; label: string }[]>
+  >((acc, c) => {
+    const group = c.series_id
+      ? (seriesMap[c.series_id] ?? "No Series")
+      : "No Series"
+    if (!acc[group]) acc[group] = []
+    acc[group].push({ value: String(c.id), label: c.name })
+    return acc
+  }, {})
+
   const characterOptions = Object.entries(grouped)
-    .sort(([a], [b]) => (a === "No Series" ? 1 : b === "No Series" ? -1 : a.localeCompare(b)))
+    .sort(([a], [b]) =>
+      a === "No Series" ? 1 : b === "No Series" ? -1 : a.localeCompare(b),
+    )
     .map(([group, items]) => ({ group, items }))
 
   const itemOptions = useMemo(() => {
     if (!characterId) {
       return (items ?? []).map((i) => ({ value: String(i.id), label: i.name }))
     }
-    const charItems = (items ?? []).filter((i) => String(i.character_id) === characterId)
-    const otherItems = (items ?? []).filter((i) => String(i.character_id) !== characterId)
-    const groups: { group: string; items: { value: string; label: string }[] }[] = []
+    const charItems = (items ?? []).filter(
+      (i) => String(i.character_id) === characterId,
+    )
+    const otherItems = (items ?? []).filter(
+      (i) => String(i.character_id) !== characterId,
+    )
+    const groups: {
+      group: string
+      items: { value: string; label: string }[]
+    }[] = []
     if (charItems.length > 0) {
-      groups.push({ group: "Character's Items", items: charItems.map((i) => ({ value: String(i.id), label: i.name })) })
+      groups.push({
+        group: "Character's Items",
+        items: charItems.map((i) => ({ value: String(i.id), label: i.name })),
+      })
     }
     if (otherItems.length > 0) {
-      groups.push({ group: "Other Items", items: otherItems.map((i) => ({ value: String(i.id), label: i.name })) })
+      groups.push({
+        group: "Other Items",
+        items: otherItems.map((i) => ({ value: String(i.id), label: i.name })),
+      })
     }
     return groups
   }, [items, characterId])
@@ -91,7 +122,10 @@ export function AddOutfitForm({
       {lockedCharacterId != null ? (
         <TextInput
           label="Character"
-          value={(characters ?? []).find((c) => c.id === lockedCharacterId)?.name ?? ""}
+          value={
+            (characters ?? []).find((c) => c.id === lockedCharacterId)?.name ??
+            ""
+          }
           readOnly
           disabled
         />
