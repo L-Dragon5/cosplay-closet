@@ -14,7 +14,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useRef, useState } from "react"
 import Cropper from "react-cropper"
 import "cropperjs/dist/cropper.css"
-import { useIdolStoryImages } from "@/frontend/hooks/useIdolStoryImages"
 import {
   useJikanCharacterImages,
   useJikanSeriesImages,
@@ -53,9 +52,6 @@ export function ImageCropper({
       schoolIdoluCharacterName ?? null,
       schoolIdoluOutfitName ?? null,
     )
-  const { data: idolStoryImages, isFetching: idolStoryFetching } =
-    useIdolStoryImages(schoolIdoluCharacterName ?? null)
-
   function handleDrop(files: File[]) {
     const file = files[0]
     if (!file) return
@@ -226,38 +222,6 @@ export function ImageCropper({
             {schoolIdoluImages && schoolIdoluImages.length > 0 && (
               <SimpleGrid cols={3} spacing="xs">
                 {schoolIdoluImages.map((img, i) => (
-                  <Stack
-                    key={i}
-                    gap={4}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setImageSrc(img.imageUrl)}
-                  >
-                    <Image
-                      src={img.imageUrl}
-                      height={120}
-                      fit="cover"
-                      radius="sm"
-                    />
-                    <Text size="xs" c="dimmed" lineClamp={2} ta="center">
-                      {img.title}
-                    </Text>
-                  </Stack>
-                ))}
-              </SimpleGrid>
-            )}
-          </>
-        )}
-        {(schoolIdoluCharacterName || schoolIdoluOutfitName) && (
-          <>
-            <Divider label="or pick from Idol Story" labelPosition="center" />
-            {idolStoryFetching && (
-              <Text size="xs" c="dimmed">
-                Searching Idol Story…
-              </Text>
-            )}
-            {idolStoryImages && idolStoryImages.length > 0 && (
-              <SimpleGrid cols={3} spacing="xs">
-                {idolStoryImages.map((img, i) => (
                   <Stack
                     key={i}
                     gap={4}

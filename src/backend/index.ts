@@ -18,14 +18,6 @@ interface SchoolIdoluCard {
   transparent_idolized_image: string | null
 }
 
-interface IdolStoryCard {
-  idol_name: string
-  art: string | null
-  art_idolized: string | null
-  transparent: string | null
-  transparent_idolized: string | null
-}
-
 await initDb()
 
 const api = new Elysia({ prefix: "/api" })
@@ -97,33 +89,6 @@ const api = new Elysia({ prefix: "/api" })
         name: t.Optional(t.String()),
         search: t.Optional(t.String()),
       }),
-    },
-  )
-  .get(
-    "/idolstory",
-    async ({ query }) => {
-      const name = query.name?.trim()
-      if (!name) return { images: [] }
-      const params = new URLSearchParams({ page_size: "10", search: name })
-      const url = `https://idol.st/api/allstars/cards/?${params}`
-      const res = await fetch(url, { headers: { Accept: "application/json" } })
-      if (!res.ok) return { images: [] }
-      const data = (await res.json()) as { results: IdolStoryCard[] }
-      const images = data.results
-        .flatMap((card) => {
-          const label = card.idol_name
-          const urls: { label: string; imageUrl: string }[] = []
-          const img = card.transparent ?? card.art
-          const imgIdolized = card.transparent_idolized ?? card.art_idolized
-          if (img) urls.push({ label, imageUrl: img })
-          if (imgIdolized) urls.push({ label, imageUrl: imgIdolized })
-          return urls
-        })
-        .slice(0, 9)
-      return { images }
-    },
-    {
-      query: t.Object({ name: t.Optional(t.String()) }),
     },
   )
   .use(seriesController)
