@@ -15,6 +15,7 @@ import { useState } from "react"
 import { api } from "@/frontend/api"
 import { AddItemToOutfitForm } from "./AddItemToOutfitForm"
 import { EditItemForm } from "./EditItemForm"
+import { ItemOutfitsModal } from "./ItemOutfitsModal"
 
 const TYPE_COLORS: Record<string, string> = {
   Clothes: "blue",
@@ -31,6 +32,7 @@ export function ItemCard({ item }: { item: any }) {
   const [notesOpened, setNotesOpened] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [addToOutfitOpened, setAddToOutfitOpened] = useState(false)
+  const [outfitsOpened, setOutfitsOpened] = useState(false)
 
   async function handleDelete() {
     await api.items({ id: item.id }).delete()
@@ -40,7 +42,7 @@ export function ItemCard({ item }: { item: any }) {
 
   return (
     <>
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Card shadow="sm" padding="lg" radius="md" withBorder style={{ cursor: "pointer" }} onClick={() => setOutfitsOpened(true)}>
         <Stack gap="xs">
           <Stack gap=".25rem">
             {item.seriesName && (
@@ -117,6 +119,15 @@ export function ItemCard({ item }: { item: any }) {
           </Group>
         </Stack>
       </Card>
+
+      <AppModal
+        opened={outfitsOpened}
+        onClose={() => setOutfitsOpened(false)}
+        title={`Outfit Versions — ${item.name}`}
+        centered
+      >
+        <ItemOutfitsModal itemId={item.id} itemName={item.name} />
+      </AppModal>
 
       <AppModal
         opened={addToOutfitOpened}

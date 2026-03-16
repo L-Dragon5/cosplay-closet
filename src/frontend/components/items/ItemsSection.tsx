@@ -4,6 +4,7 @@ import {
   Chip,
   Group,
   MultiSelect,
+  SegmentedControl,
   SimpleGrid,
   Stack,
   Text,
@@ -26,6 +27,7 @@ import { VirtualTable } from "../VirtualTable"
 import { AddItemToOutfitForm } from "./AddItemToOutfitForm"
 import { EditItemForm } from "./EditItemForm"
 import { ItemCard } from "./ItemCard"
+import { ItemOutfitsModal } from "./ItemOutfitsModal"
 
 export function ItemsSection() {
   const { data: items, isLoading: iLoading, error: iError } = useItemsQuery()
@@ -47,10 +49,12 @@ export function ItemsSection() {
   const [filterLocations, setFilterLocations] = useState<string[]>([])
   const [filterNoSeries, setFilterNoSeries] = useState(false)
   const [filterNoCharacter, setFilterNoCharacter] = useState(false)
+  const [filterMode, setFilterMode] = useState<"or" | "and">("or")
   const [editingItem, setEditingItem] = useState<Item | null>(null)
   const [notesItem, setNotesItem] = useState<Item | null>(null)
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<Item | null>(null)
   const [addToOutfitItem, setAddToOutfitItem] = useState<Item | null>(null)
+  const [viewOutfitsItem, setViewOutfitsItem] = useState<Item | null>(null)
 
   const data = useMemo(
     () =>
@@ -121,9 +125,20 @@ export function ItemsSection() {
           clearable
         />
       </SimpleGrid>
-      <Group gap="sm">
-        <Chip checked={filterNoSeries} onChange={setFilterNoSeries}>No Series</Chip>
-        <Chip checked={filterNoCharacter} onChange={setFilterNoCharacter}>No Character</Chip>
+      <Group gap="sm" justify="space-between">
+        <Group gap="sm">
+          <Chip checked={filterNoSeries} onChange={setFilterNoSeries}>No Series</Chip>
+          <Chip checked={filterNoCharacter} onChange={setFilterNoCharacter}>No Character</Chip>
+        </Group>
+        <SegmentedControl
+          size="xs"
+          value={filterMode}
+          onChange={(v) => setFilterMode(v as "or" | "and")}
+          data={[
+            { label: "Match Any (OR)", value: "or" },
+            { label: "Match All (AND)", value: "and" },
+          ]}
+        />
       </Group>
     </Stack>
   )
@@ -158,20 +173,25 @@ export function ItemsSection() {
             )
             .filter((item) => {
               if (!hasActiveFilters) return true
-              return (
-                (filterSeries.length > 0 &&
-                  item.series_id !== null &&
-                  filterSeries.includes(String(item.series_id))) ||
-                (filterCharacters.length > 0 &&
-                  item.character_id !== null &&
-                  filterCharacters.includes(String(item.character_id))) ||
-                (filterTypes.length > 0 && filterTypes.includes(item.type)) ||
-                (filterLocations.length > 0 &&
-                  item.location_id !== null &&
-                  filterLocations.includes(String(item.location_id))) ||
-                (filterNoSeries && item.series_id === null) ||
-                (filterNoCharacter && item.character_id === null)
-              )
+              const checks = [
+                filterSeries.length > 0
+                  ? item.series_id !== null && filterSeries.includes(String(item.series_id))
+                  : null,
+                filterCharacters.length > 0
+                  ? item.character_id !== null && filterCharacters.includes(String(item.character_id))
+                  : null,
+                filterTypes.length > 0
+                  ? filterTypes.includes(item.type)
+                  : null,
+                filterLocations.length > 0
+                  ? item.location_id !== null && filterLocations.includes(String(item.location_id))
+                  : null,
+                filterNoSeries ? item.series_id === null : null,
+                filterNoCharacter ? item.character_id === null : null,
+              ].filter((v) => v !== null) as boolean[]
+              return filterMode === "and"
+                ? checks.every(Boolean)
+                : checks.some(Boolean)
             })
           if (!filtered.length) {
             return (
@@ -253,6 +273,7 @@ export function ItemsSection() {
                     ),
                   },
                 ]}
+                onRowClick={(item) => setViewOutfitsItem(item)}
               />
             )
           }
@@ -264,6 +285,17 @@ export function ItemsSection() {
           )
         }}
       </SectionShell>
+
+      <AppModal
+        opened={viewOutfitsItem !== null}
+        onClose={() => setViewOutfitsItem(null)}
+        title={viewOutfitsItem ? `Outfit Versions — ${viewOutfitsItem.name}` : "Outfit Versions"}
+        centered
+      >
+        {viewOutfitsItem && (
+          <ItemOutfitsModal itemId={viewOutfitsItem.id} itemName={viewOutfitsItem.name} />
+        )}
+      </AppModal>
 
       <AppModal
         opened={addToOutfitItem !== null}

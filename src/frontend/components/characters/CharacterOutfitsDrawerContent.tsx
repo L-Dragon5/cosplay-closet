@@ -36,15 +36,39 @@ export function CharacterOutfitsDrawerContent({
     [outfits, characterId, characterName, seriesName],
   )
 
-  const referencedIds = useMemo(
-    () => new Set(characterOutfits.flatMap((o) => o.items.map((i) => i.id))),
-    [characterOutfits],
+  const outfitCountById = useMemo(() => {
+    const counts: Record<number, number> = {}
+    for (const o of characterOutfits) {
+      for (const i of o.items) {
+        counts[i.id] = (counts[i.id] ?? 0) + 1
+      }
+    }
+    return counts
+  }, [characterOutfits])
+
+const referencedIds = useMemo(
+    () => new Set(Object.keys(outfitCountById).map(Number)),
+    [outfitCountById],
+  )
+
+  const characterWigs = useMemo(
+    () =>
+      (items ?? []).filter(
+        (i) =>
+          i.character_id === characterId &&
+          i.type === "Wig" &&
+          (outfitCountById[i.id] ?? 0) !== 1,
+      ),
+    [items, characterId, outfitCountById],
   )
 
   const unassignedItems = useMemo(
     () =>
       (items ?? []).filter(
-        (i) => i.character_id === characterId && !referencedIds.has(i.id),
+        (i) =>
+          i.character_id === characterId &&
+          i.type !== "Wig" &&
+          !referencedIds.has(i.id),
       ),
     [items, characterId, referencedIds],
   )
@@ -68,6 +92,29 @@ export function CharacterOutfitsDrawerContent({
             <OutfitCard key={o.id} outfit={o} onClick={() => onOutfitClick(o)} lockedCharacterId={characterId} />
           ))}
         </SimpleGrid>
+      )}
+      {characterWigs.length > 0 && (
+        <>
+          <Title order={5} mt="xl" mb="xs">Character Wigs</Title>
+          <Table highlightOnHover>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th>Name</Table.Th>
+                <Table.Th>Location</Table.Th>
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {characterWigs.map((item) => (
+                <Table.Tr key={item.id}>
+                  <Table.Td>{item.name}</Table.Td>
+                  <Table.Td>
+                    {item.location_id ? (locationMap[item.location_id] ?? "—") : "—"}
+                  </Table.Td>
+                </Table.Tr>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </>
       )}
       {unassignedItems.length > 0 && (
         <>
