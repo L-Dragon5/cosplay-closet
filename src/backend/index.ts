@@ -14,6 +14,8 @@ interface SchoolIdoluCard {
   card_idolized_image: string | null
   clean_ur: string | null
   clean_ur_idolized: string | null
+  transparent_image: string | null
+  transparent_idolized_image: string | null
 }
 
 await initDb()
@@ -49,8 +51,8 @@ const api = new Elysia({ prefix: "/api" })
     const images = data.results.flatMap((card) => {
       const label = card.idol?.name ?? name ?? search ?? ""
       const urls: { label: string; imageUrl: string }[] = []
-      const img = card.clean_ur ?? card.card_image
-      const imgIdolized = card.clean_ur_idolized ?? card.card_idolized_image
+      const img = card.clean_ur ?? card.transparent_image ?? card.card_image
+      const imgIdolized = card.clean_ur_idolized ?? card.transparent_idolized_image ?? card.card_idolized_image
       if (img) urls.push({ label, imageUrl: img.startsWith("//") ? `https:${img}` : img })
       if (imgIdolized) urls.push({ label, imageUrl: imgIdolized.startsWith("//") ? `https:${imgIdolized}` : imgIdolized })
       return urls
