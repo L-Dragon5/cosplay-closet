@@ -69,8 +69,11 @@ export function OutfitsSection() {
         error={oError ?? cError}
       >
         {(search, view) => {
-          const filtered = (data ?? []).filter((o) =>
-            o.name.toLowerCase().includes(search.toLowerCase()),
+          const q = search.toLowerCase()
+          const filtered = (data ?? []).filter(
+            (o) =>
+              o.name.toLowerCase().includes(q) ||
+              (o.characterName?.toLowerCase().includes(q) ?? false),
           )
           if (!filtered.length) {
             return (

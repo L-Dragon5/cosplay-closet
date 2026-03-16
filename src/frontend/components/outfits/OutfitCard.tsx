@@ -78,7 +78,7 @@ export function OutfitCard({
           mt={outfit.image_path ? "md" : 0}
         >
           {outfit.image_path ? (
-            <Text size="sm" c="dimmed" fw={500}>
+            <Text size="md" fw={500}>
               {outfit.characterName && !lockedCharacterId
                 ? `${outfit.characterName} - ${outfit.name}`
                 : outfit.name}
