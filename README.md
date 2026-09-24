@@ -31,6 +31,14 @@ Dockerfile, `compose.yaml` or the backup scripts.
 
 ## Backup and restore
 
+**From the web UI**: the database icon at the right of the header.
+**Download backup** builds a fresh archive, keeps a copy in `backups/` on the
+server, and downloads it. **Restore from backup…** uploads one and replaces
+everything with it, then shows the row counts. The app has no login, so anyone
+who can open it can restore; keep NPM's Access List on it.
+
+**From a shell** (same code, `src/backend/backup/service.ts`):
+
 ```bash
 bun run backup                    # -> backups/cosplay-closet-<stamp>.tar.gz
 bun run backup /path/out.tar.gz   # somewhere else, nothing pruned
@@ -141,7 +149,7 @@ One time, from the VM running the compiled `server` binary to the Komodo VM.
    mysql -N -B -e "select 'series',count(*) from series union all select 'characters',count(*) from characters union all select 'locations',count(*) from locations union all select 'items',count(*) from items union all select 'outfits',count(*) from outfits union all select 'outfit_items',count(*) from outfit_items" <DB_DATABASE>
    ```
    Keep the counts. `UPLOADS_DIR` can be left off if the binary runs from the repo.
-2. **Copy the archive** to the Komodo VM:
+2. **Copy the archive** to your laptop (for the web restore) or to the Komodo VM:
    ```bash
    scp backups/cosplay-closet-<stamp>.tar.gz you@komodo-vm:/tmp/
    ssh you@komodo-vm 'sudo mkdir -p /etc/komodo/stacks/cosplay-closet/backups && sudo mv /tmp/cosplay-closet-*.tar.gz /etc/komodo/stacks/cosplay-closet/backups/'
@@ -149,12 +157,13 @@ One time, from the VM running the compiled `server` binary to the Komodo VM.
    (If the Stack folder does not exist yet, do step 3 first.)
 3. **Komodo.** Create the Stack with the settings above and Deploy. The first
    boot creates empty tables.
-4. **Restore** on the Komodo VM:
+4. **Restore.** Easiest: open `http://<Komodo VM IP>:3000`, database icon ->
+   **Restore from backup…**, pick the archive. Or from a shell on the Komodo VM:
    ```bash
    cd /etc/komodo/stacks/cosplay-closet
    docker compose -p cosplay-closet exec -T app bun run restore backups/cosplay-closet-<stamp>.tar.gz
    ```
-   The printed counts must match step 1, and "restored N upload(s)" must match
+   The counts must match step 1, and the restored image count must match
    `find <uploads dir> -type f | wc -l` on the old VM.
 5. **Nginx Proxy Manager**: point the proxy host at `<Komodo VM IP>:3000`.
 6. Leave the old VM's database and binary stopped, not deleted, until you have

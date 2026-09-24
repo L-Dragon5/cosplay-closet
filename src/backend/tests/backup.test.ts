@@ -2,15 +2,17 @@ import { describe, expect, test } from "bun:test"
 import { mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
+import { backupController } from "@/backend/backup"
 import {
   connArgs,
   dbName,
   defaultPath,
   dumpArgs,
   looksComplete,
+  parseCounts,
   tail,
   toPrune,
-} from "./backup"
+} from "@/backend/backup/service"
 
 const env = {
   DB_HOST: "db",
@@ -122,4 +124,26 @@ describe("toPrune", () => {
     const past = "cosplay-closet-2026-08-22T11-59-59.tar.gz"
     expect(toPrune([...recent, edge, past], now)).toEqual([past])
   })
+})
+
+test("parseCounts reads the mysql client's tab-separated rows", () => {
+  expect(parseCounts("series\t115\nitems\t891\n")).toEqual({
+    series: 115,
+    items: 891,
+  })
+  expect(parseCounts("")).toEqual({})
+})
+
+test("POST /backup/restore refuses a file that is not a backup, touching nothing", async () => {
+  // tar rejects it before any safety backup or mysql call, so no DB is needed.
+  const form = new FormData()
+  form.append("file", new File(["not a tarball"], "x.tar.gz"))
+  const res = await backupController.handle(
+    new Request("http://localhost/backup/restore", {
+      method: "POST",
+      body: form,
+    }),
+  )
+  expect(res.status).toBe(400)
+  expect((await res.json()).error).toMatch(/not a backup/)
 })

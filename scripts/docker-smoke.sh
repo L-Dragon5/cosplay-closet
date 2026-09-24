@@ -15,14 +15,20 @@ export COMPOSE_PROJECT_NAME=ccsmoke
 export PORT=3098 DB_HOST_PORT=3398 MYSQL_ROOT_PASSWORD=smoke$RANDOM
 unset COMPOSE_FILE
 base="http://127.0.0.1:$PORT"
-made=()
+web=/tmp/ccsmoke-web.tar.gz
+# The stack writes into the real ./backups; remove only what this run adds.
+mkdir -p backups
+before=$(ls backups)
 
 pass=0
 ok()   { pass=$((pass + 1)); printf '  ok    %s\n' "$*"; }
 fail() { printf '  FAIL  %s\n' "$*"; docker compose logs --tail 30 app || true; exit 1; }
 cleanup() {
   docker compose down -v --remove-orphans >/dev/null 2>&1 || true
-  for f in "${made[@]:-}"; do if [ -n "$f" ]; then rm -f "backups/$f"; fi; done
+  for f in $(ls backups); do
+    if ! printf '%s\n' "$before" | grep -qx "$f"; then rm -f "backups/$f"; fi
+  done
+  rm -f /tmp/ccsmoke.jpg /tmp/ccsmoke-bad.tar.gz "$web"
 }
 trap cleanup EXIT
 cleanup
@@ -35,8 +41,6 @@ wait_up() {
   return 1
 }
 app() { docker compose exec -T app "$@"; }
-# Newest backup file names the app just wrote, so cleanup can remove them.
-track() { made+=($(printf '%s\n' "$1" | grep -o 'cosplay-closet-[0-9T-]*\.tar\.gz' | sort -u)); }
 
 echo "building"
 docker compose build --progress quiet >/dev/null
@@ -64,11 +68,14 @@ curl -sf "$base/uploads/series/$sid.jpg" | cmp -s - /tmp/ccsmoke.jpg \
 
 echo "backup"
 out=$(app bun run backup 2>&1) || { echo "$out"; fail "backup failed"; }
-track "$out"
 archive=$(printf '%s\n' "$out" | grep -o 'backups/cosplay-closet-[0-9T-]*\.tar\.gz' | head -1)
 [ -f "$archive" ] && ok "backup lands on the host: $archive" || fail "no archive on the host"
 tar -tzf "$archive" | grep -x 'db.sql' >/dev/null && tar -tzf "$archive" | grep "uploads/series/$sid.jpg" >/dev/null \
   && ok "archive holds db.sql and the upload" || fail "archive is missing something"
+curl -sf -D - -o "$web" "$base/api/backup" | grep -i 'content-disposition: attachment; filename="cosplay-closet-' >/dev/null \
+  && ok "web UI: Download backup serves an attachment" || fail "GET /api/backup"
+tar -tzf "$web" | grep "uploads/series/$sid.jpg" >/dev/null && ok "web UI: the download holds the upload" \
+  || fail "downloaded archive is missing the upload"
 
 echo "wipe"
 docker compose down -v >/dev/null 2>&1
@@ -79,15 +86,15 @@ curl -s -o /dev/null -w '%{http_code}' "$base/uploads/series/$sid.jpg" | grep -x
   && ok "fresh volumes: no upload" || fail "upload survived the wipe"
 
 echo "restore"
-echo garbage > backups/ccsmoke-bad.tar.gz
-made+=(ccsmoke-bad.tar.gz)
-if bad=$(app bun run restore backups/ccsmoke-bad.tar.gz 2>&1); then fail "a garbage archive restored"; fi
-track "$bad"
-ok "a garbage archive is refused"
-out=$(app bun run restore "$archive" 2>&1) || { echo "$out"; fail "restore failed"; }
-track "$out"
-printf '%s\n' "$out" | grep -x "$(printf 'series\t1')" >/dev/null \
-  && ok "restore reports the row counts" || { echo "$out"; fail "no counts"; }
+echo garbage > /tmp/ccsmoke-bad.tar.gz
+docker compose cp /tmp/ccsmoke-bad.tar.gz app:/tmp/bad.tar.gz >/dev/null 2>&1
+if app bun run restore /tmp/bad.tar.gz >/dev/null 2>&1; then fail "CLI restored a garbage archive"; fi
+ok "CLI: a garbage archive is refused"
+[ "$(curl -s -o /dev/null -w '%{http_code}' -F file=@/tmp/ccsmoke-bad.tar.gz "$base/api/backup/restore")" = 400 ] \
+  && ok "web UI: a garbage archive is refused with 400" || fail "web restore took garbage"
+res=$(curl -sf -F "file=@$web" "$base/api/backup/restore") || fail "web restore failed"
+printf '%s' "$res" | bun -e 'const r = await Bun.stdin.json(); process.exit(r.counts.series === 1 && r.uploads === 1 ? 0 : 1)' \
+  && ok "web UI: restore reports counts and uploads" || { echo "$res"; fail "bad restore response"; }
 curl -sf "$base/api/series" | grep 'Smoke Series ラブライブ' >/dev/null \
   && ok "the series comes back, unicode intact" || fail "series not restored"
 curl -sf "$base/api/locations" | grep 'Bin 7' >/dev/null && ok "the location comes back" || fail "location not restored"
@@ -96,6 +103,9 @@ curl -sf "$base/uploads/series/$sid.jpg" | cmp -s - /tmp/ccsmoke.jpg \
 docker compose restart app >/dev/null 2>&1
 wait_up && curl -sf "$base/uploads/series/$sid.jpg" | cmp -s - /tmp/ccsmoke.jpg \
   && ok "restored data survives an app restart" || fail "lost on restart"
+out=$(app bun run restore "$archive" 2>&1) || { echo "$out"; fail "CLI restore failed"; }
+printf '%s\n' "$out" | grep -x "$(printf 'series\t1')" >/dev/null \
+  && curl -sf "$base/uploads/series/$sid.jpg" | cmp -s - /tmp/ccsmoke.jpg \
+  && ok "CLI: restore of the server-side archive gives the same data" || { echo "$out"; fail "CLI restore"; }
 
-rm -f /tmp/ccsmoke.jpg
 echo "$pass checks passed"

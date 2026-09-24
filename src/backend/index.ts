@@ -1,5 +1,6 @@
 import { openapi } from "@elysiajs/openapi"
 import { Elysia, t } from "elysia"
+import { backupController } from "@/backend/backup"
 import { charactersController } from "@/backend/characters"
 import { initDb } from "@/backend/db"
 import { itemsController } from "@/backend/items"
@@ -96,6 +97,7 @@ const api = new Elysia({ prefix: "/api" })
   .use(itemsController)
   .use(locationsController)
   .use(outfitsController)
+  .use(backupController)
 
 const server = Bun.serve({
   routes: {

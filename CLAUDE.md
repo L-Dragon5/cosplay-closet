@@ -55,6 +55,7 @@ Built with **ElysiaJS** (v1.4.27). Each resource has its own folder with two fil
 | items      | `src/backend/items/index.ts`      | `/items`      |                                          |
 | locations  | `src/backend/locations/index.ts`  | `/locations`  |                                          |
 | outfits    | `src/backend/outfits/index.ts`    | `/outfits`    | `POST /:id/image` (upload)               |
+| backup     | `src/backend/backup/index.ts`     | `/backup`     | `GET /` (download .tar.gz), `POST /restore` (multipart `file`) |
 | —          | `src/backend/index.ts`            | —             | `GET /api/proxy-image?url=` (CORS proxy) |
 
 All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference. OpenAPI docs available at `/api/docs`.
@@ -151,12 +152,13 @@ bun test
 
 Test files live in `src/backend/tests/`. Uses `bun:test`.
 
-Backup script tests live in `scripts/backup.test.ts`. `scripts/docker-smoke.sh` is the Docker lane (build, healthcheck, backup -> wipe volumes -> restore); run it after touching `Dockerfile`, `compose.yaml`, or the backup scripts.
+Backup tests live in `src/backend/tests/backup.test.ts`. `scripts/docker-smoke.sh` is the Docker lane (build, healthcheck, backup -> wipe volumes -> restore); run it after touching `Dockerfile`, `compose.yaml`, or the backup scripts.
 
 ## Deploy
 
 Runs on the homelab as a Komodo Stack from `compose.yaml` (MariaDB 11.8 + the app built from `Dockerfile`, running from source with `NODE_ENV=production`). Volumes: `dbdata`, `uploads` (mounted at `/app/public/uploads`), and `./backups` bind-mounted at `/app/backups`. Stack settings, Actions, and the one-time migration from the old binary install are in `README.md`.
 
-- `bun run backup` (`scripts/backup.ts`): `backups/cosplay-closet-<stamp>.tar.gz` holding `db.sql` (mysqldump, no `CREATE DATABASE`) and `uploads/`. Reads the `DB_*` env like `db.ts`; `UPLOADS_DIR` overrides `public/uploads`. Prunes by name-age (30 days, newest 7 kept) on default-path runs.
-- `bun run restore <archive>` (`scripts/restore.ts`) — safety backup first, then DB, then replaces uploads contents, then prints row counts via the `mysql` client.
-- A new table must be added to `TABLES` in `scripts/restore.ts` so restore reports it.
+- Logic lives in `src/backend/backup/service.ts`, shared by the web UI (`BackupMenu` in the header: download link + restore modal) and the thin CLI wrappers `scripts/backup.ts` / `scripts/restore.ts`. Backup and restore hold a single in-process lock (409 when busy); a non-archive upload is a 400 before anything is touched.
+- `bun run backup`: `backups/cosplay-closet-<stamp>.tar.gz` holding `db.sql` (mysqldump, no `CREATE DATABASE`) and `uploads/`. Reads the `DB_*` env like `db.ts`; `UPLOADS_DIR` overrides `public/uploads`. Prunes by name-age (30 days, newest 7 kept) on default-path runs.
+- `bun run restore <archive>`: safety backup first, then DB, then replaces uploads contents, then prints row counts via the `mysql` client.
+- A new table must be added to `TABLES` in `src/backend/backup/service.ts` so restore reports it.

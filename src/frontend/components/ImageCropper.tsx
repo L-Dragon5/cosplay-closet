@@ -221,9 +221,9 @@ export function ImageCropper({
             )}
             {schoolIdoluImages && schoolIdoluImages.length > 0 && (
               <SimpleGrid cols={3} spacing="xs">
-                {schoolIdoluImages.map((img, i) => (
+                {schoolIdoluImages.map((img) => (
                   <Stack
-                    key={i}
+                    key={img.imageUrl}
                     gap={4}
                     style={{ cursor: "pointer" }}
                     onClick={() => setImageSrc(img.imageUrl)}
