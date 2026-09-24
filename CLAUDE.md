@@ -33,6 +33,7 @@ bun run build         # Generate routes + compile to single binary
 bun run seed          # Run scripts/seed.ts against the DB
 bun test              # Run all tests
 bun run lint          # Biome check + auto-fix
+bun run typecheck     # tsc --noEmit (TypeScript 5 devDependency); keep at 0 errors
 bun run generate-routes  # One-shot TanStack Router route generation
 bun run watch-routes  # Watch mode for route generation
 ```
