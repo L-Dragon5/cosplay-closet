@@ -1,4 +1,5 @@
 import { db } from "@/backend/db"
+import type { Series } from "./model"
 
 export async function getAllSeries() {
   return db`SELECT * FROM series ORDER BY name`
@@ -13,7 +14,7 @@ export async function createSeries(name: string) {
   const result = await db`INSERT INTO series (name) VALUES (${name})`
   const rows =
     await db`SELECT * FROM series WHERE id = ${result.lastInsertRowid}`
-  return rows[0]
+  return rows[0] as Series
 }
 
 export async function updateSeries(id: number, name: string) {

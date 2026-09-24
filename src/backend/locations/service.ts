@@ -1,4 +1,5 @@
 import { db } from "@/backend/db"
+import type { Location } from "./model"
 
 export async function getAllLocations() {
   return db`SELECT * FROM locations ORDER BY name`
@@ -13,7 +14,7 @@ export async function createLocation(name: string) {
   const result = await db`INSERT INTO locations (name) VALUES (${name})`
   const rows =
     await db`SELECT * FROM locations WHERE id = ${result.lastInsertRowid}`
-  return rows[0]
+  return rows[0] as Location
 }
 
 export async function updateLocation(id: number, name: string) {

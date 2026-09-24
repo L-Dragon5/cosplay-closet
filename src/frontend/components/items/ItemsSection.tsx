@@ -309,12 +309,7 @@ export function ItemsSection() {
         }
         centered
       >
-        {viewOutfitsItem && (
-          <ItemOutfitsModal
-            itemId={viewOutfitsItem.id}
-            itemName={viewOutfitsItem.name}
-          />
-        )}
+        {viewOutfitsItem && <ItemOutfitsModal itemId={viewOutfitsItem.id} />}
       </AppModal>
 
       <AppModal

@@ -20,5 +20,5 @@ export function hasOpenModal() {
 }
 
 export function closeTopModal() {
-  if (stack.length > 0) stack[stack.length - 1]()
+  stack.at(-1)?.()
 }

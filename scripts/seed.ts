@@ -32,7 +32,7 @@ const TYPE_MAP: Record<string, string> = {
 }
 
 function normalizeType(type: string): string {
-  const first = type.split(",")[0].trim().toLowerCase()
+  const first = (type.split(",")[0] ?? "").trim().toLowerCase()
   return TYPE_MAP[first] ?? "Materials"
 }
 
@@ -160,15 +160,18 @@ function levenshtein(a: string, b: string): number {
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
     Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
   )
+  // ponytail: indexes are in bounds by construction, so `!` over guards.
   for (let i = 1; i <= m; i++) {
+    const row = dp[i]!
+    const prev = dp[i - 1]!
     for (let j = 1; j <= n; j++) {
-      dp[i][j] =
+      row[j] =
         a[i - 1] === b[j - 1]
-          ? dp[i - 1][j - 1]
-          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1])
+          ? prev[j - 1]!
+          : 1 + Math.min(prev[j]!, row[j - 1]!, prev[j - 1]!)
     }
   }
-  return dp[m][n]
+  return dp[m]![n]!
 }
 
 /**
@@ -211,8 +214,8 @@ async function main() {
     notes: string
   }> = []
 
-  for (let i = 1; i < lines.length; i++) {
-    const cols = parseCSVRow(lines[i])
+  for (const line of lines.slice(1)) {
+    const cols = parseCSVRow(line)
     rows.push({
       name: cols[0]?.trim() ?? "",
       series: cols[1]?.trim() ?? "",

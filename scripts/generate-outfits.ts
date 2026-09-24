@@ -159,7 +159,7 @@ function extractAfterCharName(
   const trimmedWords = remaining.split(/\s+/)
   while (
     trimmedWords.length > 0 &&
-    FILLER_WORDS.has(trimmedWords[trimmedWords.length - 1].toLowerCase())
+    FILLER_WORDS.has(trimmedWords.at(-1)?.toLowerCase() ?? "")
   ) {
     trimmedWords.pop()
   }
@@ -194,7 +194,7 @@ function getOutfitName(
   const baseLower = base.toLowerCase()
   const charParts = characterName.trim().toLowerCase().split(/\s+/)
   const charFull = charParts.join(" ")
-  const charFirst = charParts[0]
+  const charFirst = charParts[0] ?? ""
   const charLast = charParts.length > 1 ? charParts[charParts.length - 1] : null
 
   // Exact match: full name, first name, or last name → Default
@@ -244,7 +244,7 @@ function getOutfitName(
   if (/\bregular\b/i.test(base)) return "Default"
 
   // Modifier prefix word (e.g. "New", "Old", "Alt")
-  if (MODIFIER_PREFIXES.has(baseLower.split(" ")[0])) return "Default"
+  if (MODIFIER_PREFIXES.has(baseLower.split(" ")[0] ?? "")) return "Default"
 
   // Exact match with series name
   if (seriesName && baseLower === seriesName.trim().toLowerCase())
@@ -267,7 +267,16 @@ function getOutfitName(
 }
 
 // Fetch items that have a character and are not Materials
-const items = await db`
+type ItemRow = {
+  id: number
+  name: string
+  type: string
+  character_id: number
+  character_name: string
+  series_name: string | null
+}
+
+const items: ItemRow[] = await db`
   SELECT i.id, i.name, i.type, i.character_id, c.name AS character_name, s.name AS series_name
   FROM items i
   JOIN characters c ON i.character_id = c.id
@@ -289,8 +298,9 @@ let outfitsCreated = 0
 let outfitsSkipped = 0
 
 for (const [characterId, characterItems] of byCharacter) {
-  const characterName = characterItems[0].character_name as string
-  const seriesName = (characterItems[0].series_name as string) ?? null
+  // Every group has at least the item that created it.
+  const { character_name: characterName, series_name: seriesName } =
+    characterItems[0]!
 
   // Map each item to an outfit name and group them
   const outfitGroups = new Map<string, number[]>()

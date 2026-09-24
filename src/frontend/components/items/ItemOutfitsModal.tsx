@@ -9,13 +9,7 @@ import {
   useSeriesQuery,
 } from "@/frontend/queries"
 
-export function ItemOutfitsModal({
-  itemId,
-  itemName,
-}: {
-  itemId: number
-  itemName: string
-}) {
+export function ItemOutfitsModal({ itemId }: { itemId: number }) {
   const queryClient = useQueryClient()
   const { data: outfits } = useOutfitsQuery()
   const { data: characters } = useCharactersQuery()

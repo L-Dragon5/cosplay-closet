@@ -1,4 +1,4 @@
-import { Database } from "bun:sqlite"
+import { Database, type SQLQueryBindings } from "bun:sqlite"
 
 export function createTestDb() {
   const sqlite = new Database(":memory:")
@@ -58,9 +58,9 @@ export function clearAll(sqlite: Database) {
 function makeDb(sqlite: Database) {
   return (strings: TemplateStringsArray, ...values: unknown[]) => {
     let sql = strings[0] ?? ""
-    const params: unknown[] = []
+    const params: SQLQueryBindings[] = []
     for (let i = 0; i < values.length; i++) {
-      params.push(values[i])
+      params.push(values[i] as SQLQueryBindings)
       sql += `?${strings[i + 1] ?? ""}`
     }
 

@@ -1,4 +1,5 @@
 import { db } from "@/backend/db"
+import type { Character } from "./model"
 
 export async function getAllCharacters() {
   return db`SELECT * FROM characters ORDER BY name`
@@ -14,7 +15,7 @@ export async function createCharacter(name: string, series_id: number | null) {
     await db`INSERT INTO characters (name, series_id) VALUES (${name}, ${series_id})`
   const rows =
     await db`SELECT * FROM characters WHERE id = ${result.lastInsertRowid}`
-  return rows[0]
+  return rows[0] as Character
 }
 
 export async function updateCharacter(

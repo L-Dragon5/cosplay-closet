@@ -139,7 +139,7 @@ export function ItemCard({ item }: { item: any }) {
         title={`Outfit Versions — ${item.name}`}
         centered
       >
-        <ItemOutfitsModal itemId={item.id} itemName={item.name} />
+        <ItemOutfitsModal itemId={item.id} />
       </AppModal>
 
       <AppModal

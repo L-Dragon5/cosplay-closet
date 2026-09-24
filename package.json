@@ -14,7 +14,8 @@
     "seed": "bun run scripts/seed.ts",
     "generate-outfits": "bun run scripts/generate-outfits.ts",
     "backup": "bun run scripts/backup.ts",
-    "restore": "bun run scripts/restore.ts"
+    "restore": "bun run scripts/restore.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@elysiajs/eden": "^1.4.8",
@@ -56,6 +57,7 @@
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.8",
     "postcss-preset-mantine": "^1.18.0",
-    "postcss-simple-vars": "^7.0.1"
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5"
   }
 }
