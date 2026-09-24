@@ -1,0 +1,58 @@
+# Development stays on the host: `bun run dev` against your own MariaDB.
+# This file is how the app runs on the homelab, where a Komodo Stack owns it
+# (README, "Deploying with Komodo"). By hand:
+#
+#   cp .env.example .env && $EDITOR .env      # MYSQL_ROOT_PASSWORD is required
+#   docker compose up -d --build
+#   docker compose exec app bun run backup    # -> ./backups/
+services:
+  db:
+    # 11.8 because that is what the old homelab install ran, so its dump
+    # restores as-is. MariaDB, not MySQL: they disagree about collations.
+    image: mariadb:11.8
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MARIADB_DATABASE: cosplay-closet
+    volumes: ["dbdata:/var/lib/mysql"]
+    # Loopback only, for an SSH tunnel from a GUI client. 3308 so it collides
+    # with neither a local install nor lumpy-budget's 3307.
+    ports: ["127.0.0.1:${DB_HOST_PORT:-3308}:3306"]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      # src/backend/db.ts puts this into a URL: keep it alphanumeric.
+      DB_PASS: ${MYSQL_ROOT_PASSWORD}
+      DB_DATABASE: cosplay-closet
+    # Every interface: Nginx Proxy Manager reaches it over the LAN.
+    ports: ["${PORT:-3000}:3000"]
+    volumes:
+      # Named, so a reclone or a rebuild never loses an image.
+      - uploads:/app/public/uploads
+      # A folder on the host, so backups can be copied off the machine.
+      - ./backups:/app/backups
+    depends_on:
+      db:
+        condition: service_healthy
+    # Asks something that needs the database, because a blank app that cannot
+    # reach MariaDB still serves index.html. Komodo shows this as the health.
+    healthcheck:
+      test: ["CMD", "bun", "-e", "const r = await fetch('http://localhost:3000/api/locations'); process.exit(r.ok ? 0 : 1)"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  dbdata:
+  uploads:

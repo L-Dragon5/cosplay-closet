@@ -110,7 +110,8 @@ const server = Bun.serve({
     }
     return api.handle(req)
   },
-  development: {
+  // Off in the container (NODE_ENV=production): a minified bundle, no HMR.
+  development: process.env.NODE_ENV !== "production" && {
     hmr: true,
     console: true,
   },

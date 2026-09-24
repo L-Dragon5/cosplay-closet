@@ -108,7 +108,7 @@ Each section has:
 
 `SectionShell` (`src/frontend/components/SectionShell.tsx`) is a shared wrapper handling loading, error, sticky header with search + view toggle + Filters panel. Accepts an optional `filterSlot?: React.ReactNode` rendered inside the Filters collapse (used by ItemsSection for its MultiSelect filters).
 
-`VirtualCardGrid` (`src/frontend/components/VirtualCardGrid.tsx`) — `useWindowVirtualizer` with ResizeObserver for responsive column count (1/2/3/4 at 576/768/1200px). ResizeObserver callback is wrapped in `requestAnimationFrame` to prevent loop errors.
+`VirtualCardGrid` (`src/frontend/components/VirtualCardGrid.tsx`): `useWindowVirtualizer` with ResizeObserver for responsive column count (1/2/3/4 at 576/768/1200px). ResizeObserver callback is wrapped in `requestAnimationFrame` to prevent loop errors.
 
 `VirtualTable` (`src/frontend/components/VirtualTable.tsx`) — virtualized `<Table>` with sticky header, paddingTop/Bottom spacer rows, fixed column widths via `<colgroup>`, `table-layout: fixed`, and `striped`.
 
@@ -150,3 +150,13 @@ bun test
 ```
 
 Test files live in `src/backend/tests/`. Uses `bun:test`.
+
+Backup script tests live in `scripts/backup.test.ts`. `scripts/docker-smoke.sh` is the Docker lane (build, healthcheck, backup -> wipe volumes -> restore); run it after touching `Dockerfile`, `compose.yaml`, or the backup scripts.
+
+## Deploy
+
+Runs on the homelab as a Komodo Stack from `compose.yaml` (MariaDB 11.8 + the app built from `Dockerfile`, running from source with `NODE_ENV=production`). Volumes: `dbdata`, `uploads` (mounted at `/app/public/uploads`), and `./backups` bind-mounted at `/app/backups`. Stack settings, Actions, and the one-time migration from the old binary install are in `README.md`.
+
+- `bun run backup` (`scripts/backup.ts`): `backups/cosplay-closet-<stamp>.tar.gz` holding `db.sql` (mysqldump, no `CREATE DATABASE`) and `uploads/`. Reads the `DB_*` env like `db.ts`; `UPLOADS_DIR` overrides `public/uploads`. Prunes by name-age (30 days, newest 7 kept) on default-path runs.
+- `bun run restore <archive>` (`scripts/restore.ts`) — safety backup first, then DB, then replaces uploads contents, then prints row counts via the `mysql` client.
+- A new table must be added to `TABLES` in `scripts/restore.ts` so restore reports it.
