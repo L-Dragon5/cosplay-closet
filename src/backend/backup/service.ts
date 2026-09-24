@@ -216,7 +216,6 @@ export async function restore(
   archive: string,
   env: DbEnv = process.env,
 ): Promise<RestoreResult> {
-  const db = dbName(env)
   const uploads = resolve(env.UPLOADS_DIR ?? "public/uploads")
   const work = mkdtempSync(join(tmpdir(), "cc-restore-"))
   try {
@@ -228,6 +227,8 @@ export async function restore(
     }
     if (!existsSync(sql) || !looksComplete(await tail(sql)))
       throw new NotABackup("the archive has no complete db.sql")
+    // After the archive check, so a bad file is a 400 even with DB_* unset.
+    const db = dbName(env)
 
     const { path: safety } = await backupAndPrune(env)
     try {
