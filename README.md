@@ -63,6 +63,26 @@ name) and `uploads/` (every uploaded image).
 - The backups sit on the same disk as the data. Copy `backups/` somewhere else
   to survive a dead disk.
 
+## Bin List sync
+
+The "Cosplay Bin List" Google Doc is where locations get updated by hand. The
+database icon's **Sync from Bin List…** reads it and shows what would change:
+items that moved bins, items the doc rewords, and items that are only in the
+doc (created with a guessed series, character and type). **Apply** takes a
+backup first, then writes exactly the plan you saw. If the doc or the data
+changed in between, it refuses, and you preview again.
+
+- **Nothing is deleted.** Items that are only in the app are listed under "Only
+  in the app" for you to deal with by hand.
+- Bold headings are locations. `Cosplay Bin #1: OUTFITS` is the location
+  `Bin #01`. Everything under the `SOLD` heading is ignored.
+- `(Series)` at the end of a bullet is the series. Bold, italic and
+  `- CURRENTLY …` tails become the item's notes (new items only).
+- Set `BIN_LIST_DOC_ID` (the id between `/d/` and `/edit` in the doc's URL).
+  The doc has to stay shared as **Anyone with the link can view**. If it is
+  not, the sync says so instead of reading an empty doc.
+- Every apply logs `[docsync] moved=… renamed=… added=… notInDoc=…`.
+
 ## Deploying with Komodo
 
 Komodo clones the repo, writes `.env` from the Stack's Environment field, builds
@@ -72,7 +92,7 @@ and runs `docker compose up`. Stack settings:
 | --- | --- | --- |
 | Repo | `L-Dragon5/cosplay-closet`, branch `main` | public, so no `git_account` |
 | `project_name` | `cosplay-closet` | volumes are `<project>_dbdata` / `_uploads`; renaming the Stack without this starts empty |
-| Environment | `MYSQL_ROOT_PASSWORD`, optionally `PORT` | `PORT` is what NPM forwards to, default 3000 |
+| Environment | `MYSQL_ROOT_PASSWORD`, `BIN_LIST_DOC_ID`, optionally `PORT` | `PORT` is what NPM forwards to, default 3000 |
 | `run_build` | **on** | the image builds from source; off means a redeploy reuses the old image |
 | `reclone` | **off** | on deletes the folder every deploy, and `./backups` with it |
 | `pre_deploy` | the backup below | a failed backup stops the deploy |

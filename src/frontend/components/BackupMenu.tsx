@@ -13,17 +13,20 @@ import {
   IconAlertTriangle,
   IconDatabase,
   IconDownload,
+  IconRefresh,
   IconUpload,
 } from "@tabler/icons-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import type { RestoreResult } from "@/backend/backup/service"
 import { AppModal } from "@/frontend/components/AppModal"
+import { DocSyncModal } from "@/frontend/components/DocSyncModal"
 
 // Download is a plain link: the server builds the archive and the browser
 // saves it, no JavaScript involved. Restore uploads one back.
 export function BackupMenu() {
   const [opened, setOpened] = useState(false)
+  const [syncOpened, setSyncOpened] = useState(false)
   return (
     <>
       <Menu position="bottom-end" withinPortal>
@@ -47,9 +50,17 @@ export function BackupMenu() {
           >
             Restore from backup…
           </Menu.Item>
+          <Menu.Divider />
+          <Menu.Item
+            leftSection={<IconRefresh size={16} />}
+            onClick={() => setSyncOpened(true)}
+          >
+            Sync from Bin List…
+          </Menu.Item>
         </Menu.Dropdown>
       </Menu>
       <RestoreModal opened={opened} onClose={() => setOpened(false)} />
+      <DocSyncModal opened={syncOpened} onClose={() => setSyncOpened(false)} />
     </>
   )
 }

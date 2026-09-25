@@ -3,6 +3,7 @@ import { Elysia, t } from "elysia"
 import { backupController } from "@/backend/backup"
 import { charactersController } from "@/backend/characters"
 import { initDb } from "@/backend/db"
+import { docsyncController } from "@/backend/docsync"
 import { itemsController } from "@/backend/items"
 import { locationsController } from "@/backend/locations"
 import { outfitsController } from "@/backend/outfits"
@@ -98,6 +99,7 @@ const api = new Elysia({ prefix: "/api" })
   .use(locationsController)
   .use(outfitsController)
   .use(backupController)
+  .use(docsyncController)
 
 const server = Bun.serve({
   routes: {

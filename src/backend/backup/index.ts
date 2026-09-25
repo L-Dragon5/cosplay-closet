@@ -2,21 +2,17 @@ import { mkdtempSync, rmSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { basename, join } from "node:path"
 import { Elysia, t } from "elysia"
+import { tryLock, unlock } from "./lock"
 import { backupAndPrune, NotABackup, restore } from "./service"
-
-// ponytail: one process, one flag. Two restores at once would interleave their
-// DROP TABLEs; a backup during a restore would dump half of one.
-let busy = false
 
 export const backupController = new Elysia({ prefix: "/backup" })
   // A plain link in the UI: the browser downloads the fresh archive, and a
   // copy stays in backups/ on the server like any other backup.
   .get("/", async ({ set }) => {
-    if (busy) {
+    if (!tryLock()) {
       set.status = 409
-      return { error: "A backup or restore is already running" }
+      return { error: "A backup, restore or sync is already running" }
     }
-    busy = true
     try {
       const { path } = await backupAndPrune()
       return new Response(Bun.file(path), {
@@ -29,17 +25,16 @@ export const backupController = new Elysia({ prefix: "/backup" })
       set.status = 500
       return { error: (e as Error).message }
     } finally {
-      busy = false
+      unlock()
     }
   })
   .post(
     "/restore",
     async ({ body, set }) => {
-      if (busy) {
+      if (!tryLock()) {
         set.status = 409
-        return { error: "A backup or restore is already running" }
+        return { error: "A backup, restore or sync is already running" }
       }
-      busy = true
       const work = mkdtempSync(join(tmpdir(), "cc-upload-"))
       try {
         const archive = join(work, "backup.tar.gz")
@@ -50,7 +45,7 @@ export const backupController = new Elysia({ prefix: "/backup" })
         return { error: (e as Error).message }
       } finally {
         rmSync(work, { recursive: true, force: true })
-        busy = false
+        unlock()
       }
     },
     { body: t.Object({ file: t.File() }) },

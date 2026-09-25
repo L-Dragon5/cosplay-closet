@@ -34,6 +34,8 @@ services:
       # src/backend/db.ts puts this into a URL: keep it alphanumeric.
       DB_PASS: ${MYSQL_ROOT_PASSWORD}
       DB_DATABASE: cosplay-closet
+      # "Sync from Bin List": the Google Doc to read (README, "Bin List sync").
+      BIN_LIST_DOC_ID: ${BIN_LIST_DOC_ID:-}
     # Every interface: Nginx Proxy Manager reaches it over the LAN.
     ports: ["${PORT:-3000}:3000"]
     volumes:

@@ -57,6 +57,7 @@ Built with **ElysiaJS** (v1.4.27). Each resource has its own folder with two fil
 | locations  | `src/backend/locations/index.ts`  | `/locations`  |                                          |
 | outfits    | `src/backend/outfits/index.ts`    | `/outfits`    | `POST /:id/image` (upload)               |
 | backup     | `src/backend/backup/index.ts`     | `/backup`     | `GET /` (download .tar.gz), `POST /restore` (multipart `file`) |
+| docsync    | `src/backend/docsync/index.ts`    | `/docsync`    | `GET /` (preview plan), `POST /apply` (`{hash}`) |
 | —          | `src/backend/index.ts`            | —             | `GET /api/proxy-image?url=` (CORS proxy) |
 
 All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference. OpenAPI docs available at `/api/docs`.
@@ -163,3 +164,12 @@ Runs on the homelab as a Komodo Stack from `compose.yaml` (MariaDB 11.8 + the ap
 - `bun run backup`: `backups/cosplay-closet-<stamp>.tar.gz` holding `db.sql` (mysqldump, no `CREATE DATABASE`) and `uploads/`. Reads the `DB_*` env like `db.ts`; `UPLOADS_DIR` overrides `public/uploads`. Prunes by name-age (30 days, newest 7 kept) on default-path runs.
 - `bun run restore <archive>`: safety backup first, then DB, then replaces uploads contents, then prints row counts via the `mysql` client.
 - A new table must be added to `TABLES` in `src/backend/backup/service.ts` so restore reports it.
+
+## Bin List doc sync
+
+`src/backend/docsync/` pulls the "Cosplay Bin List" Google Doc as Markdown (`/export?format=md`, no auth; needs `BIN_LIST_DOC_ID` and link sharing) and syncs locations into the DB. It is one-way and never deletes.
+
+- `parse.ts`: bold heading = location (`Cosplay Bin #1: OUTFITS` -> `Bin #01`), bullet = item, last `(…)` = series, bold/italic/`- CAPS` tails = notes. It stops at the `SOLD` heading.
+- `plan.ts`: pure. It matches items on `itemKey` (ignores every `(…)`, since the seed CSV dropped sizes and nested series) in four passes: same key at the same location, same key anywhere, Levenshtein ≤2 with equal digits, then a single-candidate word-subset match that also renames. Each DB item is claimed once. The plan hash lets `apply` refuse a plan that is not the one previewed.
+- `service.ts`: `apply` holds the shared lock in `src/backend/backup/lock.ts`, backs up, then writes. There is no transaction because every step is idempotent against the doc.
+- UI: `DocSyncModal` from the `BackupMenu`. Tests: `src/backend/tests/docsync.test.ts` + `fixtures/binList.md`.
