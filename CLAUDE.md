@@ -57,7 +57,7 @@ Built with **ElysiaJS** (v1.4.27). Each resource has its own folder with two fil
 | locations  | `src/backend/locations/index.ts`  | `/locations`  |                                          |
 | outfits    | `src/backend/outfits/index.ts`    | `/outfits`    | `POST /:id/image` (upload)               |
 | backup     | `src/backend/backup/index.ts`     | `/backup`     | `GET /` (download .tar.gz), `POST /restore` (multipart `file`) |
-| docsync    | `src/backend/docsync/index.ts`    | `/docsync`    | `GET /` (preview plan), `POST /apply` (`{hash}`) |
+| docsync    | `src/backend/docsync/index.ts`    | `/docsync`    | `GET /` (preview plan), `POST /apply` (`{hash, moves?, renames?, adds?}`) |
 | —          | `src/backend/index.ts`            | —             | `GET /api/proxy-image?url=` (CORS proxy) |
 
 All controllers are registered in `src/backend/index.ts` under a shared `/api` prefix Elysia instance. The `App` type is exported from there for Eden Treaty inference. OpenAPI docs available at `/api/docs`.
@@ -172,4 +172,5 @@ Runs on the homelab as a Komodo Stack from `compose.yaml` (MariaDB 11.8 + the ap
 - `parse.ts`: bold heading = location (`Cosplay Bin #1: OUTFITS` -> `Bin #01`), bullet = item, last `(…)` = series, bold/italic/`- CAPS` tails = notes. It stops at the `SOLD` heading.
 - `plan.ts`: pure. It matches items on `itemKey` (ignores every `(…)`, since the seed CSV dropped sizes and nested series) in four passes: same key at the same location, same key anywhere, Levenshtein ≤2 with equal digits, then a single-candidate word-subset match that also renames. Each DB item is claimed once. The plan hash lets `apply` refuse a plan that is not the one previewed.
 - `service.ts`: `apply` holds the shared lock in `src/backend/backup/lock.ts`, backs up, then writes. There is no transaction because every step is idempotent against the doc.
-- UI: `DocSyncModal` from the `BackupMenu`. Tests: `src/backend/tests/docsync.test.ts` + `fixtures/binList.md`.
+- `model.ts`: the apply body. `moves`/`renames` are item ids to keep, `adds` are `{i, type, seriesId|series, characterId|character}` picks by plan index; an omitted list means all. A name with a null id is created on apply, lazily, so skipped rows create nothing. Unknown ids are a 400 (`BadSelection`) before the backup.
+- UI: `DocSyncModal` from the `BackupMenu`. Checkboxes per row; adds edit series/character/type via `PickOrCreate` (`id:N` / `new:Name` values). Tests: `src/backend/tests/docsync.test.ts` + `fixtures/binList.md`.

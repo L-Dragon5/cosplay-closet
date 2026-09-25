@@ -71,6 +71,10 @@ declare module "@tanstack/react-router" {
 function EscapeInterceptor() {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // An open Select/Combobox dropdown takes the first Escape itself; Mantine
+      // marks its input this way and its own Modal honors the same flag.
+      const target = e.target as HTMLElement | null
+      if (target?.dataset?.mantineStopPropagation === "true") return
       if (e.key === "Escape" && hasOpenModal()) {
         e.stopImmediatePropagation()
         closeTopModal()

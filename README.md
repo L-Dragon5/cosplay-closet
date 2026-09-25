@@ -81,7 +81,11 @@ changed in between, it refuses, and you preview again.
 - Set `BIN_LIST_DOC_ID` (the id between `/d/` and `/edit` in the doc's URL).
   The doc has to stay shared as **Anyone with the link can view**. If it is
   not, the sync says so instead of reading an empty doc.
-- Every apply logs `[docsync] moved=… renamed=… added=… notInDoc=…`.
+- Every row in the preview has a checkbox (and each section a select-all), so
+  you can skip renames or anything else. For new items you can change the
+  series, character (pick one or type a new name) and type before applying.
+  New locations, series and characters are only created if a kept row uses them.
+- Every apply logs `[docsync] moved=… renamed=… added=… skipped=… notInDoc=…`.
 
 ## Deploying with Komodo
 

@@ -320,7 +320,7 @@ describe("docsync against the database", () => {
   test("apply writes the plan, and a second preview has nothing left to do", async () => {
     const plan = await preview()
     let backedUp = 0
-    const result = await apply(plan.hash, async () => {
+    const result = await apply({ hash: plan.hash }, async () => {
       backedUp++
       return { path: "/backups/cosplay-closet-test.tar.gz" }
     })
@@ -362,6 +362,120 @@ describe("docsync against the database", () => {
     expect(again.renames).toEqual([])
     expect(again.newLocations).toEqual([])
     expect(again.newSeries).toEqual([])
+  })
+
+  test("apply writes only the picked rows, with the add's edits", async () => {
+    const plan = await preview()
+    const zoey = plan.adds.findIndex((a) => a.name === "Zoey Shoes")
+    const total = plan.moves.length + plan.renames.length + plan.adds.length
+    const result = await apply(
+      {
+        hash: plan.hash,
+        moves: [5],
+        renames: [],
+        adds: [
+          {
+            i: zoey,
+            type: "Accessories",
+            seriesId: null,
+            series: "KPop Demon Hunters",
+            characterId: null,
+            character: "Zoey",
+          },
+        ],
+      },
+      async () => ({ path: "/backups/b.tar.gz" }),
+    )
+    expect(result).toMatchObject({
+      moved: 1,
+      renamed: 0,
+      added: 1,
+      skipped: total - 2,
+      newLocations: 1,
+      newSeries: 1,
+      newCharacters: 1,
+    })
+
+    // The skipped rename and move of Hikari left it alone.
+    expect(
+      sqlite.query("SELECT name, location_id FROM items WHERE id = 2").get(),
+    ).toEqual({ name: "Hikari Sword Prop", location_id: 4 })
+    expect(
+      sqlite.query("SELECT location_id FROM items WHERE id = 5").get(),
+    ).toEqual({ location_id: 4 })
+    expect(
+      sqlite
+        .query(
+          `SELECT i.type, s.name AS series, c.name AS character, c.series_id = s.id AS linked, l.name AS loc
+           FROM items i JOIN series s ON s.id = i.series_id
+           JOIN characters c ON c.id = i.character_id
+           JOIN locations l ON l.id = i.location_id WHERE i.name = 'Zoey Shoes'`,
+        )
+        .get(),
+    ).toEqual({
+      type: "Accessories",
+      series: "KPop Demon Hunters",
+      character: "Zoey",
+      linked: 1,
+      loc: "Bin #40",
+    })
+    // Skipped rows create no locations or series.
+    const names = (table: string) =>
+      (
+        sqlite.query(`SELECT name FROM ${table} ORDER BY id`).all() as {
+          name: string
+        }[]
+      ).map((r) => r.name)
+    expect(names("locations")).toEqual([
+      "Cosplay Hangers",
+      "Bin #01",
+      "Bin #40",
+    ])
+    expect(names("series")).toEqual(["Love Live!", "KPop Demon Hunters"])
+  })
+
+  test("a pick that is not in the plan is a 400 before anything is written", async () => {
+    const plan = await preview()
+    for (const pick of [
+      { moves: [999] },
+      {
+        adds: [
+          {
+            i: 999,
+            type: "Wig",
+            seriesId: null,
+            series: null,
+            characterId: null,
+            character: null,
+          },
+        ],
+      },
+      {
+        adds: [
+          {
+            i: 0,
+            type: "Wig",
+            seriesId: 999,
+            series: null,
+            characterId: null,
+            character: null,
+          },
+        ],
+      },
+    ]) {
+      const res = await app.handle(
+        new Request("http://localhost/docsync/apply", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ hash: plan.hash, ...pick }),
+        }),
+      )
+      expect(res.status).toBe(400)
+    }
+    const count = sqlite.query("SELECT COUNT(*) AS n FROM items").get() as {
+      n: number
+    }
+    expect(count.n).toBe(2)
   })
 
   test("a stale hash is refused with 409 before anything is written", async () => {
